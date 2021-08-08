@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="18122" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES">
+    <device id="retina6_1" orientation="portrait" appearance="light"/>
+    <dependencies>
+        <deployment identifier="iOS"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="18093"/>
+        <capability name="Safe area layout guides" minToolsVersion="9.0"/>
+        <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
+    </dependencies>
+    <objects>
+        <placeholder placeholderIdentifier="IBFilesOwner" id="-1" userLabel="File's Owner"/>
+        <placeholder placeholderIdentifier="IBFirstResponder" id="-2" customClass="UIResponder"/>
+        <tableViewCell contentMode="scaleToFill" selectionStyle="none" indentationWidth="10" reuseIdentifier="prototypeCell" rowHeight="198" id="KGk-i7-Jjw" customClass="ContactCell" customModule="Manor" customModuleProvider="target">
+            <rect key="frame" x="0.0" y="0.0" width="275" height="198"/>
+            <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+            <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" tableViewCell="KGk-i7-Jjw" id="H2p-sc-9uM">
+                <rect key="frame" x="0.0" y="0.0" width="275" height="198"/>
+                <autoresizingMask key="autoresizingMask"/>
+                <subviews>
+                    <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" alignment="center" spacing="4" translatesAutoresizingMaskIntoConstraints="NO" id="BcA-fv-Dsr">
+                        <rect key="frame" x="10" y="10" width="255" height="178"/>
+                        <subviews>
+                            <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="DefaultContactIcon" translatesAutoresizingMaskIntoConstraints="NO" id="iny-AT-JOW">
+                                <rect key="frame" x="0.0" y="0.0" width="255" height="143"/>
+                                <constraints>
+                                    <constraint firstAttribute="height" constant="143" id="2jT-hh-L0I"/>
+                                    <constraint firstAttribute="width" constant="255" id="3rJ-mF-7a2"/>
+                                </constraints>
+                            </imageView>
+                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Name" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="EaA-9y-ANo">
+                                <rect key="frame" x="95.5" y="147" width="64" height="31"/>
+                                <fontDescription key="fontDescription" type="system" pointSize="25"/>
+                                <color key="textColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                <nil key="highlightedColor"/>
+                            </label>
+                        </subviews>
+                    </stackView>
+                </subviews>
+                <color key="backgroundColor" white="0.33333333329999998" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                <constraints>
+                    <constraint firstAttribute="bottom" secondItem="BcA-fv-Dsr" secondAttribute="bottom" constant="10" id="86H-QF-o4d"/>
+                    <constraint firstItem="BcA-fv-Dsr" firstAttribute="top" secondItem="H2p-sc-9uM" secondAttribute="top" constant="10" id="IY7-wu-5Ys"/>
+                    <constraint firstItem="BcA-fv-Dsr" firstAttribute="leading" secondItem="H2p-sc-9uM" secondAttribute="leading" constant="10" id="fxI-7u-Nan"/>
+                    <constraint firstAttribute="trailing" secondItem="BcA-fv-Dsr" secondAttribute="trailing" constant="10" id="nKI-uc-VFV"/>
+                </constraints>
+            </tableViewCellContentView>
+            <viewLayoutGuide key="safeArea" id="njF-e1-oar"/>
+            <color key="backgroundColor" white="0.0" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+            <connections>
+                <outlet property="defaultContactIcon" destination="iny-AT-JOW" id="5I0-mZ-052"/>
+                <outlet property="nameLabel" destination="EaA-9y-ANo" id="u0s-eJ-jCG"/>
+            </connections>
+            <point key="canvasLocation" x="-252.89855072463769" y="148.66071428571428"/>
+        </tableViewCell>
+    </objects>
+    <resources>
+        <image name="DefaultContactIcon" width="953" height="953"/>
+    </resources>
+</document>

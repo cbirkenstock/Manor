@@ -1,0 +1,23 @@
+{
+  "images" : [
+    {
+      "filename" : "ManorLogoPurpleWhiteOutline.png",
+      "idiom" : "universal",
+      "scale" : "1x"
+    },
+    {
+      "filename" : "ManorLogoPurpleWhiteOutline@2x.png",
+      "idiom" : "universal",
+      "scale" : "2x"
+    },
+    {
+      "filename" : "ManorLogoPurpleWhiteOutline@3x.png",
+      "idiom" : "universal",
+      "scale" : "3x"
+    }
+  ],
+  "info" : {
+    "author" : "xcode",
+    "version" : 1
+  }
+}
