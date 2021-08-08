@@ -27,22 +27,8 @@ class BubbleMessageBodyCell: UITableViewCell {
     var venmoAmount: String = "0"
     var note: String = "Note"
     var venmoName: String = ""
-    var imageURL: String = ""
     var isVenmoRequest: Bool = false
-    var imageHeight: CGFloat = 0
     
-    var imageWidth: CGFloat! {
-        didSet {
-            /*if self.isOfImage ?? false {
-                bubbleViewOfImageConstraints = [
-                    bubbleView.heightAnchor.constraint(equalToConstant: self.imageHeight),
-                    bubbleView.widthAnchor.constraint(equalToConstant: self.imageWidth),
-                    bubbleView.topAnchor.constraint(equalTo: contentView.topAnchor, constant: 10),
-                    bubbleView.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: -10),
-                ]
-            }*/
-        }
-    }
     
     var isIncoming: Bool! {
         didSet {
@@ -77,55 +63,49 @@ class BubbleMessageBodyCell: UITableViewCell {
         }
     }
     
-    var isOfImage: Bool? {
+    /*var isOfImage: Bool? {
+     didSet {
+     if isOfImage! {
+     NSLayoutConstraint.deactivate(bubbleViewConstraints)
+     NSLayoutConstraint.activate(bubbleViewOfImageConstraints)
+     bubbleView.addSubview(messageImageView)
+     NSLayoutConstraint.activate(messageImageViewContraints)
+     } else {
+     NSLayoutConstraint.deactivate(bubbleViewOfImageConstraints)
+     NSLayoutConstraint.activate(bubbleViewConstraints)
+     messageImageView.removeFromSuperview()
+     NSLayoutConstraint.deactivate(messageImageViewContraints)
+     }
+     }
+     }*/
+    
+    var groupPosition: String! {
         didSet {
-            if isOfImage! {
-                NSLayoutConstraint.deactivate(bubbleViewConstraints)
-                NSLayoutConstraint.activate(bubbleViewOfImageConstraints)
-                bubbleView.addSubview(messageImageView)
-                NSLayoutConstraint.activate(messageImageViewContraints)
-            } else {
-                NSLayoutConstraint.deactivate(bubbleViewOfImageConstraints)
-                NSLayoutConstraint.activate(bubbleViewConstraints)
-                messageImageView.removeFromSuperview()
-                NSLayoutConstraint.deactivate(messageImageViewContraints)
+            switch groupPosition {
+            case "groupStart":
+                NSLayoutConstraint.activate(groupStartConstraints)
+                NSLayoutConstraint.deactivate(groupMiddleConstraints)
+                NSLayoutConstraint.deactivate(groupEndConstraints)
+                NSLayoutConstraint.deactivate(notOfGroupConstraints)
+            case "groupMiddle":
+                NSLayoutConstraint.deactivate(groupStartConstraints)
+                NSLayoutConstraint.activate(groupMiddleConstraints)
+                NSLayoutConstraint.deactivate(groupEndConstraints)
+                NSLayoutConstraint.deactivate(notOfGroupConstraints)
+            case "groupEnd":
+                NSLayoutConstraint.deactivate(groupStartConstraints)
+                NSLayoutConstraint.deactivate(groupMiddleConstraints)
+                NSLayoutConstraint.activate(groupEndConstraints)
+                NSLayoutConstraint.deactivate(notOfGroupConstraints)
+            default:
+                NSLayoutConstraint.deactivate(groupStartConstraints)
+                NSLayoutConstraint.deactivate(groupMiddleConstraints)
+                NSLayoutConstraint.deactivate(groupEndConstraints)
+                NSLayoutConstraint.activate(notOfGroupConstraints)
             }
         }
     }
     
-    var groupPosition: String! {
-        didSet {
-            if !(self.isOfImage ?? false) {
-                switch groupPosition {
-                case "groupStart":
-                    NSLayoutConstraint.activate(groupStartConstraints)
-                    NSLayoutConstraint.deactivate(groupMiddleConstraints)
-                    NSLayoutConstraint.deactivate(groupEndConstraints)
-                    NSLayoutConstraint.deactivate(notOfGroupConstraints)
-                case "groupMiddle":
-                    NSLayoutConstraint.deactivate(groupStartConstraints)
-                    NSLayoutConstraint.activate(groupMiddleConstraints)
-                    NSLayoutConstraint.deactivate(groupEndConstraints)
-                    NSLayoutConstraint.deactivate(notOfGroupConstraints)
-                case "groupEnd":
-                    NSLayoutConstraint.deactivate(groupStartConstraints)
-                    NSLayoutConstraint.deactivate(groupMiddleConstraints)
-                    NSLayoutConstraint.activate(groupEndConstraints)
-                    NSLayoutConstraint.deactivate(notOfGroupConstraints)
-                default:
-                    NSLayoutConstraint.deactivate(groupStartConstraints)
-                    NSLayoutConstraint.deactivate(groupMiddleConstraints)
-                    NSLayoutConstraint.deactivate(groupEndConstraints)
-                    NSLayoutConstraint.activate(notOfGroupConstraints)
-                }
-            } else {
-                NSLayoutConstraint.deactivate(groupStartConstraints)
-                NSLayoutConstraint.deactivate(groupMiddleConstraints)
-                NSLayoutConstraint.deactivate(groupEndConstraints)
-                NSLayoutConstraint.deactivate(notOfGroupConstraints)
-            }
-        }
-    }
     
     var isGroupMessage: Bool! {
         didSet {
@@ -148,14 +128,7 @@ class BubbleMessageBodyCell: UITableViewCell {
         }
     }
     
-    let messageImageView: UIImageView = {
-        let messageImageView = UIImageView()
-        messageImageView.translatesAutoresizingMaskIntoConstraints = false
-        messageImageView.layer.cornerRadius = 10
-        messageImageView.clipsToBounds = true
-        messageImageView.contentMode = .scaleAspectFill
-        return messageImageView
-    }()
+
     
     
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
@@ -196,14 +169,7 @@ class BubbleMessageBodyCell: UITableViewCell {
         messageBody.textColor = .white
         messageBody.numberOfLines = 0
         
-        bubbleView.addSubview(messageImageView)
-        
-        messageImageViewContraints = [
-            messageImageView.topAnchor.constraint(equalTo: bubbleView.topAnchor, constant: 0),
-            messageImageView.bottomAnchor.constraint(equalTo: bubbleView.bottomAnchor, constant: 0),
-            messageImageView.leadingAnchor.constraint(equalTo: bubbleView.leadingAnchor, constant: 0),
-            messageImageView.trailingAnchor.constraint(equalTo: bubbleView.trailingAnchor, constant: 0)
-        ]
+
         
         //NSLayoutConstraint.activate(messageImageViewContraints)
         

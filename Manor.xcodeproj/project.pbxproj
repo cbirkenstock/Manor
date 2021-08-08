@@ -21,6 +21,7 @@
 		F95B2EA1265088BE0026AF75 /* ContactCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = F95B2EA0265088BE0026AF75 /* ContactCell.xib */; };
 		F95B2EA42650A81C0026AF75 /* RegularMessageBody.swift in Sources */ = {isa = PBXBuildFile; fileRef = F95B2EA22650A81C0026AF75 /* RegularMessageBody.swift */; };
 		F95B2EA52650A81C0026AF75 /* RegularMessageBody.xib in Resources */ = {isa = PBXBuildFile; fileRef = F95B2EA32650A81C0026AF75 /* RegularMessageBody.xib */; };
+		F96CF0AB26BFA5A200592BFE /* PictureMessageTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = F96CF0AA26BFA5A200592BFE /* PictureMessageTableViewCell.swift */; };
 		F96EE783265890C1003A87B5 /* PushNotificationManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = F96EE782265890C1003A87B5 /* PushNotificationManager.swift */; };
 		F96EE7852658CE3D003A87B5 /* PushNotificationSender.swift in Sources */ = {isa = PBXBuildFile; fileRef = F96EE7842658CE3D003A87B5 /* PushNotificationSender.swift */; };
 		F979B700268C467600BCDD67 /* BubbleMessageBodyCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = F979B6FF268C467600BCDD67 /* BubbleMessageBodyCell.swift */; };
@@ -62,6 +63,7 @@
 		F95B2EA0265088BE0026AF75 /* ContactCell.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = ContactCell.xib; sourceTree = "<group>"; };
 		F95B2EA22650A81C0026AF75 /* RegularMessageBody.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RegularMessageBody.swift; sourceTree = "<group>"; };
 		F95B2EA32650A81C0026AF75 /* RegularMessageBody.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = RegularMessageBody.xib; sourceTree = "<group>"; };
+		F96CF0AA26BFA5A200592BFE /* PictureMessageTableViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PictureMessageTableViewCell.swift; sourceTree = "<group>"; };
 		F96EE78126588C86003A87B5 /* Manor.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = Manor.entitlements; sourceTree = "<group>"; };
 		F96EE782265890C1003A87B5 /* PushNotificationManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PushNotificationManager.swift; sourceTree = "<group>"; };
 		F96EE7842658CE3D003A87B5 /* PushNotificationSender.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PushNotificationSender.swift; sourceTree = "<group>"; };
@@ -168,6 +170,7 @@
 				F979B6FF268C467600BCDD67 /* BubbleMessageBodyCell.swift */,
 				F9F84E0B269BFF54009D122F /* MemberTableViewCell.swift */,
 				F936098426B678BB00785888 /* TestCollectionViewCell.swift */,
+				F96CF0AA26BFA5A200592BFE /* PictureMessageTableViewCell.swift */,
 			);
 			path = Views;
 			sourceTree = "<group>";
@@ -325,6 +328,7 @@
 				F95B2EA42650A81C0026AF75 /* RegularMessageBody.swift in Sources */,
 				F9C50E07265B479B00B179A6 /* NewGroupMessageViewController.swift in Sources */,
 				F9C50E57265CE22F00B179A6 /* GroupChatViewController.swift in Sources */,
+				F96CF0AB26BFA5A200592BFE /* PictureMessageTableViewCell.swift in Sources */,
 				F96EE7852658CE3D003A87B5 /* PushNotificationSender.swift in Sources */,
 				F9EE86D226A16661005E4EED /* AddMembersViewController.swift in Sources */,
 				F9593F7C264D07F0006537D0 /* Contact.swift in Sources */,

@@ -35,8 +35,7 @@ class GroupChatInfoViewController: UIViewController {
         pushMessagesTableView.register(MemberTableViewCell.self, forCellReuseIdentifier: "MemberCell")
         
         pushMessagesTableView.separatorStyle = .none
-        
-        print("YOLO")
+
         print(groupMembers.count)
         
         /*for email in groupMembers {

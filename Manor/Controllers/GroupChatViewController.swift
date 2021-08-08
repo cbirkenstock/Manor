@@ -134,6 +134,8 @@ class GroupChatViewController: UIViewController, UIImagePickerControllerDelegate
         
         chatTableView.register(BubbleMessageBodyCell.self, forCellReuseIdentifier: "regularMessageCell")
         
+        chatTableView.register(PictureMessageTableViewCell.self, forCellReuseIdentifier: "pictureMessageCell")
+        
         
         NotificationCenter.default.addObserver(self, selector: #selector(ChatViewController.keyboardWillShow), name: UIResponder.keyboardWillShowNotification, object: nil)
         
@@ -309,6 +311,8 @@ class GroupChatViewController: UIViewController, UIImagePickerControllerDelegate
     
     func imagePickerController(_ picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [UIImagePickerController.InfoKey : Any]) {
         
+        picker.dismiss(animated: true, completion: nil)
+        
         var selectedImageFromPicker: UIImage?
         
         if let editedImage = info[UIImagePickerController.InfoKey(rawValue: "UIImagePickerControllerEditedImage")] as? UIImage {
@@ -353,8 +357,6 @@ class GroupChatViewController: UIViewController, UIImagePickerControllerDelegate
                                     "title": self.groupChatTitle,
                                     "documentID": self.documentID,
                                     "imageURL": imageURl,
-//                                    "imageHeight": selectedImage.size.height,
-//                                    "imageWidth": selectedImage.size.width,
                                     "lastMessage": "\(self.userFullName) sent an image",
                                     "timeStamp": commaTimestamp
                                 ])
@@ -791,8 +793,6 @@ extension GroupChatViewController: UITableViewDataSource, UITableViewDelegate {
             return cell
             
         } else {
-            let cell = chatTableView.dequeueReusableCell(withIdentifier: "regularMessageCell", for: indexPath) as! BubbleMessageBodyCell
-            
             var reversedKeyArray: [String] = []
             
             for value in self.keyArray.reversed() {
@@ -806,34 +806,92 @@ extension GroupChatViewController: UITableViewDataSource, UITableViewDelegate {
             let message = sortedMessages[indexPath.row]
             
             
-            if let messageBody = message.messageBody {
+            
+            if message.imageURL != "" {
+                let cell = chatTableView.dequeueReusableCell(withIdentifier: "pictureMessageCell", for: indexPath) as! PictureMessageTableViewCell
                 
-                cell.messageBody.text = messageBody
+                cell.groupPosition = checkCellPosition(sortedMessages: sortedMessages, indexPathRow: indexPath.row)
                 
-                let decimalRange = messageBody.rangeOfCharacter(from: CharacterSet.decimalDigits)
+                if message.messageSender == userFullName {
+                    cell.isIncoming = false
+                } else {
+                    cell.isIncoming = true
+                }
                 
-                let messageBodyHasNumbers = (decimalRange != nil)
+                cell.imageURL = message.imageURL!
                 
-                if messageBody.contains("Venmo") && messageBodyHasNumbers {
-                    if message.messageSender != userFullName {
-                        cell.isVenmoRequest = true
-                        
-                        
-                        let numString = messageBody.numArray.joined(separator: " ")
-                        let numArray = numString.split(separator: " ").map(String.init)
-                        
-                        if numArray.count == 1 {
-                            cell.venmoAmount = numArray.first!
+                let imageURL = message.imageURL! as NSString
+                
+                if let cachedImage = self.imageCache.object(forKey: imageURL) {
+                    cell.messageImageView.image = cachedImage as? UIImage
+                } else {
+                    DispatchQueue.global().async { [weak self] in
+                        let URL = URL(string: message.imageURL!)
+                        if let data = try? Data(contentsOf: URL!) {
+                            if let image = UIImage(data: data) {
+                                let imageHeight = CGFloat(image.size.height/image.size.width * 300)
+                                DispatchQueue.main.async {
+                                    self!.imageCache.setObject(image, forKey: imageURL)
+                                    cell.imageHeight = imageHeight
+                                    cell.imageWidth = 300
+                                    cell.messageImageView.image = image
+                                }
+                            }
                         }
-                        
-                        cell.venmoName = message.venmoName
-                        
-                        if message.messageSender == userFullName {
-                            cell.isIncoming = false
+                    }
+                }
+                
+                cell.emailLabel.text = message.messageSender
+        
+                cell.isGroupMessage = true
+                
+                cell.transform = CGAffineTransform(scaleX: 1, y: -1)
+                return cell
+                
+                
+            } else {
+                let cell = chatTableView.dequeueReusableCell(withIdentifier: "regularMessageCell", for: indexPath) as! BubbleMessageBodyCell
+                
+                if let messageBody = message.messageBody {
+                    
+                    cell.messageBody.text = messageBody
+                    
+                    let decimalRange = messageBody.rangeOfCharacter(from: CharacterSet.decimalDigits)
+                    
+                    let messageBodyHasNumbers = (decimalRange != nil)
+                    
+                    if messageBody.contains("Venmo") && messageBodyHasNumbers {
+                        if message.messageSender != userFullName {
+                            cell.isVenmoRequest = true
+                            
+                            
+                            let numString = messageBody.numArray.joined(separator: " ")
+                            let numArray = numString.split(separator: " ").map(String.init)
+                            
+                            if numArray.count == 1 {
+                                cell.venmoAmount = numArray.first!
+                            }
+                            
+                            cell.venmoName = message.venmoName
+                            
+                            if message.messageSender == userFullName {
+                                cell.isIncoming = false
+                            } else {
+                                cell.isIncoming = true
+                            }
+                            
                         } else {
-                            cell.isIncoming = true
+                            cell.isVenmoRequest = false
+                            
+                            if message.messageSender == userFullName {
+                                cell.isIncoming = false
+                            } else {
+                                cell.isIncoming = true
+                            }
+                            
+                            cell.bubbleView.layer.borderColor = UIColor(named: "BrightBlue")?.cgColor
+                            
                         }
-                        
                     } else {
                         cell.isVenmoRequest = false
                         
@@ -842,115 +900,71 @@ extension GroupChatViewController: UITableViewDataSource, UITableViewDelegate {
                         } else {
                             cell.isIncoming = true
                         }
-                        
-                        cell.bubbleView.layer.borderColor = UIColor(named: "BrightBlue")?.cgColor
-                        
                     }
                 } else {
-                    cell.isVenmoRequest = false
-                    
-                    if message.messageSender == userFullName {
-                        cell.isIncoming = false
-                    } else {
-                        cell.isIncoming = true
-                    }
+                    cell.messageBody.text = ""
                 }
-            } else {
-                cell.messageBody.text = ""
+
+                cell.emailLabel.text = message.messageSender
+                
+                cell.groupPosition = checkCellPosition(sortedMessages: sortedMessages, indexPathRow: indexPath.row)
+                
+                cell.isGroupMessage = true
+                
+                cell.transform = CGAffineTransform(scaleX: 1, y: -1)
+                return cell
             }
-            
-            if message.messageSender == userFullName {
-                cell.isIncoming = false
-            } else {
-                cell.isIncoming = true
-            }
-            
-            cell.emailLabel.text = message.messageSender
-            
-            if message.imageURL != "" {
-                cell.imageURL = message.imageURL!
-                cell.isOfImage = true
-                
-                let imageURL = message.imageURL! as NSString
-                
-                if let cachedImage = self.imageCache.object(forKey: imageURL) {
-                    cell.messageImageView.image = cachedImage as? UIImage
-                } else {
-                    
-                    DispatchQueue.global().async { [weak self] in
-                        let URL = URL(string: message.imageURL!)
-                        if let data = try? Data(contentsOf: URL!) {
-                            if let image = UIImage(data: data) {
-                                DispatchQueue.main.async {
-                                    self!.imageCache.setObject(image, forKey: imageURL)
-                                    cell.imageHeight = image.size.height
-                                    cell.imageWidth = image.size.width
-                                    cell.messageImageView.image = image
-                                }
-                            }
-                        }
-                    }
-                }
-            } else {
-                cell.isOfImage = false
-            }
-            
-            
-            
-            
-            
-            
-            
-            if (indexPath.row == 0 && indexPath.row == sortedMessages.count - 1) {
-                //let message = sortedMessages[indexPath.row]
-                cell.groupPosition = "notOfGroup"
-            }
-            // if first message in section
-            else if (indexPath.row == 0) {
-                let message = sortedMessages[indexPath.row]
-                let nextMessage = sortedMessages[indexPath.row + 1]
-                
-                if message.messageSender == nextMessage.messageSender {
-                    cell.groupPosition = "groupEnd"
-                } else {
-                    cell.groupPosition = "notOfGroup"
-                }
-                
-                //if last message of section
-            } else if (indexPath.row == sortedMessages.count - 1) {
-                let previousMessage = sortedMessages[indexPath.row - 1]
-                let message = sortedMessages[indexPath.row]
-                
-                if previousMessage.messageSender == message.messageSender {
-                    cell.groupPosition = "groupStart"
-                } else {
-                    cell.groupPosition = "notOfGroup"
-                }
-                
-                //if in the middle of section
-            } else {
-                let previousMessage = sortedMessages[indexPath.row - 1]
-                let message = sortedMessages[indexPath.row]
-                let nextMessage = sortedMessages[indexPath.row + 1]
-                
-                if previousMessage.messageSender == message.messageSender {
-                    if message.messageSender == nextMessage.messageSender {
-                        cell.groupPosition = "groupMiddle"
-                    } else {
-                        cell.groupPosition = "groupStart"
-                    }
-                } else if (message.messageSender == nextMessage.messageSender){
-                    cell.groupPosition = "groupEnd"
-                } else {
-                    cell.groupPosition = "notOfGroup"
-                }
-            }
-            
-            cell.isGroupMessage = true
-            
-            cell.transform = CGAffineTransform(scaleX: 1, y: -1)
-            return cell
         }
+    }
+    
+    func checkCellPosition(sortedMessages: [Message], indexPathRow: Int) -> String {
+        
+        if (indexPathRow == 0 && indexPathRow == sortedMessages.count - 1) {
+            //let message = sortedMessages[indexPath.row]
+            return "notOfGroup"
+        }
+        // if first message in section
+        else if (indexPathRow == 0) {
+            let message = sortedMessages[indexPathRow]
+            let nextMessage = sortedMessages[indexPathRow + 1]
+            
+            if message.messageSender == nextMessage.messageSender {
+                return "groupEnd"
+            } else {
+                return "notOfGroup"
+            }
+            
+            //if last message of section
+        } else if (indexPathRow == sortedMessages.count - 1) {
+            let previousMessage = sortedMessages[indexPathRow - 1]
+            let message = sortedMessages[indexPathRow]
+            
+            if previousMessage.messageSender == message.messageSender {
+                 return "groupStart"
+            } else {
+                return "notOfGroup"
+            }
+            
+            //if in the middle of section
+        } else {
+            let previousMessage = sortedMessages[indexPathRow - 1]
+            let message = sortedMessages[indexPathRow]
+            let nextMessage = sortedMessages[indexPathRow + 1]
+            
+            if previousMessage.messageSender == message.messageSender {
+                if message.messageSender == nextMessage.messageSender {
+                    return "groupMiddle"
+                } else {
+                    return "groupStart"
+                }
+            } else if (message.messageSender == nextMessage.messageSender){
+                 return"groupEnd"
+            } else {
+                return "notOfGroup"
+            }
+        }
+        
+        return "notOfGroup"
     }
     
     /*func ImageCell(cell: BubbleMessageBodyCell, message: Message) {
