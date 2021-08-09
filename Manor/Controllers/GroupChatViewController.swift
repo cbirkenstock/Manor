@@ -9,6 +9,7 @@ import UIKit
 import Firebase
 import IQKeyboardManagerSwift
 import GrowingTextView
+import PhotosUI
 
 class SelfSizedTableView: UITableView {
     var maxHeight: CGFloat = UIScreen.main.bounds.size.height
@@ -27,7 +28,10 @@ class SelfSizedTableView: UITableView {
     }
 }
 
-class GroupChatViewController: UIViewController, UIImagePickerControllerDelegate, UINavigationControllerDelegate, UITextViewDelegate {
+class GroupChatViewController: UIViewController, UIImagePickerControllerDelegate, UINavigationControllerDelegate, UITextViewDelegate, PHPickerViewControllerDelegate {
+    
+    
+    
     
     @IBOutlet weak var textBarStackView: UIStackView!
     @IBOutlet weak var textBarleftConstraint: NSLayoutConstraint!
@@ -300,11 +304,22 @@ class GroupChatViewController: UIViewController, UIImagePickerControllerDelegate
     }
     
     @objc func cameraButtonPressed() {
-        let imagePickerController = UIImagePickerController()
-        imagePickerController.delegate = self
-        imagePickerController.allowsEditing = true
         
-        self.present(imagePickerController, animated: true)
+        if #available(iOS 14, *) {
+            var configuration = PHPickerConfiguration()
+            configuration.filter = .images
+            configuration.selectionLimit = 0
+            let picker = PHPickerViewController(configuration: configuration)
+            picker.delegate = self
+            self.present(picker, animated: true)
+        } else {
+            let imagePickerController = UIImagePickerController()
+            imagePickerController.delegate = self
+            imagePickerController.allowsEditing = true
+            
+            self.present(imagePickerController, animated: true)
+        }
+        
         
         
     }
@@ -367,6 +382,70 @@ class GroupChatViewController: UIViewController, UIImagePickerControllerDelegate
                 
             }
             
+        }
+    }
+    
+    @available(iOS 14, *)
+    func picker(_ picker: PHPickerViewController, didFinishPicking results: [PHPickerResult]) {
+        picker.dismiss(animated: true, completion: nil)
+        
+        for result in results {
+            let itemProvider = result.itemProvider
+            if itemProvider.canLoadObject(ofClass: UIImage.self) {
+                itemProvider.loadObject(ofClass: UIImage.self)
+                { [weak self]  image, error in
+                    if error != nil {
+                        print("Error", error!)
+                        return
+                    }
+                    
+                    if let selectedImage = image as? UIImage {
+                        let imageName = NSUUID().uuidString
+                        let storage = Storage.storage()
+                        let ref = storage.reference().child("message_images").child(imageName)
+                        
+                        if let uploadData = selectedImage.jpegData(compressionQuality: 0.2) {
+                            ref.putData(uploadData, metadata: nil) { metaData, err in
+                                
+                                if err != nil {
+                                    print("failed to upload image:", err!)
+                                    return
+                                }
+                                
+                                ref.downloadURL { url, err in
+                                    if err != nil {
+                                        print("failed to download URL", err!)
+                                    } else if let imageURl = url?.absoluteString {
+                                        
+                                        let timeStamp = Date().timeIntervalSince1970
+                                        let stringTimestamp = "\(timeStamp)"
+                                        let commaTimestamp = stringTimestamp.replacingOccurrences(of: ".", with: ",")
+                                        
+                                        self?.groupChatMessagesRef.child("\(self!.documentID)/lastMessage").setValue("\(self!.userFullName) sent an image")
+                                        
+                                        self?.groupChatMessagesRef.child(self!.documentID).child("Messages").child("Message,\(commaTimestamp)").setValue([
+                                            "messageSender": self?.userFullName,
+                                            "imageURL": imageURl,
+                                            "timeStamp": commaTimestamp
+                                        ])
+                                        
+                                        for email in self?.groupMembers ?? [] {
+                                            let commaEmail = email.replacingOccurrences(of: ".", with: ",")
+                                            self!.groupChatByUsersRef.child(commaEmail).child("Chats").child(self!.documentID).setValue([
+                                                "title": self!.groupChatTitle,
+                                                "documentID": self!.documentID,
+                                                "imageURL": imageURl,
+                                                "lastMessage": "\(self!.userFullName) sent an image",
+                                                "timeStamp": commaTimestamp
+                                            ])
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
         }
     }
     
@@ -842,7 +921,7 @@ extension GroupChatViewController: UITableViewDataSource, UITableViewDelegate {
                 }
                 
                 cell.emailLabel.text = message.messageSender
-        
+                
                 cell.isGroupMessage = true
                 
                 cell.transform = CGAffineTransform(scaleX: 1, y: -1)
@@ -904,7 +983,7 @@ extension GroupChatViewController: UITableViewDataSource, UITableViewDelegate {
                 } else {
                     cell.messageBody.text = ""
                 }
-
+                
                 cell.emailLabel.text = message.messageSender
                 
                 cell.groupPosition = checkCellPosition(sortedMessages: sortedMessages, indexPathRow: indexPath.row)
@@ -940,7 +1019,7 @@ extension GroupChatViewController: UITableViewDataSource, UITableViewDelegate {
             let message = sortedMessages[indexPathRow]
             
             if previousMessage.messageSender == message.messageSender {
-                 return "groupStart"
+                return "groupStart"
             } else {
                 return "notOfGroup"
             }
@@ -958,7 +1037,7 @@ extension GroupChatViewController: UITableViewDataSource, UITableViewDelegate {
                     return "groupStart"
                 }
             } else if (message.messageSender == nextMessage.messageSender){
-                 return"groupEnd"
+                return"groupEnd"
             } else {
                 return "notOfGroup"
             }
