@@ -25,6 +25,7 @@
 		F96EE783265890C1003A87B5 /* PushNotificationManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = F96EE782265890C1003A87B5 /* PushNotificationManager.swift */; };
 		F96EE7852658CE3D003A87B5 /* PushNotificationSender.swift in Sources */ = {isa = PBXBuildFile; fileRef = F96EE7842658CE3D003A87B5 /* PushNotificationSender.swift */; };
 		F979B700268C467600BCDD67 /* BubbleMessageBodyCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = F979B6FF268C467600BCDD67 /* BubbleMessageBodyCell.swift */; };
+		F980C8C226C10E4200EB6D3E /* ProfileViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = F980C8C126C10E4200EB6D3E /* ProfileViewController.swift */; };
 		F98EA5802660CFC700B45D38 /* K.swift in Sources */ = {isa = PBXBuildFile; fileRef = F98EA57F2660CFC700B45D38 /* K.swift */; };
 		F9A6D693264A751F00C444FD /* BackgroundVideo.mp4 in Resources */ = {isa = PBXBuildFile; fileRef = F9A6D692264A751F00C444FD /* BackgroundVideo.mp4 */; };
 		F9A6D695264B3BF500C444FD /* LogInViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = F9A6D694264B3BF500C444FD /* LogInViewController.swift */; };
@@ -68,6 +69,7 @@
 		F96EE782265890C1003A87B5 /* PushNotificationManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PushNotificationManager.swift; sourceTree = "<group>"; };
 		F96EE7842658CE3D003A87B5 /* PushNotificationSender.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PushNotificationSender.swift; sourceTree = "<group>"; };
 		F979B6FF268C467600BCDD67 /* BubbleMessageBodyCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BubbleMessageBodyCell.swift; sourceTree = "<group>"; };
+		F980C8C126C10E4200EB6D3E /* ProfileViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileViewController.swift; sourceTree = "<group>"; };
 		F98EA57F2660CFC700B45D38 /* K.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = K.swift; sourceTree = "<group>"; };
 		F9A6D692264A751F00C444FD /* BackgroundVideo.mp4 */ = {isa = PBXFileReference; lastKnownFileType = file; path = BackgroundVideo.mp4; sourceTree = "<group>"; };
 		F9A6D694264B3BF500C444FD /* LogInViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LogInViewController.swift; sourceTree = "<group>"; };
@@ -203,6 +205,7 @@
 				F9F84E092691B4CD009D122F /* GroupChatInfoViewController.swift */,
 				F9EE86D126A16661005E4EED /* AddMembersViewController.swift */,
 				F90D2B8C26A77C4600E20D9B /* UnreachedMembersViewController.swift */,
+				F980C8C126C10E4200EB6D3E /* ProfileViewController.swift */,
 			);
 			path = Controllers;
 			sourceTree = "<group>";
@@ -337,6 +340,7 @@
 				F96EE783265890C1003A87B5 /* PushNotificationManager.swift in Sources */,
 				F9C50E5B265DCCBA00B179A6 /* NewContactPageViewController.swift in Sources */,
 				F936098526B678BB00785888 /* TestCollectionViewCell.swift in Sources */,
+				F980C8C226C10E4200EB6D3E /* ProfileViewController.swift in Sources */,
 				F9E6B6C8264A598C003D1408 /* WelcomeViewController.swift in Sources */,
 				F93B2A6A264BCCFC0012938B /* SignUpViewController.swift in Sources */,
 				F90A7201264D048100D6A17E /* ContactPageViewController.swift in Sources */,

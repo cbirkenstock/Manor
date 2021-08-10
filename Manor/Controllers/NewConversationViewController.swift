@@ -29,11 +29,15 @@ class NewConversationViewController: UIViewController {
     
     let flowLayout = UICollectionViewFlowLayout()
     var documentName: String = ""
+    
+    var profileImageUrl: String = ""
 
     //--//
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        
+        self.searchNamesCollectionView.register(TestCollectionViewCell.self, forCellWithReuseIdentifier: "contactCollectionViewCell")
         
         navigationController?.navigationBar.barTintColor = .black//UIColor(named: K.BrandColors.backgroundBlack)
         navigationController?.navigationBar.shadowImage = UIImage()
@@ -113,7 +117,6 @@ class NewConversationViewController: UIViewController {
     }
     
     func loadSearchNames() {
-        print("YES BEGAN")
         let searchName = contactTextField.text
         
         //goes through whole list of users on app
@@ -126,7 +129,8 @@ class NewConversationViewController: UIViewController {
                 let userLastName = value.object(forKey: "lastName")! as! String
                 let userFullName = "\(userFirstName) \(userLastName)"
                 let userEmail = value.object(forKey: "email") as! String
-                let userContact: Contact = Contact(email: userEmail, fullName: userFullName)
+                let userProfileImageUrl = (value.object(forKey: "profileImageUrl") as? String) ?? "default"
+                let userContact: Contact = Contact(email: userEmail, fullName: userFullName, profileImageUrl: userProfileImageUrl)
                 //this loop just checks to see if all the letters of someone's name matches the searched name
                 if let i = searchName?.count {
                     var letterPos = 0
@@ -239,12 +243,14 @@ extension NewConversationViewController: UICollectionViewDataSource{
     //sets cells nameLabel to name of person (Contact.fullName) and document ID to person's email (Contact.email)
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         
-        let cell = searchNamesCollectionView.dequeueReusableCell(withReuseIdentifier: "contactCollectionViewCell", for: indexPath) as! ContactCollectionViewCell
+        let cell = searchNamesCollectionView.dequeueReusableCell(withReuseIdentifier: "contactCollectionViewCell", for: indexPath) as! TestCollectionViewCell
         
-        cell.layer.backgroundColor = UIColor(named: K.BrandColors.backgroundBlack)?.cgColor
+        //cell.layer.backgroundColor = UIColor(named: K.BrandColors.backgroundBlack)?.cgColor
         
-        cell.nameLabel.text = searchNames[indexPath.row].fullName
+        cell.isSearchName = true
+        cell.contactName.text = searchNames[indexPath.row].fullName
         cell.documentID = searchNames[indexPath.row].email
+        cell.profileImageUrl = searchNames[indexPath.row].profileImageUrl
 
         
         return cell
@@ -269,10 +275,11 @@ extension NewConversationViewController: UICollectionViewDataSource{
 extension NewConversationViewController: UICollectionViewDelegate {
     //if selected, sets proper variables and performs segue
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
-        if let cell = searchNamesCollectionView.cellForItem(at: indexPath) as? ContactCollectionViewCell {
+        if let cell = searchNamesCollectionView.cellForItem(at: indexPath) as? TestCollectionViewCell {
             
-            self.otherUserFullName = cell.nameLabel.text!
+            self.otherUserFullName = cell.contactName.text!
             self.otherUserEmail = cell.documentID
+            self.profileImageUrl = cell.profileImageUrl
         }
         
         /*if(user.email! < otherUserEmail ) {

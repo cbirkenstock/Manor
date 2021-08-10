@@ -11,6 +11,59 @@ class TestCollectionViewCell: UICollectionViewCell {
     
     var documentID: String = ""
     var members: [String] = []
+    var contactImageViewConstraints: [NSLayoutConstraint]!
+    let imageCache = NSCache<NSString, AnyObject>()
+    
+    var profileImageUrl: String! {
+        didSet {
+            if profileImageUrl == "default" {
+                contactImageView.image = #imageLiteral(resourceName: "AbstractPainting")
+            } else {
+                //contactImageView.image = #imageLiteral(resourceName: "AbstractPainting")
+                contactImageView.image = #imageLiteral(resourceName: "AbstractPainting")
+                contactImageView.backgroundColor = .gray
+                indicatorCircle.backgroundColor = .clear
+                
+                if let cachedImage = self.imageCache.object(forKey: self.profileImageUrl! as NSString) {
+                    self.contactImageView.image = cachedImage as? UIImage
+                } else {
+                    DispatchQueue.global().async { [weak self] in
+                        let URL = URL(string: self!.profileImageUrl)
+                        if let data = try? Data(contentsOf: URL!) {
+                            if let image = UIImage(data: data) {
+                                DispatchQueue.main.async {
+                                    self!.imageCache.setObject(image, forKey: self!.profileImageUrl as NSString)
+                                    self?.contactImageView.image = image
+                                    if self?.hasUnreadMessages == true {
+                                        self?.indicatorCircle.backgroundColor = UIColor(named: "LightBlue")
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+    
+    var isSearchName: Bool! {
+        didSet {
+            if isSearchName {
+                NSLayoutConstraint.deactivate(contactImageViewConstraints)
+                
+                let newContactImageViewConstraints = [
+                    contactImageView.topAnchor.constraint(equalTo: indicatorCircle.topAnchor, constant: 0),
+                    contactImageView.bottomAnchor.constraint(equalTo: indicatorCircle.bottomAnchor, constant: 0),
+                    contactImageView.leadingAnchor.constraint(equalTo: indicatorCircle.leadingAnchor, constant: 0),
+                    contactImageView.trailingAnchor.constraint(equalTo: indicatorCircle.trailingAnchor, constant: 0)
+                ]
+                
+                NSLayoutConstraint.activate(newContactImageViewConstraints)
+                
+                contactImageView.layer.cornerRadius = (self.frame.width - 20)/2
+            }
+        }
+    }
     
     var indicatorCircle: UIView = {
         let indicatorCircle = UIView()
@@ -22,7 +75,7 @@ class TestCollectionViewCell: UICollectionViewCell {
     var contactImageView: UIImageView = {
         let contactImageView = UIImageView()
         contactImageView.translatesAutoresizingMaskIntoConstraints = false
-        contactImageView.image = #imageLiteral(resourceName: "AbstractPainting")
+        //contactImageView.image = #imageLiteral(resourceName: "AbstractPainting")
         contactImageView.clipsToBounds = true
         return contactImageView
     }()
@@ -47,6 +100,8 @@ class TestCollectionViewCell: UICollectionViewCell {
     
     var hasUnreadMessages: Bool! {
         didSet {
+            contactImageView.image = nil
+            indicatorCircle.backgroundColor = .clear
             indicatorCircle.backgroundColor = hasUnreadMessages ? UIColor(named: "LightBlue") : .clear
         }
     }
@@ -68,7 +123,7 @@ class TestCollectionViewCell: UICollectionViewCell {
         
         NSLayoutConstraint.activate(indicatorCircleConstraints)
         
-        let contactImageViewConstraints = [
+        contactImageViewConstraints = [
             contactImageView.topAnchor.constraint(equalTo: indicatorCircle.topAnchor, constant: 5),
             contactImageView.bottomAnchor.constraint(equalTo: indicatorCircle.bottomAnchor, constant: -5),
             contactImageView.leadingAnchor.constraint(equalTo: indicatorCircle.leadingAnchor, constant: 5),

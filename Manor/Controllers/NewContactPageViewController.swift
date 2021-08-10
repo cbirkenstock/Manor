@@ -34,6 +34,7 @@ class NewContactPageViewController: UIViewController {
     var groupChats: [String] = []
     var groupChatTitle: String = ""
     var groupMembers: [String] = []
+    @IBOutlet weak var profileBarButton: UIBarButtonItem!
     
     //--//
     
@@ -106,6 +107,11 @@ class NewContactPageViewController: UIViewController {
     }
     
     
+    @IBAction func profileButtonPressed(_ sender: Any) {
+        performSegue(withIdentifier: "toProfile", sender: self)
+    }
+    
+    
     @IBAction func CreateNewMessagePressed(_ sender: Any) {
         dropDown.show()
     }
@@ -125,16 +131,16 @@ class NewContactPageViewController: UIViewController {
                 if let groupChatTitle = value.object(forKey: "title") as? String, let groupChatDocumentID = value.object(forKey: "documentID") as? String, let commaTimeStamp = value.object(forKey: "timeStamp") as? String, let lastMessage = value.object(forKey: "lastMessage") as? String{
                     
                     let timeStamp = commaTimeStamp.replacingOccurrences(of: ",", with: ".")
-                   
                     
-                    if let stringBadgeCount = value.object(forKey: "badgeCount") as? String {
-                        let badgeCount = Int(stringBadgeCount)
-                        let groupChatContact = Contact(email: groupChatDocumentID , fullName: groupChatTitle , timeStamp: Double(timeStamp)!, lastMessage: lastMessage, badgeCount: badgeCount!)
-                        self.contacts.append(groupChatContact)
-                    } else {
-                        let groupChatContact = Contact(email: groupChatDocumentID , fullName: groupChatTitle , timeStamp: Double(timeStamp)!, lastMessage: lastMessage)
-                        self.contacts.append(groupChatContact)
-                    }
+                    let stringBadgeCount = value.object(forKey: "badgeCount") as? String ?? "0"
+                    let badgeCount = Int(stringBadgeCount)
+                   
+                    let profileImageUrl = value.object(forKey: "profileImageUrl") as? String ?? "default"
+    
+                    let groupChatContact = Contact(email: groupChatDocumentID , fullName: groupChatTitle , timeStamp: Double(timeStamp)!, lastMessage: lastMessage, badgeCount: badgeCount!, profileImageUrl: profileImageUrl)
+                    
+                    self.contacts.append(groupChatContact)
+                    
                 }
             }
             DispatchQueue.main.async {
@@ -185,6 +191,7 @@ extension NewContactPageViewController: UICollectionViewDataSource {
         cell.documentID = sortedContacts[indexPath.row].email
         cell.members = sortedContacts[indexPath.row].members
         cell.lastMessageLabel.text = sortedContacts[indexPath.row].lastMessage
+        cell.profileImageUrl = sortedContacts[indexPath.row].profileImageUrl
         
         return cell
     }

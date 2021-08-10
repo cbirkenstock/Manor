@@ -109,7 +109,6 @@ class PageViewController: UIPageViewController, UIPageViewControllerDelegate, UI
             if let error = error {
                 print("Error fetching FCM registration token: \(error)")
             } else if let token = token {
-                print("Token \(token)")
                 usersRef.child("\(self.user!.email!.replacingOccurrences(of: ".", with: ","))/fcmToken").setValue(token)
             }
         }

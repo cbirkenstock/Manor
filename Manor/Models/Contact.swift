@@ -15,6 +15,7 @@ struct Contact: Equatable {
     var members: [String] = []
     var lastMessage: String = ""
     var badgeCount: Int = 0
+    var profileImageUrl: String = ""
     
     static func == (lhs: Contact, rhs: Contact) -> Bool {
         return

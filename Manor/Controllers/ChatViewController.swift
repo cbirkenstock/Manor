@@ -48,6 +48,8 @@ class ChatViewController: UIViewController {
     var totalMessages: Int = 0
     var venmoUserName: String = ""
     var otherUserVenmoName: String = ""
+    var userProfileImageUrl: String = ""
+    var otherUserProfileImageUrl: String = ""
     //var conversationBadgeCountHandler: UInt?
     
     override func viewDidDisappear(_ animated: Bool) {
@@ -63,10 +65,13 @@ class ChatViewController: UIViewController {
         
         let otherUserCommaEmail = self.otherUserEmail.replacingOccurrences(of: ".", with: ",")
         
-        usersRef.child(otherUserCommaEmail).child("venmoName").observeSingleEvent(of: DataEventType.value) { snapshot in
-            let postString = snapshot.value as? String ?? ""
-            self.otherUserVenmoName = postString
+        usersRef.child(otherUserCommaEmail).observeSingleEvent(of: DataEventType.value) { snapshot in
+            let postDict = snapshot.value as? [String: Any] ?? [:]
+            self.otherUserVenmoName = postDict["venmoName"] as! String
+            self.otherUserProfileImageUrl = postDict["profileImageUrl"] as? String ?? "default"
         }
+        
+
         
         chatTableView.allowsSelection = false
         
@@ -121,6 +126,7 @@ class ChatViewController: UIViewController {
                 let lastName = value["lastName"] as? String ?? ""
                 self.userFullName = "\(firstName) \(lastName)"
                 self.venmoUserName = value["venmoName"] as? String ?? ""
+                self.userProfileImageUrl = value["profileImageUrl"] as? String ?? "default"
                 self.chatTableView.reloadData()
             } else {
                 print("No Value")
@@ -292,6 +298,8 @@ class ChatViewController: UIViewController {
             
             self.chatsByUserRef.child("\(commaUserEmail)/Chats/\(commaDocumentName)/title").setValue(self.otherUserFullName)
             
+            self.chatsByUserRef.child("\(commaUserEmail)/Chats/\(commaDocumentName)/profileImageUrl").setValue(self.otherUserProfileImageUrl)
+            
             /*db.collection("ChatsByUser").document("\(String(describing: self.user!.email!))").collection("Chats").document(documentName).setData([
              "title": self.otherUserFullName,
              "senderEmail": self.user!.email!,
@@ -315,7 +323,7 @@ class ChatViewController: UIViewController {
             
             self.chatsByUserRef.child("\(commaOtherUserEmail)/Chats/\(commaDocumentName)/readNotification").setValue(false)
             
-            
+            self.chatsByUserRef.child("\(commaOtherUserEmail)/Chats/\(commaDocumentName)/profileImageUrl").setValue(self.userProfileImageUrl)
             
             /*db.collection("ChatsByUser").document("\(self.otherUserEmail)").collection("Chats").document(documentName).setData([
              "title": userFullName,

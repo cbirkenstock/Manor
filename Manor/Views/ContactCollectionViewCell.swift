@@ -13,4 +13,5 @@ class ContactCollectionViewCell: UICollectionViewCell {
     @IBOutlet weak var nameLabel: UILabel!
     var documentID: String = ""
     var members: [String] = []
+    var profileImageUrl: String = ""
 }

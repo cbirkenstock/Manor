@@ -131,7 +131,9 @@ class ContactPageViewController: UIViewController {
                     
                     let badgeCount = Int(stringBadgeCount)
                     
-                    let userContact = Contact(email: otherUserEmail, fullName: otherUserFullName, timeStamp: timeStamp, lastMessage: lastMessage, badgeCount: badgeCount!)
+                    let profileImageUrl = value.object(forKey: "profileImageUrl") as? String ?? "default"
+                    
+                    let userContact = Contact(email: otherUserEmail, fullName: otherUserFullName, timeStamp: timeStamp, lastMessage: lastMessage, badgeCount: badgeCount!, profileImageUrl: profileImageUrl)
                     
                     self.contacts.append(userContact)
                 }
@@ -199,6 +201,7 @@ extension ContactPageViewController: UICollectionViewDataSource {
         cell.lastMessageLabel.text = sortedContacts[indexPath.row].lastMessage
         cell.contactName.text = sortedContacts[indexPath.row].fullName
         cell.documentID = sortedContacts[indexPath.row].email
+        cell.profileImageUrl = sortedContacts[indexPath.row].profileImageUrl
         
         return cell
     }

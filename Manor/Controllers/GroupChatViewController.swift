@@ -34,7 +34,7 @@ class GroupChatViewController: UIViewController, UIImagePickerControllerDelegate
     
     
     @IBOutlet weak var textBarStackView: UIStackView!
-    @IBOutlet weak var textBarleftConstraint: NSLayoutConstraint!
+    @IBOutlet weak var textBarRightConstraint: NSLayoutConstraint!
     //@IBOutlet weak var chatTextBar: UITextField!
     @IBOutlet weak var chatTextBar: GrowingTextView!
     @IBOutlet weak var chatViewNavigationBar: UINavigationItem!
@@ -74,6 +74,7 @@ class GroupChatViewController: UIViewController, UIImagePickerControllerDelegate
     var totalMessages: Int = 0
     let pushMessagesTableView = SelfSizedTableView()
     let imageCache = NSCache<NSString, AnyObject>()
+    let cameraButton = UIButton()
     
     
     override func viewDidLoad() {
@@ -87,6 +88,7 @@ class GroupChatViewController: UIViewController, UIImagePickerControllerDelegate
         chatTableView.allowsSelection = false
         
         self.setUpCamerabutton()
+        self.setUpSendButton()
         
         NotificationCenter.default.post(name: NSNotification.Name(rawValue: "disableSwipe"), object: nil)
         
@@ -242,7 +244,7 @@ class GroupChatViewController: UIViewController, UIImagePickerControllerDelegate
         guard let keyboardSize = userInfo[UIResponder.keyboardFrameEndUserInfoKey] as? NSValue else {return}
         let keyboardFrame = keyboardSize.cgRectValue.height
         
-        bottomConstraint.constant = keyboardFrame
+        bottomConstraint.constant = keyboardFrame + 1
         
         /*if totalMessages <= 5 {
          bottomConstraint.constant = keyboardFrame
@@ -252,7 +254,7 @@ class GroupChatViewController: UIViewController, UIImagePickerControllerDelegate
          }
          }*/
         
-        self.textBarleftConstraint.constant = 70
+        self.textBarRightConstraint.constant = 120
         
         UIView.animate(withDuration: duration) { self.view.layoutIfNeeded() }
     }
@@ -276,27 +278,66 @@ class GroupChatViewController: UIViewController, UIImagePickerControllerDelegate
          self.view.bounds.origin.y = 0
          }*/
         
-        self.textBarleftConstraint.constant = 14
+        self.textBarRightConstraint.constant = 14
         
         UIView.animate(withDuration: duration) { self.view.layoutIfNeeded() }
     }
     
     func setUpCamerabutton() {
-        let cameraButton = UIButton()
-        self.view.addSubview(cameraButton)
+        
+        let cameraContainerView = UIView()
+        self.view.addSubview(cameraContainerView)
+        cameraContainerView.translatesAutoresizingMaskIntoConstraints = false
+        cameraContainerView.backgroundColor = UIColor(named: K.BrandColors.purple)
+        cameraContainerView.center.y = textBarView.center.y
+        
+        let cameraButtonContainerViewConstraints = [
+            cameraContainerView.heightAnchor.constraint(equalToConstant: textBarView.frame.height),
+            cameraContainerView.widthAnchor.constraint(equalToConstant: 40),
+            cameraContainerView.bottomAnchor.constraint(equalTo: textBarView.bottomAnchor, constant: 0),
+            cameraContainerView.leadingAnchor.constraint(equalTo: textBarView.trailingAnchor, constant: 15)
+        ]
+        
+        NSLayoutConstraint.activate(cameraButtonContainerViewConstraints)
+        
+        cameraContainerView.layer.cornerRadius = textBarView.frame.height/2
+        
+        cameraContainerView.addSubview(cameraButton)
         cameraButton.translatesAutoresizingMaskIntoConstraints = false
-        cameraButton.tintColor = UIColor(named: K.BrandColors.purple)
-        cameraButton.center.y = textBarAndButtonHolder.center.y
-        let cameraImageConfiguration = UIImage.SymbolConfiguration(pointSize: 45, weight: .regular, scale: .large)
+        cameraButton.tintColor = .white
+        cameraButton.center.y = textBarView.center.y
+        let cameraImageConfiguration = UIImage.SymbolConfiguration(pointSize: 30, weight: .regular, scale: .large)
         let cameraImage = UIImage(systemName: "camera", withConfiguration: cameraImageConfiguration)
         cameraButton.setImage(cameraImage, for: .normal)
         cameraButton.addTarget(self, action: #selector(cameraButtonPressed), for: .touchUpInside)
         
         let cameraButtonConstraints = [
-            cameraButton.heightAnchor.constraint(equalToConstant: 40),
-            cameraButton.widthAnchor.constraint(equalToConstant: 45),
-            cameraButton.centerYAnchor.constraint(equalTo: textBarView.centerYAnchor, constant: 0),
-            cameraButton.trailingAnchor.constraint(equalTo: textBarView.leadingAnchor, constant: -20)
+            cameraButton.leadingAnchor.constraint(equalTo: cameraContainerView.leadingAnchor, constant: 5),
+            cameraButton.trailingAnchor.constraint(equalTo: cameraContainerView.trailingAnchor, constant: -5),
+            cameraButton.topAnchor.constraint(equalTo: cameraContainerView.topAnchor, constant: 5),
+            cameraButton.bottomAnchor.constraint(equalTo: cameraContainerView.bottomAnchor, constant: -7),
+        ]
+        
+        NSLayoutConstraint.activate(cameraButtonConstraints)
+        
+    }
+    
+    func setUpSendButton() {
+        let senderButton = UIButton()
+        self.view.addSubview(senderButton)
+        senderButton.translatesAutoresizingMaskIntoConstraints = false
+        senderButton.tintColor = UIColor(named: K.BrandColors.purple)
+        senderButton.center.y = textBarView.center.y
+        let cameraImageConfiguration = UIImage.SymbolConfiguration(pointSize: 40, weight: .regular, scale: .large)
+        let cameraImage = UIImage(systemName: "location.north", withConfiguration: cameraImageConfiguration)
+        senderButton.setImage(cameraImage, for: .normal)
+        senderButton.addTarget(self, action: #selector(cameraButtonPressed), for: .touchUpInside)
+        
+        let cameraButtonConstraints = [
+            senderButton.heightAnchor.constraint(equalToConstant: 35),
+            senderButton.widthAnchor.constraint(equalToConstant: 35),
+            senderButton.bottomAnchor.constraint(equalTo: textBarView.bottomAnchor, constant: 0),
+            senderButton.leadingAnchor.constraint(equalTo: cameraButton.trailingAnchor, constant: 12)
         ]
         
         NSLayoutConstraint.activate(cameraButtonConstraints)
@@ -610,6 +651,11 @@ class GroupChatViewController: UIViewController, UIImagePickerControllerDelegate
                 self.groupChatByUsersRef.child("\(commaEmail)/Chats/\(documentID)/timeStamp").setValue(commaTimestamp)
                 self.groupChatByUsersRef.child("\(commaEmail)/Chats/\(documentID)/readNotification").setValue(false)
                 
+                usersRef.child(commaEmail).child("profileImageUrl").observe(DataEventType.value) { Snapshot in
+                    let profileImageUrl = Snapshot.value as? String
+                    self.groupChatByUsersRef.child("\(commaEmail)/Chats/\(self.documentID)/profileImageUrl").setValue(profileImageUrl)
+                }
+            
                 /*db.collection("GroupChatsByUser").document(email).collection("Chats").document(documentID).setData([
                  "title": groupChatTitle,
                  "documentID": documentID,

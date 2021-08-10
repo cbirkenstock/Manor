@@ -31,24 +31,6 @@ class PictureMessageTableViewCell: UITableViewCell {
     
     var imageWidth: CGFloat! {
         didSet {
-            //contentViewHeightConstraint.isActive = false
-            
-            //NSLayoutConstraint.deactivate(messageImageViewContraints)
-            
-//            newMessageImageConstraints = [
-//                messageImageView.heightAnchor.constraint(equalToConstant: 1000),
-//                messageImageView.widthAnchor.constraint(equalToConstant: self.imageWidth)
-//            ]
-//
-//            NSLayoutConstraint.activate(newMessageImageConstraints)
-            //messageImageView.heightAnchor.constraint(equalToConstant: self.imageHeight).isActive = true
-            //messageImageView.widthAnchor.constraint(equalToConstant: self.imageWidth!).isActive = true
-            
-            /*messageViewHeightConstraint.isActive = true
-             messageViewWidthConstraint.isActive = true*/
-            
-            //messageImageView.heightAnchor.constraint(equalToConstant: self.imageHeight).isActive = true
-            //messageImageView.widthAnchor.constraint(equalToConstant: self.imageWidth).isActive = true
         }
     }
     
