@@ -34,7 +34,10 @@ class NewContactPageViewController: UIViewController {
     var groupChats: [String] = []
     var groupChatTitle: String = ""
     var groupMembers: [String] = []
+    var groupChatImageUrl: String = ""
     @IBOutlet weak var profileBarButton: UIBarButtonItem!
+    
+    let imageCache = NSCache<NSString, AnyObject>()
     
     //--//
     
@@ -103,6 +106,7 @@ class NewContactPageViewController: UIViewController {
             vc.documentID = self.documentID
             vc.groupChatTitle = self.groupChatTitle
             vc.groupMembers = self.groupMembers
+            vc.groupChatImageUrl = self.groupChatImageUrl
         }
     }
     
@@ -134,9 +138,12 @@ class NewContactPageViewController: UIViewController {
                     
                     let stringBadgeCount = value.object(forKey: "badgeCount") as? String ?? "0"
                     let badgeCount = Int(stringBadgeCount)
-                   
+                    
                     let profileImageUrl = value.object(forKey: "profileImageUrl") as? String ?? "default"
-    
+                    
+                    self.groupChatImageUrl = profileImageUrl
+                    
+                    
                     let groupChatContact = Contact(email: groupChatDocumentID , fullName: groupChatTitle , timeStamp: Double(timeStamp)!, lastMessage: lastMessage, badgeCount: badgeCount!, profileImageUrl: profileImageUrl)
                     
                     self.contacts.append(groupChatContact)
@@ -149,24 +156,24 @@ class NewContactPageViewController: UIViewController {
         })
         
         /*db.collection("GroupChatsByUser").document("\(String(describing: self.user!.email!))").collection("Chats").order(by: "timeStamp").addSnapshotListener { (querySnapshot, err) in
-            if let err = err {
-                print("Error getting documents: \(err)")
-            } else {
-                if (querySnapshot!.documents.isEmpty) {
-                    print("No documents in GroupSnapshot")
-                } else {
-                    for document in querySnapshot!.documents {
-                        if let groupChatTitle = document.data()["title"], let groupChatDocumentID = document.data()["documentID"], let timeStamp = document.data()["timeStamp"]{
-                            let groupChatContact = Contact(email: groupChatDocumentID as! String, fullName: groupChatTitle as! String, timeStamp: timeStamp as! Double)
-                            self.contacts.append(groupChatContact)
-                            DispatchQueue.main.async {
-                                self.contactCollectionView.reloadData()
-                            }
-                        }
-                    }
-                }
-            }
-        }*/
+         if let err = err {
+         print("Error getting documents: \(err)")
+         } else {
+         if (querySnapshot!.documents.isEmpty) {
+         print("No documents in GroupSnapshot")
+         } else {
+         for document in querySnapshot!.documents {
+         if let groupChatTitle = document.data()["title"], let groupChatDocumentID = document.data()["documentID"], let timeStamp = document.data()["timeStamp"]{
+         let groupChatContact = Contact(email: groupChatDocumentID as! String, fullName: groupChatTitle as! String, timeStamp: timeStamp as! Double)
+         self.contacts.append(groupChatContact)
+         DispatchQueue.main.async {
+         self.contactCollectionView.reloadData()
+         }
+         }
+         }
+         }
+         }
+         }*/
     }
 }
 
@@ -191,7 +198,36 @@ extension NewContactPageViewController: UICollectionViewDataSource {
         cell.documentID = sortedContacts[indexPath.row].email
         cell.members = sortedContacts[indexPath.row].members
         cell.lastMessageLabel.text = sortedContacts[indexPath.row].lastMessage
-        cell.profileImageUrl = sortedContacts[indexPath.row].profileImageUrl
+        
+        let profileImageUrl = sortedContacts[indexPath.row].profileImageUrl
+        
+        cell.profileImageUrl = profileImageUrl
+        cell.contactImageView.image = #imageLiteral(resourceName: "AbstractPainting")
+        
+        if profileImageUrl == "default" {
+            return cell
+        }  else if let cachedImage = self.imageCache.object(forKey: profileImageUrl as NSString) {
+            cell.contactImageView.image = cachedImage as? UIImage
+        } else {
+            DispatchQueue.global().async { [weak self] in
+                let URL = URL(string: profileImageUrl)
+                if let data = try? Data(contentsOf: URL!) {
+                    if let image = UIImage(data: data) {
+                        DispatchQueue.main.async {
+                            self!.imageCache.setObject(image, forKey: profileImageUrl as NSString)
+                            cell.contactImageView.image = image
+                            /*if cell.hasUnreadMessages == true {
+                             self?.indicatorCircle.backgroundColor = UIColor(named: "LightBlue")
+                             }*/
+                        }
+                    }
+                }
+                
+            }
+        }
+        
+        
+        //cell.profileImageUrl = sortedContacts[indexPath.row].profileImageUrl
         
         return cell
     }
@@ -204,6 +240,7 @@ extension NewContactPageViewController: UICollectionViewDelegate {
         
         self.documentID = cell.documentID
         self.groupChatTitle = cell.contactName.text ?? ""
+        self.groupChatImageUrl = cell.profileImageUrl ?? "default"
         
         let MembersRef = groupChatMessages.child(documentID).child("Members")
         
@@ -212,8 +249,8 @@ extension NewContactPageViewController: UICollectionViewDelegate {
             self.groupMembers = postArray
             self.performSegue(withIdentifier: K.Segues.GroupChatSegue, sender: self)
         })
-                
-
+        
+        
     }
 }
 

@@ -75,10 +75,14 @@ class GroupChatViewController: UIViewController, UIImagePickerControllerDelegate
     let pushMessagesTableView = SelfSizedTableView()
     let imageCache = NSCache<NSString, AnyObject>()
     let cameraButton = UIButton()
+    var groupChatImageUrl: String = ""
     
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        
+        print("ABC")
+        print(self.groupChatImageUrl)
         
         
         self.commaEmail = user.email!.replacingOccurrences(of: ".", with: ",")
@@ -331,7 +335,7 @@ class GroupChatViewController: UIViewController, UIImagePickerControllerDelegate
         let cameraImageConfiguration = UIImage.SymbolConfiguration(pointSize: 40, weight: .regular, scale: .large)
         let cameraImage = UIImage(systemName: "location.north", withConfiguration: cameraImageConfiguration)
         senderButton.setImage(cameraImage, for: .normal)
-        senderButton.addTarget(self, action: #selector(cameraButtonPressed), for: .touchUpInside)
+        senderButton.addTarget(self, action: #selector(sendButtonPressed), for: .touchUpInside)
         
         let cameraButtonConstraints = [
             senderButton.heightAnchor.constraint(equalToConstant: 35),
@@ -567,6 +571,7 @@ class GroupChatViewController: UIViewController, UIImagePickerControllerDelegate
             vc.groupMembers = self.groupMembers
             vc.groupChatTitle = self.groupChatTitle
             vc.userFullName = self.userFullName
+            vc.groupChatImageUrl = self.groupChatImageUrl
         }
     }
     
@@ -593,7 +598,7 @@ class GroupChatViewController: UIViewController, UIImagePickerControllerDelegate
         }
     }
     
-    @IBAction func sendButtonPressed(_ sender: Any) {
+    @objc func sendButtonPressed() {
         if chatTextBar.text != "" {
             let messageBody = "\(self.userFullName): \(chatTextBar.text!)"
             
@@ -639,22 +644,26 @@ class GroupChatViewController: UIViewController, UIImagePickerControllerDelegate
             
             for email in groupMembers {
                 let commaEmail = email.replacingOccurrences(of: ".", with: ",")
-                /*self.groupChatByUsersRef.child(commaEmail).child("Chats").child(documentID).setValue([
-                 "title": groupChatTitle,
-                 "documentID": documentID,
-                 "lastMessage": messageBody,
-                 "timeStamp": commaTimestamp,
-                 "readNotification": false
-                 ])*/
+                
+                self.groupChatByUsersRef.child(commaEmail).child("Chats").child(documentID).setValue([
+                    "title": groupChatTitle,
+                    "documentID": documentID,
+                    "profileImageUrl": self.groupChatImageUrl
+                    
+                 //"lastMessage": messageBody,
+                 //"timeStamp": commaTimestamp,
+                 //"readNotification": false
+                 ])
                 
                 self.groupChatByUsersRef.child("\(commaEmail)/Chats/\(documentID)/lastMessage").setValue(messageBody)
                 self.groupChatByUsersRef.child("\(commaEmail)/Chats/\(documentID)/timeStamp").setValue(commaTimestamp)
                 self.groupChatByUsersRef.child("\(commaEmail)/Chats/\(documentID)/readNotification").setValue(false)
+
                 
-                usersRef.child(commaEmail).child("profileImageUrl").observe(DataEventType.value) { Snapshot in
+                /*usersRef.child(commaEmail).child("profileImageUrl").observe(DataEventType.value) { Snapshot in
                     let profileImageUrl = Snapshot.value as? String
                     self.groupChatByUsersRef.child("\(commaEmail)/Chats/\(self.documentID)/profileImageUrl").setValue(profileImageUrl)
-                }
+                }*/
             
                 /*db.collection("GroupChatsByUser").document(email).collection("Chats").document(documentID).setData([
                  "title": groupChatTitle,

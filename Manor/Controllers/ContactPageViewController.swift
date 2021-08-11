@@ -30,6 +30,8 @@ class ContactPageViewController: UIViewController {
     let dropDown = DropDown()
     let flowLayout = UICollectionViewFlowLayout()
     
+    let imageCache = NSCache<NSString, AnyObject>()
+    
     //--//
     
     
@@ -202,6 +204,34 @@ extension ContactPageViewController: UICollectionViewDataSource {
         cell.contactName.text = sortedContacts[indexPath.row].fullName
         cell.documentID = sortedContacts[indexPath.row].email
         cell.profileImageUrl = sortedContacts[indexPath.row].profileImageUrl
+        
+        let profileImageUrl = sortedContacts[indexPath.row].profileImageUrl
+        
+        cell.profileImageUrl = profileImageUrl
+        cell.contactImageView.image = #imageLiteral(resourceName: "AbstractPainting")
+        
+        if profileImageUrl == "default" {
+            return cell
+        }  else if let cachedImage = self.imageCache.object(forKey: profileImageUrl as NSString) {
+            cell.contactImageView.image = cachedImage as? UIImage
+        } else {
+            DispatchQueue.global().async { [weak self] in
+                let URL = URL(string: profileImageUrl)
+                if let data = try? Data(contentsOf: URL!) {
+                    if let image = UIImage(data: data) {
+                        DispatchQueue.main.async {
+                            self!.imageCache.setObject(image, forKey: profileImageUrl as NSString)
+                            cell.contactImageView.image = image
+                            /*if cell.hasUnreadMessages == true {
+                             self?.indicatorCircle.backgroundColor = UIColor(named: "LightBlue")
+                             }*/
+                        }
+                    }
+                }
+                
+            }
+        }
+
         
         return cell
     }

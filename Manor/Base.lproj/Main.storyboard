@@ -1246,7 +1246,7 @@
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
                             <tableView clipsSubviews="YES" contentMode="scaleToFill" alwaysBounceVertical="YES" dataMode="prototypes" style="plain" separatorStyle="default" rowHeight="-1" estimatedRowHeight="-1" sectionHeaderHeight="28" sectionFooterHeight="28" translatesAutoresizingMaskIntoConstraints="NO" id="r56-vJ-AfT">
-                                <rect key="frame" x="0.0" y="168" width="414" height="728"/>
+                                <rect key="frame" x="0.0" y="324" width="414" height="572"/>
                                 <color key="backgroundColor" white="0.0" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                 <prototypes>
                                     <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" preservesSuperviewLayoutMargins="YES" selectionStyle="default" indentationWidth="10" reuseIdentifier="prototypeCell" id="VE3-SV-cHv">
@@ -1260,7 +1260,7 @@
                                 </prototypes>
                             </tableView>
                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="iob-XN-1fT">
-                                <rect key="frame" x="10" y="98" width="394" height="65"/>
+                                <rect key="frame" x="10" y="254" width="394" height="65"/>
                                 <color key="backgroundColor" white="0.0" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                 <constraints>
                                     <constraint firstAttribute="height" constant="65" id="1es-cs-M1s"/>
@@ -1272,15 +1272,41 @@
                                     <action selector="addMembersButtonPressed:" destination="760-Pp-JBG" eventType="touchUpInside" id="zu3-0f-ftr"/>
                                 </connections>
                             </button>
+                            <stackView opaque="NO" contentMode="scaleToFill" alignment="center" spacing="13" translatesAutoresizingMaskIntoConstraints="NO" id="n8Q-79-a2h">
+                                <rect key="frame" x="10" y="118" width="394" height="126"/>
+                                <subviews>
+                                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="LMb-sG-Pij">
+                                        <rect key="frame" x="0.0" y="0.0" width="126" height="126"/>
+                                        <color key="backgroundColor" systemColor="systemPinkColor"/>
+                                        <constraints>
+                                            <constraint firstAttribute="width" constant="126" id="FMx-cg-1M0"/>
+                                            <constraint firstAttribute="height" constant="126" id="xeM-rX-KOd"/>
+                                        </constraints>
+                                        <connections>
+                                            <action selector="ProfilePicturePressed:" destination="vaY-i2-WX2" eventType="touchUpInside" id="hjn-MC-adc"/>
+                                            <action selector="ProfilePicturePressed:" destination="760-Pp-JBG" eventType="touchUpInside" id="qFU-cE-H4j"/>
+                                        </connections>
+                                    </button>
+                                    <textField opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="left" contentVerticalAlignment="center" text="Group Chat Name" textAlignment="natural" minimumFontSize="17" translatesAutoresizingMaskIntoConstraints="NO" id="fzA-0F-jJH">
+                                        <rect key="frame" x="139" y="42" width="255" height="42"/>
+                                        <color key="textColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                        <fontDescription key="fontDescription" type="system" pointSize="35"/>
+                                        <textInputTraits key="textInputTraits"/>
+                                    </textField>
+                                </subviews>
+                            </stackView>
                         </subviews>
                         <viewLayoutGuide key="safeArea" id="qEh-8I-lAr"/>
-                        <color key="backgroundColor" white="0.33333333333333331" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                        <color key="backgroundColor" white="0.0" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                         <constraints>
-                            <constraint firstItem="iob-XN-1fT" firstAttribute="top" secondItem="qEh-8I-lAr" secondAttribute="top" constant="10" id="H7u-OK-MYN"/>
                             <constraint firstItem="r56-vJ-AfT" firstAttribute="trailing" secondItem="qEh-8I-lAr" secondAttribute="trailing" id="Kps-u2-ZPo"/>
+                            <constraint firstItem="n8Q-79-a2h" firstAttribute="top" secondItem="qEh-8I-lAr" secondAttribute="top" constant="30" id="LPR-jx-bt5"/>
                             <constraint firstItem="r56-vJ-AfT" firstAttribute="leading" secondItem="qEh-8I-lAr" secondAttribute="leading" id="cvS-yD-5FL"/>
+                            <constraint firstItem="qEh-8I-lAr" firstAttribute="trailing" secondItem="n8Q-79-a2h" secondAttribute="trailing" constant="10" id="dce-1A-VMp"/>
                             <constraint firstItem="r56-vJ-AfT" firstAttribute="top" secondItem="iob-XN-1fT" secondAttribute="bottom" constant="5" id="frX-jD-jC6"/>
                             <constraint firstAttribute="bottom" secondItem="r56-vJ-AfT" secondAttribute="bottom" id="ife-xq-tB6"/>
+                            <constraint firstItem="n8Q-79-a2h" firstAttribute="leading" secondItem="qEh-8I-lAr" secondAttribute="leading" constant="10" id="kgt-6B-qet"/>
+                            <constraint firstItem="iob-XN-1fT" firstAttribute="top" secondItem="n8Q-79-a2h" secondAttribute="bottom" constant="10" id="nzm-ur-75J"/>
                             <constraint firstItem="iob-XN-1fT" firstAttribute="leading" secondItem="qEh-8I-lAr" secondAttribute="leading" constant="10" id="olz-qT-JYC"/>
                             <constraint firstItem="qEh-8I-lAr" firstAttribute="trailing" secondItem="iob-XN-1fT" secondAttribute="trailing" constant="10" id="zSZ-jK-Gh9"/>
                         </constraints>
@@ -1288,6 +1314,8 @@
                     <navigationItem key="navigationItem" id="Ib1-Y5-yZ8"/>
                     <connections>
                         <outlet property="addMemberButton" destination="iob-XN-1fT" id="jmw-x4-WBg"/>
+                        <outlet property="groupChatImageButton" destination="LMb-sG-Pij" id="hNg-Ei-D1R"/>
+                        <outlet property="groupChatTitleTextField" destination="fzA-0F-jJH" id="qUQ-ci-HSD"/>
                         <outlet property="pushMessagesTableView" destination="r56-vJ-AfT" id="PFF-N7-jex"/>
                         <segue destination="XXg-i3-sky" kind="show" identifier="toUnreachedMembers" id="ll7-9R-Sug"/>
                         <segue destination="GzR-zR-oXl" kind="show" identifier="toAddMembers" id="U3j-d2-ehf"/>
@@ -1943,10 +1971,10 @@
                         <rect key="frame" x="0.0" y="0.0" width="414" height="896"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
-                            <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="XJ3-O2-EuM">
+                            <view contentMode="scaleToFill" ambiguous="YES" translatesAutoresizingMaskIntoConstraints="NO" id="XJ3-O2-EuM">
                                 <rect key="frame" x="14" y="801.5" width="386" height="40"/>
                                 <subviews>
-                                    <textView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" textAlignment="natural" translatesAutoresizingMaskIntoConstraints="NO" id="Sgf-h4-B8e" customClass="GrowingTextView" customModule="GrowingTextView">
+                                    <textView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" ambiguous="YES" textAlignment="natural" translatesAutoresizingMaskIntoConstraints="NO" id="Sgf-h4-B8e" customClass="GrowingTextView" customModule="GrowingTextView">
                                         <rect key="frame" x="15" y="0.0" width="356" height="37.5"/>
                                         <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                         <color key="textColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
@@ -1968,7 +1996,7 @@
                                     <constraint firstAttribute="trailing" secondItem="Sgf-h4-B8e" secondAttribute="trailing" constant="15" id="rtU-8t-J0x"/>
                                 </constraints>
                             </view>
-                            <tableView clipsSubviews="YES" contentMode="scaleToFill" alwaysBounceVertical="YES" dataMode="prototypes" style="plain" separatorStyle="none" rowHeight="-1" estimatedRowHeight="-1" sectionHeaderHeight="28" sectionFooterHeight="28" translatesAutoresizingMaskIntoConstraints="NO" id="Ole-82-UYy">
+                            <tableView clipsSubviews="YES" contentMode="scaleToFill" ambiguous="YES" alwaysBounceVertical="YES" dataMode="prototypes" style="plain" separatorStyle="none" rowHeight="-1" estimatedRowHeight="-1" sectionHeaderHeight="28" sectionFooterHeight="28" translatesAutoresizingMaskIntoConstraints="NO" id="Ole-82-UYy">
                                 <rect key="frame" x="0.0" y="68" width="414" height="733.5"/>
                                 <color key="backgroundColor" white="0.0" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                             </tableView>
@@ -2017,10 +2045,10 @@
                         <rect key="frame" x="0.0" y="0.0" width="414" height="896"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
-                            <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="6sY-fW-L44">
+                            <view contentMode="scaleToFill" ambiguous="YES" translatesAutoresizingMaskIntoConstraints="NO" id="6sY-fW-L44">
                                 <rect key="frame" x="0.0" y="794" width="414" height="60"/>
                                 <subviews>
-                                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="MbB-UA-9nw">
+                                    <button opaque="NO" contentMode="scaleToFill" ambiguous="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="MbB-UA-9nw">
                                         <rect key="frame" x="349" y="7" width="45" height="44.5"/>
                                         <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                         <constraints>
@@ -2038,10 +2066,10 @@
                                             <action selector="sendButtonPressed:" destination="NfL-SG-GTD" eventType="touchUpInside" id="Pbd-va-NoJ"/>
                                         </connections>
                                     </button>
-                                    <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="mGy-G8-9Hd">
+                                    <view contentMode="scaleToFill" ambiguous="YES" translatesAutoresizingMaskIntoConstraints="NO" id="mGy-G8-9Hd">
                                         <rect key="frame" x="14" y="8" width="315" height="45"/>
                                         <subviews>
-                                            <textView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" textAlignment="natural" translatesAutoresizingMaskIntoConstraints="NO" id="coq-x1-AFg" customClass="GrowingTextView" customModule="GrowingTextView">
+                                            <textView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" ambiguous="YES" textAlignment="natural" translatesAutoresizingMaskIntoConstraints="NO" id="coq-x1-AFg" customClass="GrowingTextView" customModule="GrowingTextView">
                                                 <rect key="frame" x="15" y="2" width="285" height="43"/>
                                                 <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                                 <color key="textColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
@@ -2075,7 +2103,7 @@
                                     <constraint firstAttribute="bottom" secondItem="MbB-UA-9nw" secondAttribute="bottom" constant="8" id="gV8-20-dn7"/>
                                 </constraints>
                             </view>
-                            <tableView clipsSubviews="YES" contentMode="scaleToFill" alwaysBounceVertical="YES" dataMode="prototypes" style="plain" separatorStyle="none" rowHeight="-1" estimatedRowHeight="-1" sectionHeaderHeight="28" sectionFooterHeight="28" translatesAutoresizingMaskIntoConstraints="NO" id="S6T-wG-H9M">
+                            <tableView clipsSubviews="YES" contentMode="scaleToFill" ambiguous="YES" alwaysBounceVertical="YES" dataMode="prototypes" style="plain" separatorStyle="none" rowHeight="-1" estimatedRowHeight="-1" sectionHeaderHeight="28" sectionFooterHeight="28" translatesAutoresizingMaskIntoConstraints="NO" id="S6T-wG-H9M">
                                 <rect key="frame" x="0.0" y="68" width="414" height="726"/>
                                 <color key="backgroundColor" white="0.0" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                             </tableView>
@@ -2118,13 +2146,7 @@
     </scenes>
     <designables>
         <designable name="NaG-pu-Rij">
-            <size key="intrinsicContentSize" width="-1" height="30"/>
-        </designable>
-        <designable name="Sgf-h4-B8e">
-            <size key="intrinsicContentSize" width="-1" height="30"/>
-        </designable>
-        <designable name="coq-x1-AFg">
-            <size key="intrinsicContentSize" width="-1" height="30"/>
+            <size key="intrinsicContentSize" width="10" height="37.5"/>
         </designable>
     </designables>
     <inferredMetricsTieBreakers>
@@ -2132,7 +2154,7 @@
         <segue reference="iwR-df-2n9"/>
         <segue reference="j2k-G5-B5h"/>
         <segue reference="OhZ-Qo-Zag"/>
-        <segue reference="bjT-7K-TsJ"/>
+        <segue reference="5A2-ne-fVT"/>
     </inferredMetricsTieBreakers>
     <resources>
         <image name="DefaultContactIcon" width="953" height="953"/>
@@ -2156,6 +2178,9 @@
         </systemColor>
         <systemColor name="systemGray6Color">
             <color red="0.94901960784313721" green="0.94901960784313721" blue="0.96862745098039216" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+        </systemColor>
+        <systemColor name="systemPinkColor">
+            <color red="1" green="0.17647058823529413" blue="0.33333333333333331" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
         </systemColor>
     </resources>
 </document>

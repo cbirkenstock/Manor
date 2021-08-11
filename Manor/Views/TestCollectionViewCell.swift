@@ -16,10 +16,9 @@ class TestCollectionViewCell: UICollectionViewCell {
     
     var profileImageUrl: String! {
         didSet {
-            if profileImageUrl == "default" {
+            /*if profileImageUrl == "default" {
                 contactImageView.image = #imageLiteral(resourceName: "AbstractPainting")
             } else {
-                //contactImageView.image = #imageLiteral(resourceName: "AbstractPainting")
                 contactImageView.image = #imageLiteral(resourceName: "AbstractPainting")
                 contactImageView.backgroundColor = .gray
                 indicatorCircle.backgroundColor = .clear
@@ -42,7 +41,7 @@ class TestCollectionViewCell: UICollectionViewCell {
                         }
                     }
                 }
-            }
+            }*/
         }
     }
     
