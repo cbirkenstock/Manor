@@ -60,7 +60,7 @@ class GroupChatViewController: UIViewController, UIImagePickerControllerDelegate
     var messages: [String:[Message]]  = [:]
     var pushMessages: [Message] = []
     var groupChatTitle: String = ""
-    var groupMembers: [String] = []
+    var groupMembers: [[String]] = []
     let groupChatMessagesRef = Database.database().reference().child("GroupChatMessages")
     let groupChatByUsersRef = Database.database().reference().child("GroupChatsByUser")
     let usersRef = Database.database().reference().child("users")
@@ -82,7 +82,7 @@ class GroupChatViewController: UIViewController, UIImagePickerControllerDelegate
         super.viewDidLoad()
         
         print("ABC")
-        print(self.groupChatImageUrl)
+        print(self.groupMembers)
         
         
         self.commaEmail = user.email!.replacingOccurrences(of: ".", with: ",")
@@ -411,7 +411,7 @@ class GroupChatViewController: UIViewController, UIImagePickerControllerDelegate
                                 "timeStamp": commaTimestamp
                             ])
                             
-                            for email in self.groupMembers {
+                            for email in self.groupMembers[1] {
                                 let commaEmail = email.replacingOccurrences(of: ".", with: ",")
                                 self.groupChatByUsersRef.child(commaEmail).child("Chats").child(self.documentID).setValue([
                                     "title": self.groupChatTitle,
@@ -474,7 +474,7 @@ class GroupChatViewController: UIViewController, UIImagePickerControllerDelegate
                                             "timeStamp": commaTimestamp
                                         ])
                                         
-                                        for email in self?.groupMembers ?? [] {
+                                        for email in self?.groupMembers[1] ?? [] {
                                             let commaEmail = email.replacingOccurrences(of: ".", with: ",")
                                             self!.groupChatByUsersRef.child(commaEmail).child("Chats").child(self!.documentID).setValue([
                                                 "title": self!.groupChatTitle,
@@ -537,7 +537,7 @@ class GroupChatViewController: UIViewController, UIImagePickerControllerDelegate
                 }
             })
             
-            for email in groupMembers {
+            for email in groupMembers[1] {
                 let commaEmail = email.replacingOccurrences(of: ".", with: ",")
                 
                 self.groupChatByUsersRef.child(commaEmail).child("Chats").child(documentID).child("unreadPushMessages").observeSingleEvent(of: DataEventType.value) { snapshot in
@@ -642,13 +642,15 @@ class GroupChatViewController: UIViewController, UIImagePickerControllerDelegate
              }
              }*/
             
-            for email in groupMembers {
+            for member in groupMembers {
+                let email = member[1]
                 let commaEmail = email.replacingOccurrences(of: ".", with: ",")
                 
                 self.groupChatByUsersRef.child(commaEmail).child("Chats").child(documentID).setValue([
                     "title": groupChatTitle,
                     "documentID": documentID,
-                    "profileImageUrl": self.groupChatImageUrl
+                    "profileImageUrl": self.groupChatImageUrl,
+                    "notificationsEnabled": true
                     
                  //"lastMessage": messageBody,
                  //"timeStamp": commaTimestamp,

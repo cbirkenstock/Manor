@@ -14,7 +14,7 @@ class UnreachedMembersViewController: UIViewController, WKNavigationDelegate {
     @IBOutlet weak var unreachedMembersTableView: UITableView!
     var unreachedMembers: [String] = []
     var pushMessageUID: String = ""
-    var groupMembers: [String] = []
+    var groupMembers: [[String]] = []
     var documentID: String = ""
     let groupChatsByUserRef = Database.database().reference().child("GroupChatsByUser")
     var webView: WKWebView!
@@ -68,10 +68,10 @@ class UnreachedMembersViewController: UIViewController, WKNavigationDelegate {
         alert.addAction(UIAlertAction(title: "Send", style: .default, handler: { UIAlertAction in
             print(UIAlertAction)
             let answer = alert.textFields![0].text
-            for email in self.groupMembers {
+            for member in self.groupMembers {
                 if answer != "" {
                     
-                    let commaOtherUserEmail = email.replacingOccurrences(of: ".", with: ",")
+                    let commaOtherUserEmail = member[1].replacingOccurrences(of: ".", with: ",")
                     let commaUserEmail = self.user.email!.replacingOccurrences(of: ".", with: ",")
                     
                     let messageBody = answer
@@ -79,6 +79,8 @@ class UnreachedMembersViewController: UIViewController, WKNavigationDelegate {
                     let timeStamp = Date().timeIntervalSince1970
                     let timeStampString = ("\(timeStamp)")
                     let commaTimeStamp =  timeStampString.replacingOccurrences(of: ".", with: ",")
+                    
+                    let email = member[1]
                     
                     if(self.user.email! < email ) {
                         self.documentName = "\(self.user!.email!) + \(email)"
@@ -124,16 +126,15 @@ class UnreachedMembersViewController: UIViewController, WKNavigationDelegate {
     }
     
     func loadUnreachedMembers() {
-        for email in groupMembers {
+        for member in groupMembers {
+            let email = member[1]
             let commaEmail = email.replacingOccurrences(of: ".", with: ",")
             
             groupChatsByUserRef.child(commaEmail).child("Chats").child(documentID).child("unreadPushMessages").observeSingleEvent(of: DataEventType.value) { DataSnapshot in
                 let postArray = DataSnapshot.value as? [String] ?? []
                 print(postArray)
                 if postArray.contains(self.pushMessageUID) {
-                    print("contained")
                     self.unreachedMembers.append(email)
-                    
                     DispatchQueue.main.async {
                         self.unreachedMembersTableView.reloadData()
                     }
@@ -151,6 +152,7 @@ extension UnreachedMembersViewController: UITableViewDelegate, UITableViewDataSo
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = unreachedMembersTableView.dequeueReusableCell(withIdentifier: "MemberCell") as! MemberTableViewCell
         
+        cell.isContact = false
         cell.contactName.text = unreachedMembers[indexPath.row]
         
         return cell

@@ -32,7 +32,7 @@ class NewGroupMessageViewController: UIViewController {
     
     var searchNames: [Contact] = []
     var chosenNames: [Contact] = []
-    var groupMembers: [String] = []
+    var groupMembers: [[String]] = []
     var otherUserFullName: String = ""
     var otherUserEmail: String = ""
     var userFullName: String = ""
@@ -41,10 +41,28 @@ class NewGroupMessageViewController: UIViewController {
     let searchNamesflowLayout = UICollectionViewFlowLayout()
     let chosenflowLayout = UICollectionViewFlowLayout()
     
+    let usersRef = Database.database().reference().child("users")
+    
     //--//
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        
+        let commaEmail = user.email!.replacingOccurrences(of: ".", with: ",")
+        
+        usersRef.child(commaEmail).observeSingleEvent(of: .value, with: { (snapshot) in
+            // Get user value
+            if let value = snapshot.value as? NSDictionary {
+                let firstName = value["firstName"] as? String ?? ""
+                let lastName = value["lastName"] as? String ?? ""
+                self.userFullName = "\(firstName) \(lastName)"
+                self.groupMembers.append([self.userFullName, self.user.email!])
+            } else {
+                print("No Value")
+            }
+        }) { (error) in
+            print(error.localizedDescription)
+        }
         
         chosenNamesContainer.layer.cornerRadius = 10
         
@@ -77,7 +95,7 @@ class NewGroupMessageViewController: UIViewController {
         groupTitleView.layer.borderColor = UIColor(named: "BrandPurpleColor")?.cgColor*/
         
         //automatically adds user to groupMembers since they are the one creating the chat
-        groupMembers.append(user.email!)
+
         /*let commaEmail = user.email!.replacingOccurrences(of: ".", with: ",")
         userRef.child(commaEmail).observeSingleEvent(of: .value, with: { (snapshot) in
             // Get user value
@@ -175,8 +193,8 @@ class NewGroupMessageViewController: UIViewController {
             self.searchNames = []
             for value in postDict.values {
                 //creates contact icon for all the users
-                let userFirstName = value.object(forKey: "firstName")! as! String
-                let userLastName = value.object(forKey: "lastName")! as! String
+                let userFirstName = (value.object(forKey: "firstName") as? String) ?? ""
+                let userLastName = (value.object(forKey: "lastName") as? String) ?? ""
                 let userFullName = "\(userFirstName) \(userLastName)"
                 let userEmail = value.object(forKey: "email") as! String
                 let userContact: Contact = Contact(email: userEmail, fullName: userFullName)
@@ -378,8 +396,8 @@ extension NewGroupMessageViewController: UICollectionViewDelegate {
             let userContact = Contact(email: userEmail, fullName: userFirstName)
             if (!chosenNames.contains(userContact)) {
                 chosenNames.append(userContact)
-                if (!groupMembers.contains(userContact.email)) {
-                    groupMembers.append(userContact.email)
+                if (!groupMembers.contains([cell.nameLabel.text!, userContact.email])) {
+                    groupMembers.append([cell.nameLabel.text!, userContact.email])
                 }
                 createBarButton.tintColor = UIColor(named: K.BrandColors.purple)
                 self.contactTextField.text = ""

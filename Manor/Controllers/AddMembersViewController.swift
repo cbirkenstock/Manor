@@ -36,7 +36,7 @@ class AddMembersViewController: UIViewController {
     
     var searchNames: [Contact] = []
     var chosenNames: [Contact] = []
-    var groupMembers: [String] = []
+    var groupMembers: [[String]] = []
     //var otherUserFullName: String = ""
     //var otherUserEmail: String = ""
     var userFullName: String = ""
@@ -254,9 +254,8 @@ extension AddMembersViewController: UICollectionViewDelegate {
             let userContact = Contact(email: userEmail, fullName: userFirstName)
             if (!chosenNames.contains(userContact)) {
                 chosenNames.append(userContact)
-                if (!groupMembers.contains(userContact.email)) {
-                    groupMembers.append(userContact.email)
-                    print("CONTACT ADDED: \(userContact.email)")
+                if (!groupMembers.contains([cell.nameLabel.text!, userContact.email])) {
+                    groupMembers.append([cell.nameLabel.text!, userContact.email])
                 }
                 addBarButton.tintColor = UIColor(named: K.BrandColors.purple)
                 DispatchQueue.main.async {

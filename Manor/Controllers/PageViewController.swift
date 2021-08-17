@@ -71,7 +71,6 @@ class PageViewController: UIPageViewController, UIPageViewControllerDelegate, UI
     }
     
     @objc func enableSwipe() {
-        print("enabled")
         self.dataSource = self
         //notification: NSNotification
     }

@@ -33,7 +33,7 @@ class NewContactPageViewController: UIViewController {
     var contacts: [Contact] = []
     var groupChats: [String] = []
     var groupChatTitle: String = ""
-    var groupMembers: [String] = []
+    var groupMembers: [[String]] = []
     var groupChatImageUrl: String = ""
     @IBOutlet weak var profileBarButton: UIBarButtonItem!
     
@@ -204,7 +204,7 @@ extension NewContactPageViewController: UICollectionViewDataSource {
         cell.profileImageUrl = profileImageUrl
         cell.contactImageView.image = #imageLiteral(resourceName: "AbstractPainting")
         
-        if profileImageUrl == "default" {
+        if profileImageUrl == "default" || profileImageUrl == "" {
             return cell
         }  else if let cachedImage = self.imageCache.object(forKey: profileImageUrl as NSString) {
             cell.contactImageView.image = cachedImage as? UIImage
@@ -245,7 +245,7 @@ extension NewContactPageViewController: UICollectionViewDelegate {
         let MembersRef = groupChatMessages.child(documentID).child("Members")
         
         MembersRef.observe(DataEventType.value, with: { (snapshot) in
-            let postArray = snapshot.value as? [String] ?? ["FAILED"]
+            let postArray = snapshot.value as? [[String]] ?? [["FAILED"]]
             self.groupMembers = postArray
             self.performSegue(withIdentifier: K.Segues.GroupChatSegue, sender: self)
         })

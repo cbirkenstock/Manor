@@ -267,8 +267,8 @@ exports.sendGroupMembersNotification = functions.database
         const member = members[i];
 
 
-        if (member !== senderEmail) {
-          const commaMember = String(member).split(".").join(",");
+        if (member[1] !== senderEmail) {
+          const commaMember = String(member[1]).split(".").join(",");
 
           const userBadgeCountPromise = admin.database()
               .ref(`/users/${commaMember}/badgeCount`)

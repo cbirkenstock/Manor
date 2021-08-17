@@ -8,7 +8,7 @@
 import UIKit
 import Firebase
 
-class GroupChatInfoViewController: UIViewController, UIImagePickerControllerDelegate, UINavigationControllerDelegate {
+class GroupChatInfoViewController: UIViewController, UIImagePickerControllerDelegate, UINavigationControllerDelegate, UITextFieldDelegate {
     
     
     
@@ -22,20 +22,33 @@ class GroupChatInfoViewController: UIViewController, UIImagePickerControllerDele
     let usersRef = Database.database().reference().child("users")
     var documentID: String?
     var pushMessages: [Message] = []
-    var groupMembers: [String] = []
+    var groupMembers: [[String]] = []
     var groupContacts: [Contact] = []
     var tableViewContents: [[Any]] = []
-    var sectionHeaderTitles: [String] = ["Members", "Push Messages", "Settings"]
+    var sectionHeaderTitles: [String] = ["Buttons", "Members", "Push Messages", "Settings"]
     var groupChatTitle: String = ""
     var pushMessageUID: String = ""
     var userFullName: String = ""
     var groupChatImageUrl: String = ""
+    var otherUserFullName: String = ""
+    var otherUserEmail: String = ""
+    var notificationsOn: Bool?
+    var userEmail: String = ""
     
     
     override func viewDidLoad() {
         super.viewDidLoad()
         
+        NotificationCenter.default.post(name: NSNotification.Name(rawValue: "disableSwipe"), object: nil)
+        
+        let buttonsArray = ["Add Members", "Notifications:"]
+        
+        self.tableViewContents.append(buttonsArray)
+        
         groupChatImageButton.layer.cornerRadius = groupChatImageButton.frame.height/2
+        groupChatImageButton.clipsToBounds = true
+        
+        groupChatTitleTextField.isUserInteractionEnabled = false
         
         self.downloadImage { image in
             self.groupChatImageButton.setBackgroundImage(image, for: .normal)
@@ -54,27 +67,32 @@ class GroupChatInfoViewController: UIViewController, UIImagePickerControllerDele
         
         
         /*for email in groupMembers {
-         let currentUserEmail = email
-         var currentUserFullName = ""
-         let commaEmail = email.replacingOccurrences(of: ".", with: ",")
-         usersRef.child(commaEmail).observeSingleEvent(of: DataEventType.value) { (snapshot) in
-         let postDict = snapshot.value as? [String: AnyObject]
-         for key in postDict!.keys {
-         if key == "firstName" {
-         currentUserFullName = (self.value(forKey: "firstName") as? String) ?? ""
-         }
-         
-         if key == "lastName" {
-         currentUserFullName = "\(currentUserFullName) \(self.value(forKey: "lastName") as? String ?? "")"
-         
-         let user = Contact(email: currentUserEmail, fullName: currentUserFullName)
-         
-         self.groupContacts.append(user)
-         }
-         }
-         }
-         }*/
+            let currentUserEmail = email
+            var currentUserFullName = ""
+            let commaEmail = email.replacingOccurrences(of: ".", with: ",")
+            usersRef.child(commaEmail).observeSingleEvent(of: DataEventType.value) { (snapshot) in
+                let postDict = snapshot.value as? [String: AnyObject]
+                for key in postDict!.keys {
+                    if key == "firstName" {
+                        currentUserFullName = (self.value(forKey: "firstName") as? String) ?? ""
+                    }
+                    
+                    if key == "lastName" {
+                        currentUserFullName = "\(currentUserFullName) \(self.value(forKey: "lastName") as? String ?? "")"
+                        
+                        let user = Contact(email: currentUserEmail, fullName: currentUserFullName)
+                        
+                        self.groupContacts.append(user)
+                    }
+                }
+            }
+        }*/
         
+        for member in groupMembers {
+            if member[0] == self.userFullName {
+                self.userEmail = member[1]
+            }
+        }
         
         tableViewContents.append(groupMembers)
         
@@ -105,6 +123,10 @@ class GroupChatInfoViewController: UIViewController, UIImagePickerControllerDele
             
             self.tableViewContents.append(sortedPushMessages)
             
+            let settingsArray = ["Nickname:", "Leave Chat"]
+            
+            self.tableViewContents.append(settingsArray)
+            
             DispatchQueue.main.async {
                 self.pushMessagesTableView.reloadData()
                 /*let indexPath = IndexPath(row: self.pushMessages.count - 1, section: 0)
@@ -112,14 +134,25 @@ class GroupChatInfoViewController: UIViewController, UIImagePickerControllerDele
             }
         })
         
+
         
-        
-        // Do any additional setup after loading the view.
+        /*self.groupChatByUsersRef.child(commaEmail).child("Chats").child(self.documentID!).child("notificationsEnabled").observeSingleEvent(of: DataEventType.value) { DataSnapshot in
+            if let notificationsEnabled = DataSnapshot.value as? Bool {
+                if notificationsEnabled {
+                    self.notificationsOn = true
+                } else {
+                    self.notificationsOn = false
+                }
+            } else {
+                self.notificationsOn = true
+            }
+            self.pushMessagesTableView.reloadData()
+        }*/
     }
     
     func setUpAddMemberButton() {
-        self.addMemberButton.layer.cornerRadius = 10
-        self.addMemberButton.backgroundColor = UIColor(named: K.BrandColors.purple)//UIColor(named: K.BrandColors.navigationBarGray)
+        //self.addMemberButton.layer.cornerRadius = 10
+        //self.addMemberButton.backgroundColor = UIColor(named: K.BrandColors.purple)//UIColor(named: K.BrandColors.navigationBarGray)
     }
     
     @IBAction func ProfilePicturePressed(_ sender: UIButton) {
@@ -132,11 +165,16 @@ class GroupChatInfoViewController: UIViewController, UIImagePickerControllerDele
     
     func downloadImage(completion: @escaping (UIImage) -> ()) {
         DispatchQueue.global().async { [weak self] in
-            let URL = URL(string: self?.groupChatImageUrl ?? "default")
-            if let data = try? Data(contentsOf: URL!) {
-                if let image = UIImage(data: data) {
-                    DispatchQueue.main.async {
-                        completion(image)
+            if var groupChatImageUrl = self?.groupChatImageUrl {
+                if groupChatImageUrl == "" {
+                    groupChatImageUrl = "default"
+                }
+                let URL = URL(string: groupChatImageUrl)
+                if let data = try? Data(contentsOf: URL!) {
+                    if let image = UIImage(data: data) {
+                        DispatchQueue.main.async {
+                            completion(image)
+                        }
                     }
                 }
             }
@@ -179,8 +217,8 @@ class GroupChatInfoViewController: UIViewController, UIImagePickerControllerDele
                                 self.groupChatTitleTextField.text = self.groupChatTitle
                             }
                             
-                            for email in self.groupMembers {
-                                let commaEmail = email.replacingOccurrences(of: ".", with: ",")
+                            for member in self.groupMembers {
+                                let commaEmail = member[1].replacingOccurrences(of: ".", with: ",")
                                 
                                 self.groupChatByUsersRef.child("\(commaEmail)/Chats/\(self.documentID!)/profileImageUrl").setValue(imageURL)
                             }
@@ -207,11 +245,22 @@ class GroupChatInfoViewController: UIViewController, UIImagePickerControllerDele
             vc.documentID = self.documentID!
             vc.userFullName = self.userFullName
         }
+        
+        if segue.destination is ChatViewController {
+            let vc = segue.destination as! ChatViewController
+            vc.otherUserFullName = self.otherUserFullName
+            vc.otherUserEmail = self.otherUserEmail
+            vc.userFullName = self.userFullName
+        }
     }
     
     
-    @IBAction func addMembersButtonPressed(_ sender: UIButton) {
+    func addMembersButtonPressed() {
         performSegue(withIdentifier: "toAddMembers", sender: self)
+    }
+    
+    override func viewDidDisappear(_ animated: Bool) {
+        NotificationCenter.default.post(name: NSNotification.Name(rawValue: "enableSwipe"), object: nil)
     }
 }
 
@@ -228,48 +277,148 @@ extension GroupChatInfoViewController: UITableViewDelegate, UITableViewDataSourc
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = pushMessagesTableView.dequeueReusableCell(withIdentifier: "MemberCell", for: indexPath) as! MemberTableViewCell
         
-        if indexPath.section == 0 {
-            let email = tableViewContents[indexPath.section][indexPath.row] as! String
+        switch indexPath.section {
+        case 0:
+            cell.isContact = false
+            let name = tableViewContents[indexPath.section][indexPath.row] as? String
+            cell.contactName.text = name
+            if name == "Add Members" {
+                cell.background.backgroundColor = UIColor(named: K.BrandColors.purple)
+            } else {
+                cell.isSettingsButton = true
+                
+                let commaEmail = self.userEmail.replacingOccurrences(of: ".", with: ",")
+                
+                
+                self.groupChatByUsersRef.child(commaEmail).child("Chats").child(self.documentID!).child("notificationsEnabled").observeSingleEvent(of: DataEventType.value) { DataSnapshot in
+                    if let notificationsEnabled = DataSnapshot.value as? Bool {
+                        if notificationsEnabled {
+                            cell.specificTextFieldText = "Enabled"
+                            cell.background.backgroundColor = .systemGreen
+                        } else {
+                            cell.specificTextFieldText = "Disabled"
+                            cell.background.backgroundColor = .systemRed
+                        }
+                    }
+                }
+            }
+        case 1:
+            let email = groupMembers[indexPath.row][1]
+            cell.contactEmail = email
+            
+            
+            cell.isContact = true
+            
+            let name = groupMembers[indexPath.row][0]
+            cell.contactName.text = name
+            
+        case 2:
+            cell.isContact = false
+            let message = tableViewContents[indexPath.section][indexPath.row] as? Message
+            cell.contactName.text = message?.messageBody
+            cell.pushMessageUID = message?.pushMessageUID ?? ""
+        case 3:
+            cell.isContact = false
+            if indexPath.row == 0 {
+                cell.specificTextFieldText = self.userFullName
+                let email = tableViewContents[indexPath.section][indexPath.row] as? String
+                cell.contactName.text = email
+                cell.isSettingsButton = true
+            } else {
+                let title = tableViewContents[indexPath.section][indexPath.row] as? String
+                cell.contactName.text = title
+                cell.contactName.textColor = .systemRed
+                cell.contactName.font = UIFont.systemFont(ofSize: 22, weight: .semibold)
+            }
+        default:
+            cell.isContact = false
+            let email = tableViewContents[indexPath.section][indexPath.row] as? String
             cell.contactName.text = email
-        }
-        
-        if indexPath.section == 1 {
-            let message = tableViewContents[indexPath.section][indexPath.row] as! Message
-            cell.contactName.text = message.messageBody
-            cell.pushMessageUID = message.pushMessageUID ?? ""
         }
         
         return cell
     }
     
+    func tableView(_ tableView: UITableView, heightForHeaderInSection section: Int) -> CGFloat {
+        
+        let headerHeight: CGFloat
+        
+        switch section {
+        case 0:
+            // hide the header
+            headerHeight = CGFloat.leastNonzeroMagnitude
+        case 2:
+            if tableViewContents[section].count == 0 {
+                headerHeight = CGFloat.leastNonzeroMagnitude
+            } else {
+                headerHeight = 20
+            }
+        default:
+            headerHeight = 20
+        }
+        return headerHeight
+    }
+    
     func tableView(_ tableView: UITableView, viewForHeaderInSection section: Int) -> UIView? {
         
-        let headerLabel = UILabel()
-        headerLabel.backgroundColor = .clear
-        headerLabel.text = self.sectionHeaderTitles[section]
-        headerLabel.textColor = .white
-        headerLabel.textAlignment = .center
-        headerLabel.translatesAutoresizingMaskIntoConstraints = false
-        headerLabel.font = UIFont.boldSystemFont(ofSize: 18)
-        
-        let containerView = UIView()
-        containerView.addSubview(headerLabel)
-        containerView.backgroundColor = .black//UIColor.init(named: K.BrandColors.backgroundBlack)
-        
-        let headerViewConstraints = [
-            //headerLabel.topAnchor.constraint(equalTo: containerView.topAnchor, constant: 10),
-            //headerLabel.bottomAnchor.constraint(equalTo: containerView.topAnchor),
-            headerLabel.centerXAnchor.constraint(equalTo: containerView.centerXAnchor),
-            headerLabel.centerYAnchor.constraint(equalTo: containerView.centerYAnchor)
-        ]
-        
-        NSLayoutConstraint.activate(headerViewConstraints)
-        
+        switch section {
+        case 0:
+            return nil
+        case 2:
+            if tableViewContents[section].count == 0 {
+                return nil
+            } else {
+                let headerLabel = UILabel()
+                headerLabel.backgroundColor = .clear
+                headerLabel.text = self.sectionHeaderTitles[section]
+                headerLabel.textColor = .white
+                headerLabel.textAlignment = .center
+                headerLabel.translatesAutoresizingMaskIntoConstraints = false
+                headerLabel.font = UIFont.boldSystemFont(ofSize: 16)
+                
+                let containerView = UIView()
+                containerView.addSubview(headerLabel)
+                containerView.backgroundColor = .black
+                
+                let headerViewConstraints = [
+                    //headerLabel.topAnchor.constraint(equalTo: containerView.topAnchor, constant: 10),
+                    //headerLabel.bottomAnchor.constraint(equalTo: containerView.topAnchor),
+                    headerLabel.centerXAnchor.constraint(equalTo: containerView.centerXAnchor),
+                    headerLabel.centerYAnchor.constraint(equalTo: containerView.centerYAnchor)
+                ]
+                
+                NSLayoutConstraint.activate(headerViewConstraints)
+                
+                return containerView
+            }
+        default:
+            let headerLabel = UILabel()
+            headerLabel.backgroundColor = .clear
+            headerLabel.text = self.sectionHeaderTitles[section]
+            headerLabel.textColor = .white
+            headerLabel.textAlignment = .center
+            headerLabel.translatesAutoresizingMaskIntoConstraints = false
+            headerLabel.font = UIFont.boldSystemFont(ofSize: 16)
+            
+            let containerView = UIView()
+            containerView.addSubview(headerLabel)
+            containerView.backgroundColor = .black//UIColor.init(named: K.BrandColors.backgroundBlack)
+            
+            let headerViewConstraints = [
+                //headerLabel.topAnchor.constraint(equalTo: containerView.topAnchor, constant: 10),
+                //headerLabel.bottomAnchor.constraint(equalTo: containerView.topAnchor),
+                headerLabel.centerXAnchor.constraint(equalTo: containerView.centerXAnchor),
+                headerLabel.centerYAnchor.constraint(equalTo: containerView.centerYAnchor)
+            ]
+            
+            NSLayoutConstraint.activate(headerViewConstraints)
+            
+            return containerView
+        }
         /*let containerViewConstraints = [
          containerView.topAnchor.constraint(equalTo: headerLabel.topAnchor, constant: -10)
          ]*/
         //containerView.transform = CGAffineTransform(scaleX: 1, y: -1)
-        return containerView
     }
     
     
@@ -277,10 +426,54 @@ extension GroupChatInfoViewController: UITableViewDelegate, UITableViewDataSourc
         //let cell = pushMessagesTableView.dequeueReusableCell(withIdentifier: "regularMessageCell", for: indexPath) as! RegularMessageBody
         
         let cell = pushMessagesTableView.cellForRow(at: indexPath) as! MemberTableViewCell
+        cell.selectionStyle = .none
         
-        self.pushMessageUID = cell.pushMessageUID
+        switch indexPath.section {
+        case 0:
+            if indexPath.row == 0 {
+                addMembersButtonPressed()
+            }
+            if indexPath.row == 1 {
+                let commaEmail = self.userEmail.replacingOccurrences(of: ".", with: ",")
+                if self.notificationsOn ?? true {
+                    cell.background.backgroundColor = .systemRed
+                    cell.specificTextField.text = "Disabled"
+                    self.notificationsOn = false
+                    self.groupChatByUsersRef.child("\(commaEmail)/Chats/\(self.documentID!)/notificationsEnabled").setValue(false)
+                } else {
+                    cell.background.backgroundColor = .systemGreen
+                    cell.specificTextField.text = "Enabled"
+                    self.notificationsOn = true
+                    self.groupChatByUsersRef.child("\(commaEmail)/Chats/\(self.documentID!)/notificationsEnabled").setValue(true)
+                }
+            }
+        case 1:
+            self.otherUserFullName = cell.contactName.text!
+            self.otherUserEmail = groupMembers[indexPath.row][1]
+            performSegue(withIdentifier: K.Segues.DirectMessageChatSegue, sender: self)
+        case 2:
+            cell.selectionStyle = .none
+            self.pushMessageUID = cell.pushMessageUID
+            performSegue(withIdentifier: "toUnreachedMembers", sender: self)
+        case 3:
+            cell.selectionStyle = .none
+            cell.specificTextField.isUserInteractionEnabled = true
+            cell.specificTextField.delegate = self
+            cell.specificTextField.text = ""
+            cell.specificTextField.textAlignment = .center
+            cell.specificTextField.becomeFirstResponder()
+            
+        default:
+            cell.selectionStyle = .none
+        }
         
-        performSegue(withIdentifier: "toUnreachedMembers", sender: self)
     }
+    
+    func textFieldShouldReturn(_ textField: UITextField) -> Bool {
+        textField.textAlignment = .right
+        textField.resignFirstResponder()
+        return true
+    }
+    
 }
 
