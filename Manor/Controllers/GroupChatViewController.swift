@@ -638,6 +638,7 @@ class GroupChatViewController: UIViewController, UIImagePickerControllerDelegate
                     "messageSenderNickName": self.userNickName ?? self.userFullName,
                     "messageBody": messageBody,
                     "timeStamp": commaTimestamp,
+                    "likes": "0"
                 ])
             }
             
@@ -999,6 +1000,9 @@ extension GroupChatViewController: UITableViewDataSource, UITableViewDelegate {
                 
             } else {
                 let cell = chatTableView.dequeueReusableCell(withIdentifier: "regularMessageCell", for: indexPath) as! BubbleMessageBodyCell
+                
+                cell.documentID = self.documentID
+                cell.timeStamp = message.timeStamp
                 
                 if let messageBody = message.messageBody {
                     

@@ -196,7 +196,7 @@ class NewGroupMessageViewController: UIViewController {
                 let userFirstName = (value.object(forKey: "firstName") as? String) ?? ""
                 let userLastName = (value.object(forKey: "lastName") as? String) ?? ""
                 let userFullName = "\(userFirstName) \(userLastName)"
-                let userEmail = value.object(forKey: "email") as! String
+                let userEmail = value.object(forKey: "email") as? String ?? ""
                 let userContact: Contact = Contact(email: userEmail, fullName: userFullName)
                 //this loop just checks to see if all the letters of someone's name matches the searched name
                 if let i = searchName?.count {

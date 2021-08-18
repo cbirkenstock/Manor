@@ -6,9 +6,12 @@
 //
 
 import UIKit
+import Firebase
 
 class BubbleMessageBodyCell: UITableViewCell {
     
+    var documentID: String?
+    var timeStamp: Double?
     let background = UIView()
     let bubbleView = UIView()
     let messageBody = UILabel()
@@ -28,6 +31,10 @@ class BubbleMessageBodyCell: UITableViewCell {
     var note: String = "Note"
     var venmoName: String = ""
     var isVenmoRequest: Bool = false
+    var doubleTapGestureRecognizer: UITapGestureRecognizer!
+    let groupChatMessagesRef = Database.database().reference().child("GroupChatMessages")
+
+
     
     
     var isIncoming: Bool! {
@@ -37,9 +44,78 @@ class BubbleMessageBodyCell: UITableViewCell {
             if isIncoming {
                 NSLayoutConstraint.deactivate(OutgoingMessageConstraints)
                 NSLayoutConstraint.activate(incomingMessageConstraints)
+                
+                let stringTimeStamp = self.timeStamp?.description
+                let commaTimeStamp = stringTimeStamp?.replacingOccurrences(of: ".", with: ",")
+                
+                groupChatMessagesRef.child(self.documentID!).child("Messages").child("Message,\(commaTimeStamp!)").child("likes").observe(DataEventType.value, with: { DataSnapshot in
+                    let likeNumber = DataSnapshot.value as? String ?? "0"
+                    
+                    if likeNumber == "0" {
+                        self.heartCountLabel.isHidden = true
+                        self.heartIconButton.isHidden = true
+                    } else {
+                        self.heartCountLabel.isHidden = false
+                        self.heartIconButton.isHidden = false
+                        
+                        self.heartCountLabel.text = likeNumber
+                    }
+                })
+                
+                let heartCountLabelConstraints = [
+                    heartCountLabel.topAnchor.constraint(equalTo: bubbleView.topAnchor, constant: 0),
+                    heartCountLabel.leadingAnchor.constraint(equalTo: bubbleView.trailingAnchor, constant: 10),
+                    heartCountLabel.heightAnchor.constraint(equalToConstant: 40)
+                ]
+                
+                NSLayoutConstraint.activate(heartCountLabelConstraints)
+                
+                let heartIconButtonConstraints = [
+                    heartIconButton.leadingAnchor.constraint(equalTo: heartCountLabel.trailingAnchor, constant: -5),
+                    heartIconButton.topAnchor.constraint(equalTo: bubbleView.topAnchor, constant: 0),
+                    heartIconButton.heightAnchor.constraint(equalToConstant: 40),
+                    heartIconButton.widthAnchor.constraint(equalToConstant: 40)
+                ]
+                
+                NSLayoutConstraint.activate(heartIconButtonConstraints)
+            
             } else {
                 NSLayoutConstraint.deactivate(incomingMessageConstraints)
                 NSLayoutConstraint.activate(OutgoingMessageConstraints)
+                
+                let stringTimeStamp = self.timeStamp?.description
+                let commaTimeStamp = stringTimeStamp?.replacingOccurrences(of: ".", with: ",")
+                
+                groupChatMessagesRef.child(self.documentID!).child("Messages").child("Message,\(commaTimeStamp!)").child("likes").observe(DataEventType.value, with: { DataSnapshot in
+                    let likeNumber = DataSnapshot.value as? String ?? "0"
+                    
+                    if likeNumber == "0" {
+                        self.heartCountLabel.isHidden = true
+                        self.heartIconButton.isHidden = true
+                    } else {
+                        self.heartCountLabel.isHidden = false
+                        self.heartIconButton.isHidden = false
+                        
+                        self.heartCountLabel.text = likeNumber
+                    }
+                })
+                
+                let heartIconButtonConstraints = [
+                    heartIconButton.trailingAnchor.constraint(equalTo: bubbleView.leadingAnchor, constant: -10),
+                    heartIconButton.topAnchor.constraint(equalTo: bubbleView.topAnchor, constant: 0),
+                    heartIconButton.heightAnchor.constraint(equalToConstant: 40),
+                    heartIconButton.widthAnchor.constraint(equalToConstant: 40)
+                ]
+                
+                NSLayoutConstraint.activate(heartIconButtonConstraints)
+                
+                let heartCountLabelConstraints = [
+                    heartCountLabel.topAnchor.constraint(equalTo: heartIconButton.topAnchor, constant: 0),
+                    heartCountLabel.bottomAnchor.constraint(equalTo: heartIconButton.bottomAnchor, constant: 0),
+                    heartCountLabel.trailingAnchor.constraint(equalTo: heartIconButton.leadingAnchor, constant: 5)
+                ]
+                
+                NSLayoutConstraint.activate(heartCountLabelConstraints)
             }
             
             if isVenmoRequest {
@@ -59,6 +135,12 @@ class BubbleMessageBodyCell: UITableViewCell {
                 NSLayoutConstraint.activate(venmoButtonConstraints)
                 
                 bubbleView.layer.borderColor = UIColor(named: "BrightBlue")?.cgColor
+                bubbleView.removeGestureRecognizer(doubleTapGestureRecognizer)
+            } else {
+                bubbleView.addGestureRecognizer(doubleTapGestureRecognizer)
+                //doubleTapGestureRecognizer.delegate = self
+                //bubbleView.isUserInteractionEnabled = true
+                //bubbleView.addGestureRecognizer(doubleTapGestureRecognizer)
             }
         }
     }
@@ -128,6 +210,26 @@ class BubbleMessageBodyCell: UITableViewCell {
         }
     }
     
+    var heartIconButton: UIButton = {
+        let heartIconButton = UIButton()
+        heartIconButton.translatesAutoresizingMaskIntoConstraints = false
+        let heartIconConfiguration = UIImage.SymbolConfiguration(pointSize: 30, weight: .regular, scale: .default)
+        let heartImage = UIImage(systemName: "heart.fill", withConfiguration: heartIconConfiguration)
+        heartIconButton.setImage(heartImage, for: .normal)
+        heartIconButton.tintColor = .systemPink
+        heartIconButton.addTarget(self, action: #selector(messageDoubleTapped), for: .touchUpInside)
+        return heartIconButton
+    }()
+    
+    var heartCountLabel: UILabel = {
+        let heartCountLabel = UILabel()
+        heartCountLabel.translatesAutoresizingMaskIntoConstraints = false
+        heartCountLabel.text = "5"
+        heartCountLabel.textColor = .systemPink
+        heartCountLabel.font = UIFont.systemFont(ofSize: 30)
+        return heartCountLabel
+    }()
+    
 
     
     
@@ -136,6 +238,13 @@ class BubbleMessageBodyCell: UITableViewCell {
         
         self.backgroundColor = .clear//UIColor(named: K.BrandColors.backgroundBlack)
         self.isUserInteractionEnabled = true
+        
+        doubleTapGestureRecognizer = UITapGestureRecognizer(target: self, action: #selector(messageDoubleTapped))
+        
+        doubleTapGestureRecognizer.numberOfTapsRequired = 2
+        doubleTapGestureRecognizer.delegate = self
+        
+
         
         /*if self.imageURL != "" {
          print("crazy")
@@ -169,8 +278,10 @@ class BubbleMessageBodyCell: UITableViewCell {
         messageBody.textColor = .white
         messageBody.numberOfLines = 0
         
-
+        contentView.addSubview(heartIconButton)
         
+        contentView.addSubview(heartCountLabel)
+    
         //NSLayoutConstraint.activate(messageImageViewContraints)
         
         
@@ -256,6 +367,20 @@ class BubbleMessageBodyCell: UITableViewCell {
         let appURL = URL(string: appPath)!
         application.open(appURL, options: [:]) { bool in
             print(bool)
+        }
+    }
+    
+    @objc func messageDoubleTapped() {
+        let stringTimeStamp = self.timeStamp?.description
+        let commaTimeStamp = stringTimeStamp?.replacingOccurrences(of: ".", with: ",")
+        
+        groupChatMessagesRef.child(self.documentID!).child("Messages").child("Message,\(commaTimeStamp!)").child("likes").observeSingleEvent(of: DataEventType.value) { DataSnapshot in
+            let likeNumber = DataSnapshot.value as? String ?? "0"
+            let newLikeNumber = String(Int(likeNumber)! + 1)
+            
+            self.groupChatMessagesRef.child("\(self.documentID!)/Messages/Message,\(commaTimeStamp!)/likes").setValue(newLikeNumber)
+            
+            self.heartCountLabel.text = newLikeNumber
         }
     }
 }
