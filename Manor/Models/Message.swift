@@ -14,4 +14,5 @@ struct Message{
     let pushMessageUID: String?
     var imageURL: String? = ""
     var venmoName: String = ""
+    var messageSenderNickName: String? = ""
 }

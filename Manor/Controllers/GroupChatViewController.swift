@@ -76,14 +76,11 @@ class GroupChatViewController: UIViewController, UIImagePickerControllerDelegate
     let imageCache = NSCache<NSString, AnyObject>()
     let cameraButton = UIButton()
     var groupChatImageUrl: String = ""
+    var userNickName: String?
     
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        
-        print("ABC")
-        print(self.groupMembers)
-        
         
         self.commaEmail = user.email!.replacingOccurrences(of: ".", with: ",")
         
@@ -106,6 +103,17 @@ class GroupChatViewController: UIViewController, UIImagePickerControllerDelegate
                 self.userFullName = "\(firstName) \(lastName)"
                 self.userVenmoName = value["venmoName"] as! String
                 self.chatTableView.reloadData()
+            } else {
+                print("No Value")
+            }
+        }) { (error) in
+            print(error.localizedDescription)
+        }
+        
+        groupChatByUsersRef.child(commaEmail).child("Chats").child(self.documentID).child("nickName").observe(DataEventType.value, with: { (snapshot) in
+            // Get user value
+            if let userNickName = snapshot.value as? String {
+                self.userNickName = userNickName
             } else {
                 print("No Value")
             }
@@ -572,6 +580,7 @@ class GroupChatViewController: UIViewController, UIImagePickerControllerDelegate
             vc.groupChatTitle = self.groupChatTitle
             vc.userFullName = self.userFullName
             vc.groupChatImageUrl = self.groupChatImageUrl
+            vc.userNickName = self.userNickName ?? userFullName
         }
     }
     
@@ -618,6 +627,7 @@ class GroupChatViewController: UIViewController, UIImagePickerControllerDelegate
             if messageBody.contains("Venmo") && messageBodyHasNumbers {
                 self.groupChatMessagesRef.child(documentID).child("Messages").child("Message,\(commaTimestamp)").setValue([
                     "messageSender": userFullName,
+                    "messageSenderNickName": self.userNickName ?? self.userFullName,
                     "messageBody": messageBody,
                     "timeStamp": commaTimestamp,
                     "venmoName": self.userVenmoName
@@ -625,6 +635,7 @@ class GroupChatViewController: UIViewController, UIImagePickerControllerDelegate
             } else {
                 self.groupChatMessagesRef.child(documentID).child("Messages").child("Message,\(commaTimestamp)").setValue([
                     "messageSender": userFullName,
+                    "messageSenderNickName": self.userNickName ?? self.userFullName,
                     "messageBody": messageBody,
                     "timeStamp": commaTimestamp,
                 ])
@@ -730,6 +741,7 @@ class GroupChatViewController: UIViewController, UIImagePickerControllerDelegate
             self.keyArray = []
             for value in postDict.values {
                 if let messageSender = value.object(forKey: "messageSender")! as? String, let commaTimeStamp = value.object(forKey: "timeStamp") as? String {
+                    let messageSenderNickName = value.object(forKey: "messageSenderNickName") as? String ?? messageSender
                     if let message = value.object(forKey: "messageBody") as? String {
                         self.totalMessages += 1
                         let timeStamp = Double(commaTimeStamp.replacingOccurrences(of: ",", with: "."))!
@@ -746,10 +758,10 @@ class GroupChatViewController: UIViewController, UIImagePickerControllerDelegate
                             messageBody = message
                         }
                         
-                        var message = Message(messageSender: messageSender, messageBody: messageBody, timeStamp: timeStamp, pushMessageUID: nil)
+                        var message = Message(messageSender: messageSender, messageBody: messageBody, timeStamp: timeStamp, pushMessageUID: nil, messageSenderNickName: messageSenderNickName)
                         
                         if let venmoName = value.object(forKey: "venmoName") as? String {
-                            message = Message(messageSender: messageSender, messageBody: messageBody, timeStamp: timeStamp, pushMessageUID: nil, venmoName: venmoName)
+                            message = Message(messageSender: messageSender, messageBody: messageBody, timeStamp: timeStamp, pushMessageUID: nil, venmoName: venmoName, messageSenderNickName: messageSenderNickName)
                         }
                         
                         self.dateFormatter.dateFormat = "MM/dd/yyyy"
@@ -775,7 +787,7 @@ class GroupChatViewController: UIViewController, UIImagePickerControllerDelegate
                         self.totalMessages += 1
                         let timeStamp = Double(commaTimeStamp.replacingOccurrences(of: ",", with: "."))!
                         
-                        let message = Message(messageSender: messageSender, messageBody: nil, timeStamp: timeStamp, pushMessageUID: nil, imageURL: imageURL)
+                        let message = Message(messageSender: messageSender, messageBody: nil, timeStamp: timeStamp, pushMessageUID: nil, imageURL: imageURL, messageSenderNickName: messageSenderNickName)
                         
                         self.dateFormatter.dateFormat = "MM/dd/yyyy"
                         let messageDate = self.dateFormatter.string(from: Date(timeIntervalSince1970: timeStamp))
@@ -977,7 +989,7 @@ extension GroupChatViewController: UITableViewDataSource, UITableViewDelegate {
                     }
                 }
                 
-                cell.emailLabel.text = message.messageSender
+                cell.emailLabel.text = message.messageSenderNickName
                 
                 cell.isGroupMessage = true
                 
@@ -1041,7 +1053,7 @@ extension GroupChatViewController: UITableViewDataSource, UITableViewDelegate {
                     cell.messageBody.text = ""
                 }
                 
-                cell.emailLabel.text = message.messageSender
+                cell.emailLabel.text = message.messageSenderNickName
                 
                 cell.groupPosition = checkCellPosition(sortedMessages: sortedMessages, indexPathRow: indexPath.row)
                 

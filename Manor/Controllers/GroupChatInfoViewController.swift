@@ -34,6 +34,7 @@ class GroupChatInfoViewController: UIViewController, UIImagePickerControllerDele
     var otherUserEmail: String = ""
     var notificationsOn: Bool?
     var userEmail: String = ""
+    var userNickName: String = ""
     
     
     override func viewDidLoad() {
@@ -320,7 +321,7 @@ extension GroupChatInfoViewController: UITableViewDelegate, UITableViewDataSourc
         case 3:
             cell.isContact = false
             if indexPath.row == 0 {
-                cell.specificTextFieldText = self.userFullName
+                cell.specificTextFieldText = self.userNickName
                 let email = tableViewContents[indexPath.section][indexPath.row] as? String
                 cell.contactName.text = email
                 cell.isSettingsButton = true
@@ -472,6 +473,15 @@ extension GroupChatInfoViewController: UITableViewDelegate, UITableViewDataSourc
     func textFieldShouldReturn(_ textField: UITextField) -> Bool {
         textField.textAlignment = .right
         textField.resignFirstResponder()
+        
+        let commaEmail = self.userEmail.replacingOccurrences(of: ".", with: ",")
+        
+        if textField.text != "" {
+        groupChatByUsersRef.child("\(commaEmail)/Chats/\(self.documentID!)/nickName").setValue(textField.text)
+        } else {
+            textField.text = self.userFullName
+        }
+        
         return true
     }
     
