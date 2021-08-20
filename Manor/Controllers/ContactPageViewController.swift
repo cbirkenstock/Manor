@@ -190,6 +190,8 @@ extension ContactPageViewController: UICollectionViewDataSource {
         
         let cell = contactCollectionView.dequeueReusableCell(withReuseIdentifier: "testCell", for: indexPath) as! TestCollectionViewCell
         
+        cell.isMainFour = true
+        
         let sortedContacts = self.contacts.sorted(by: { $0.timeStamp > $1.timeStamp })
         
         //cell.nameLabel.text = sortedContacts[indexPath.row].fullName

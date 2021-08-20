@@ -26,6 +26,7 @@
 		F96EE7852658CE3D003A87B5 /* PushNotificationSender.swift in Sources */ = {isa = PBXBuildFile; fileRef = F96EE7842658CE3D003A87B5 /* PushNotificationSender.swift */; };
 		F979B700268C467600BCDD67 /* BubbleMessageBodyCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = F979B6FF268C467600BCDD67 /* BubbleMessageBodyCell.swift */; };
 		F980C8C226C10E4200EB6D3E /* ProfileViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = F980C8C126C10E4200EB6D3E /* ProfileViewController.swift */; };
+		F986FA2326CF58E400B1B6BA /* TestTwoCollectionViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = F986FA2226CF58E400B1B6BA /* TestTwoCollectionViewCell.swift */; };
 		F98EA5802660CFC700B45D38 /* K.swift in Sources */ = {isa = PBXBuildFile; fileRef = F98EA57F2660CFC700B45D38 /* K.swift */; };
 		F9A6D693264A751F00C444FD /* BackgroundVideo.mp4 in Resources */ = {isa = PBXBuildFile; fileRef = F9A6D692264A751F00C444FD /* BackgroundVideo.mp4 */; };
 		F9A6D695264B3BF500C444FD /* LogInViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = F9A6D694264B3BF500C444FD /* LogInViewController.swift */; };
@@ -70,6 +71,7 @@
 		F96EE7842658CE3D003A87B5 /* PushNotificationSender.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PushNotificationSender.swift; sourceTree = "<group>"; };
 		F979B6FF268C467600BCDD67 /* BubbleMessageBodyCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BubbleMessageBodyCell.swift; sourceTree = "<group>"; };
 		F980C8C126C10E4200EB6D3E /* ProfileViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileViewController.swift; sourceTree = "<group>"; };
+		F986FA2226CF58E400B1B6BA /* TestTwoCollectionViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TestTwoCollectionViewCell.swift; sourceTree = "<group>"; };
 		F98EA57F2660CFC700B45D38 /* K.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = K.swift; sourceTree = "<group>"; };
 		F9A6D692264A751F00C444FD /* BackgroundVideo.mp4 */ = {isa = PBXFileReference; lastKnownFileType = file; path = BackgroundVideo.mp4; sourceTree = "<group>"; };
 		F9A6D694264B3BF500C444FD /* LogInViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LogInViewController.swift; sourceTree = "<group>"; };
@@ -173,6 +175,7 @@
 				F9F84E0B269BFF54009D122F /* MemberTableViewCell.swift */,
 				F936098426B678BB00785888 /* TestCollectionViewCell.swift */,
 				F96CF0AA26BFA5A200592BFE /* PictureMessageTableViewCell.swift */,
+				F986FA2226CF58E400B1B6BA /* TestTwoCollectionViewCell.swift */,
 			);
 			path = Views;
 			sourceTree = "<group>";
@@ -344,6 +347,7 @@
 				F9E6B6C8264A598C003D1408 /* WelcomeViewController.swift in Sources */,
 				F93B2A6A264BCCFC0012938B /* SignUpViewController.swift in Sources */,
 				F90A7201264D048100D6A17E /* ContactPageViewController.swift in Sources */,
+				F986FA2326CF58E400B1B6BA /* TestTwoCollectionViewCell.swift in Sources */,
 				F9F84E0A2691B4CD009D122F /* GroupChatInfoViewController.swift in Sources */,
 				F9E6B6C4264A598C003D1408 /* AppDelegate.swift in Sources */,
 				F9C50E33265C663500B179A6 /* ChosenNameCell.swift in Sources */,

@@ -1,4 +1,10 @@
 //
+//  TestTwoCollectionViewCell.swift
+//  Manor
+//
+//  Created by Colin Birkenstock on 8/19/21.
+//
+//
 //  TestCollectionViewCell.swift
 //  Manor
 //
@@ -7,7 +13,7 @@
 
 import UIKit
 
-class TestCollectionViewCell: UICollectionViewCell {
+class TestTwoCollectionViewCell: UICollectionViewCell {
     
     var documentID: String = ""
     var members: [String] = []
@@ -110,23 +116,23 @@ class TestCollectionViewCell: UICollectionViewCell {
     
     var isMainFour: Bool! {
         didSet {
-            if isMainFour {
-                NSLayoutConstraint.deactivate(smallIndicatorCircleConstraints)
-                NSLayoutConstraint.activate(bigIndicatorCircleConstraints)
+            /*if isMainFour {
+                //NSLayoutConstraint.deactivate(smallIndicatorCircleConstraints)
+                //NSLayoutConstraint.activate(bigIndicatorCircleConstraints)
                 
                 indicatorCircle.layer.cornerRadius = (self.frame.width - 20)/2
                 contactImageView.layer.cornerRadius = (self.frame.width - 30)/2
                 
                 lastMessageLabel.isHidden = false
             } else {
-                NSLayoutConstraint.deactivate(bigIndicatorCircleConstraints)
-                NSLayoutConstraint.activate(smallIndicatorCircleConstraints)
+                //NSLayoutConstraint.deactivate(bigIndicatorCircleConstraints)
+                //NSLayoutConstraint.activate(smallIndicatorCircleConstraints)
                 
-                indicatorCircle.layer.cornerRadius = (UIScreen.main.bounds.width/3 - 20)/2
+                indicatorCircle.layer.cornerRadius = (UIScreen.main.bounds.width/3 - 30)/2
                 contactImageView.layer.cornerRadius = (UIScreen.main.bounds.width/3 - 30)/2
                 
                 lastMessageLabel.isHidden = true
-            }
+            }*/
         }
     }
     
@@ -165,32 +171,18 @@ class TestCollectionViewCell: UICollectionViewCell {
         
         NSLayoutConstraint.activate(lastMessageConstraints)
         
-        indicatorCircle.layer.cornerRadius = (self.frame.width - 20)/2
-        contactImageView.layer.cornerRadius = (self.frame.width - 30)/2
+        indicatorCircle.layer.cornerRadius = (UIScreen.main.bounds.width/3 - 30)/2
+        contactImageView.layer.cornerRadius = (UIScreen.main.bounds.width/3 - 30)/2
         
-        bigIndicatorCircleConstraints = [
-            indicatorCircle.widthAnchor.constraint(equalToConstant: self.frame.width - 20),
-            indicatorCircle.heightAnchor.constraint(equalToConstant: self.frame.width - 20),
-            indicatorCircle.topAnchor.constraint(equalTo: self.topAnchor, constant: 5),
+        smallIndicatorCircleConstraints = [
+            indicatorCircle.widthAnchor.constraint(equalToConstant: UIScreen.main.bounds.width/3 - 20),
+            indicatorCircle.heightAnchor.constraint(equalToConstant: UIScreen.main.bounds.width/3 - 20),
+            indicatorCircle.topAnchor.constraint(equalTo: self.topAnchor, constant: 20),
             indicatorCircle.centerXAnchor.constraint(equalTo: self.centerXAnchor)
         ]
         
-        let cellWidth = UIScreen.main.bounds.width/3 - 10
-        let cellHeight = cellWidth/0.875
-        let iconWidth = cellWidth - 10
-        let bottomConstraint = ((cellHeight - iconWidth - 5) * -1)
-        print("bottom Constraint")
-        print(bottomConstraint)
+        NSLayoutConstraint.activate(smallIndicatorCircleConstraints)
         
-        smallIndicatorCircleConstraints = [
-            //indicatorCircle.widthAnchor.constraint(equalToConstant: width),
-            //indicatorCircle.heightAnchor.constraint(equalToConstant: width),
-            indicatorCircle.leadingAnchor.constraint(equalTo: self.leadingAnchor, constant: 5),
-            indicatorCircle.trailingAnchor.constraint(equalTo: self.trailingAnchor, constant: -5),
-            indicatorCircle.bottomAnchor.constraint(equalTo: self.bottomAnchor, constant: bottomConstraint),
-            indicatorCircle.topAnchor.constraint(equalTo: self.topAnchor, constant: 5),
-            //indicatorCircle.centerXAnchor.constraint(equalTo: self.centerXAnchor)
-        ]
     }
     
     

@@ -26,6 +26,10 @@ class BubbleMessageBodyCell: UITableViewCell {
     var bubbleViewConstraints: [NSLayoutConstraint]!
     var bubbleViewOfImageConstraints: [NSLayoutConstraint]!
     var messageImageViewContraints: [NSLayoutConstraint]!
+    var incomingHeartCountLabelConstraints: [NSLayoutConstraint]!
+    var incomingHeartIconButtonConstraints: [NSLayoutConstraint]!
+    var outgoingHeartCountLabelConstraints: [NSLayoutConstraint]!
+    var outgoingHeartIconButtonConstraints: [NSLayoutConstraint]!
     let emailLabel = UILabel()
     var venmoAmount: String = "0"
     var note: String = "Note"
@@ -62,22 +66,10 @@ class BubbleMessageBodyCell: UITableViewCell {
                     }
                 })
                 
-                let heartCountLabelConstraints = [
-                    heartCountLabel.topAnchor.constraint(equalTo: bubbleView.topAnchor, constant: 0),
-                    heartCountLabel.leadingAnchor.constraint(equalTo: bubbleView.trailingAnchor, constant: 10),
-                    heartCountLabel.heightAnchor.constraint(equalToConstant: 40)
-                ]
-                
-                NSLayoutConstraint.activate(heartCountLabelConstraints)
-                
-                let heartIconButtonConstraints = [
-                    heartIconButton.leadingAnchor.constraint(equalTo: heartCountLabel.trailingAnchor, constant: -5),
-                    heartIconButton.topAnchor.constraint(equalTo: bubbleView.topAnchor, constant: 0),
-                    heartIconButton.heightAnchor.constraint(equalToConstant: 40),
-                    heartIconButton.widthAnchor.constraint(equalToConstant: 40)
-                ]
-                
-                NSLayoutConstraint.activate(heartIconButtonConstraints)
+                NSLayoutConstraint.deactivate(outgoingHeartCountLabelConstraints)
+                NSLayoutConstraint.deactivate(outgoingHeartIconButtonConstraints)
+                NSLayoutConstraint.activate(incomingHeartCountLabelConstraints)
+                NSLayoutConstraint.activate(incomingHeartIconButtonConstraints)
             
             } else {
                 NSLayoutConstraint.deactivate(incomingMessageConstraints)
@@ -100,22 +92,10 @@ class BubbleMessageBodyCell: UITableViewCell {
                     }
                 })
                 
-                let heartIconButtonConstraints = [
-                    heartIconButton.trailingAnchor.constraint(equalTo: bubbleView.leadingAnchor, constant: -10),
-                    heartIconButton.topAnchor.constraint(equalTo: bubbleView.topAnchor, constant: 0),
-                    heartIconButton.heightAnchor.constraint(equalToConstant: 40),
-                    heartIconButton.widthAnchor.constraint(equalToConstant: 40)
-                ]
-                
-                NSLayoutConstraint.activate(heartIconButtonConstraints)
-                
-                let heartCountLabelConstraints = [
-                    heartCountLabel.topAnchor.constraint(equalTo: heartIconButton.topAnchor, constant: 0),
-                    heartCountLabel.bottomAnchor.constraint(equalTo: heartIconButton.bottomAnchor, constant: 0),
-                    heartCountLabel.trailingAnchor.constraint(equalTo: heartIconButton.leadingAnchor, constant: 5)
-                ]
-                
-                NSLayoutConstraint.activate(heartCountLabelConstraints)
+                NSLayoutConstraint.deactivate(incomingHeartCountLabelConstraints)
+                NSLayoutConstraint.deactivate(incomingHeartIconButtonConstraints)
+                NSLayoutConstraint.activate(outgoingHeartIconButtonConstraints)
+                NSLayoutConstraint.activate(outgoingHeartCountLabelConstraints)
             }
             
             if isVenmoRequest {
@@ -213,8 +193,8 @@ class BubbleMessageBodyCell: UITableViewCell {
     var heartIconButton: UIButton = {
         let heartIconButton = UIButton()
         heartIconButton.translatesAutoresizingMaskIntoConstraints = false
-        let heartIconConfiguration = UIImage.SymbolConfiguration(pointSize: 30, weight: .regular, scale: .default)
-        let heartImage = UIImage(systemName: "heart.fill", withConfiguration: heartIconConfiguration)
+        let heartIconConfiguration = UIImage.SymbolConfiguration(pointSize: 25, weight: .regular, scale: .default)
+        let heartImage = UIImage(systemName: "heart", withConfiguration: heartIconConfiguration)
         heartIconButton.setImage(heartImage, for: .normal)
         heartIconButton.tintColor = .systemPink
         heartIconButton.addTarget(self, action: #selector(messageDoubleTapped), for: .touchUpInside)
@@ -226,7 +206,7 @@ class BubbleMessageBodyCell: UITableViewCell {
         heartCountLabel.translatesAutoresizingMaskIntoConstraints = false
         heartCountLabel.text = "5"
         heartCountLabel.textColor = .systemPink
-        heartCountLabel.font = UIFont.systemFont(ofSize: 30)
+        heartCountLabel.font = UIFont.systemFont(ofSize: 25)
         return heartCountLabel
     }()
     
@@ -352,6 +332,33 @@ class BubbleMessageBodyCell: UITableViewCell {
         emailLabelConstraints = [
             emailLabel.leadingAnchor.constraint(equalTo: messageBody.leadingAnchor, constant: 0)
         ]
+        
+        incomingHeartCountLabelConstraints = [
+            heartCountLabel.topAnchor.constraint(equalTo: bubbleView.topAnchor, constant: 0),
+            heartCountLabel.leadingAnchor.constraint(equalTo: bubbleView.trailingAnchor, constant: 10),
+            heartCountLabel.heightAnchor.constraint(equalToConstant: 40)
+        ]
+        
+        incomingHeartIconButtonConstraints = [
+            heartIconButton.leadingAnchor.constraint(equalTo: heartCountLabel.trailingAnchor, constant: -5),
+            heartIconButton.topAnchor.constraint(equalTo: bubbleView.topAnchor, constant: 0),
+            heartIconButton.heightAnchor.constraint(equalToConstant: 40),
+            heartIconButton.widthAnchor.constraint(equalToConstant: 40)
+        ]
+        
+        outgoingHeartIconButtonConstraints = [
+            heartIconButton.trailingAnchor.constraint(equalTo: bubbleView.leadingAnchor, constant: -5),
+            heartIconButton.topAnchor.constraint(equalTo: bubbleView.topAnchor, constant: 0),
+            heartIconButton.heightAnchor.constraint(equalToConstant: 40),
+            heartIconButton.widthAnchor.constraint(equalToConstant: 40)
+        ]
+        
+        outgoingHeartCountLabelConstraints = [
+            heartCountLabel.topAnchor.constraint(equalTo: heartIconButton.topAnchor, constant: 0),
+            heartCountLabel.bottomAnchor.constraint(equalTo: heartIconButton.bottomAnchor, constant: 0),
+            heartCountLabel.trailingAnchor.constraint(equalTo: heartIconButton.leadingAnchor, constant: 5)
+        ]
+
         
     }
     

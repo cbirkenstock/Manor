@@ -46,6 +46,7 @@ class NewContactPageViewController: UIViewController {
         super.viewDidLoad()
         
         self.contactCollectionView.register(TestCollectionViewCell.self, forCellWithReuseIdentifier: "testCell")
+        self.contactCollectionView.register(TestTwoCollectionViewCell.self, forCellWithReuseIdentifier: "testTwoCell")
         
         title = "Messages"
         
@@ -64,9 +65,9 @@ class NewContactPageViewController: UIViewController {
         contactCollectionView.dataSource = self
         
         //sets size, scroll direction, etc. of contacts in collection view
-        let cellWidth = UIScreen.main.bounds.width/2 - 10
-        let cellHeight = cellWidth/0.8244
-        flowLayout.itemSize = CGSize(width: cellWidth, height: cellHeight) //235
+        //let cellWidth = UIScreen.main.bounds.width/2 - 10
+        //let cellHeight = cellWidth/0.8244
+        //flowLayout.itemSize = CGSize(width: cellWidth, height: cellHeight) //235
         flowLayout.sectionInset = UIEdgeInsets(top: 0, left: 5, bottom: 0, right: 5)
         flowLayout.scrollDirection = .vertical
         flowLayout.minimumInteritemSpacing = 5.0
@@ -95,6 +96,7 @@ class NewContactPageViewController: UIViewController {
             DropDown.appearance().selectionBackgroundColor = //UIColor(named: K.BrandColors.backgroundBlack)!
                 UIColor.darkGray
         }
+        
         loadContacts()
     }
     
@@ -110,6 +112,18 @@ class NewContactPageViewController: UIViewController {
         }
     }
     
+    func addDividerLine() {
+        let cellWidth = UIScreen.main.bounds.width/2 - 10
+        let cellHeight = cellWidth/0.8244
+        
+        let lineYOrigin = (cellHeight * 2) + 60
+        
+        let line = CGRect(x: 0, y: lineYOrigin, width: UIScreen.main.bounds.width, height: 1)
+        let lineView = UIView(frame: line)
+        lineView.backgroundColor = UIColor(named: K.BrandColors.purple)
+        
+        self.view.addSubview(lineView)
+    }
     
     @IBAction func profileButtonPressed(_ sender: Any) {
         performSegue(withIdentifier: "toProfile", sender: self)
@@ -147,7 +161,6 @@ class NewContactPageViewController: UIViewController {
                     let groupChatContact = Contact(email: groupChatDocumentID , fullName: groupChatTitle , timeStamp: Double(timeStamp)!, lastMessage: lastMessage, badgeCount: badgeCount!, profileImageUrl: profileImageUrl)
                     
                     self.contacts.append(groupChatContact)
-                    
                 }
             }
             DispatchQueue.main.async {
@@ -180,7 +193,23 @@ class NewContactPageViewController: UIViewController {
 extension NewContactPageViewController: UICollectionViewDataSource {
     //sets the number of items in collection view based on number of items in contacts array
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        return contacts.count
+        if section == 0 {
+            if contacts.count <= 3 {
+                return contacts.count
+            } else {
+                return 4
+            }
+        } else {
+            if contacts.count <= 4 {
+                return 0
+            } else {
+                return contacts.count - 4
+            }
+        }
+    }
+    
+    func numberOfSections(in collectionView: UICollectionView) -> Int {
+        return 2
     }
     //creates cell and sets nameLabel to the fullName item (in this case the name of the groupChat), then sets docuemntID to email item (in this case the groupChatDocumentID
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
@@ -188,18 +217,30 @@ extension NewContactPageViewController: UICollectionViewDataSource {
         
         let sortedContacts = self.contacts.sorted(by: { $0.timeStamp > $1.timeStamp })
         
-        if sortedContacts[indexPath.row].badgeCount == 0 {
+        let contact: Contact
+        
+        if indexPath.section == 0 {
+            cell.isMainFour = true
+
+            contact = sortedContacts[indexPath.row]
+        } else {
+            cell.isMainFour = false
+            
+            contact = sortedContacts[indexPath.row + 4]
+        }
+        
+        if contact.badgeCount == 0 {
             cell.hasUnreadMessages = false
         } else {
             cell.hasUnreadMessages = true
         }
         
-        cell.contactName.text = sortedContacts[indexPath.row].fullName
-        cell.documentID = sortedContacts[indexPath.row].email
-        cell.members = sortedContacts[indexPath.row].members
-        cell.lastMessageLabel.text = sortedContacts[indexPath.row].lastMessage
+        cell.contactName.text = contact.fullName
+        cell.documentID = contact.email
+        cell.members = contact.members
+        cell.lastMessageLabel.text = contact.lastMessage
         
-        let profileImageUrl = sortedContacts[indexPath.row].profileImageUrl
+        let profileImageUrl = contact.profileImageUrl
         
         cell.profileImageUrl = profileImageUrl
         cell.contactImageView.image = #imageLiteral(resourceName: "AbstractPainting")
@@ -216,24 +257,16 @@ extension NewContactPageViewController: UICollectionViewDataSource {
                         DispatchQueue.main.async {
                             self!.imageCache.setObject(image, forKey: profileImageUrl as NSString)
                             cell.contactImageView.image = image
-                            /*if cell.hasUnreadMessages == true {
-                             self?.indicatorCircle.backgroundColor = UIColor(named: "LightBlue")
-                             }*/
                         }
                     }
                 }
-                
             }
         }
-        
-        
-        //cell.profileImageUrl = sortedContacts[indexPath.row].profileImageUrl
-        
         return cell
     }
 }
 
-extension NewContactPageViewController: UICollectionViewDelegate {
+extension NewContactPageViewController: UICollectionViewDelegate, UICollectionViewDelegateFlowLayout {
     //when item selected, pulls the document Id and groupchat title to give to class global variables to pass on to groupchatVC
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
         let cell = contactCollectionView.cellForItem(at: indexPath) as! TestCollectionViewCell
@@ -250,7 +283,23 @@ extension NewContactPageViewController: UICollectionViewDelegate {
             self.performSegue(withIdentifier: K.Segues.GroupChatSegue, sender: self)
         })
         
+    }
+    
+    func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
         
+        let cell = contactCollectionView.dequeueReusableCell(withReuseIdentifier: "testCell", for: indexPath) as! TestCollectionViewCell
+        
+        if indexPath.section == 0 {
+            let cellWidth = UIScreen.main.bounds.width/2 - 10
+            let cellHeight = cellWidth/0.8244
+            cell.isMainFour = true
+            return CGSize(width: cellWidth, height: cellHeight) //235
+        } else {
+            let cellWidth = UIScreen.main.bounds.width/3 - 10
+            let cellHeight = cellWidth/0.875
+            cell.isMainFour = false
+            return CGSize(width: cellWidth, height: cellHeight)
+        }
     }
 }
 

@@ -587,6 +587,7 @@ class GroupChatViewController: UIViewController, UIImagePickerControllerDelegate
     @objc func readButtonPressed(_ sender: UIButton) {
         let pushMessageUID = self.unreadPushMessages[sender.tag]
         self.unreadPushMessages = self.unreadPushMessages.filter { $0 != pushMessageUID }
+        self.pushMessagesTableView.reloadData()
         let commaEmail = self.user!.email!.replacingOccurrences(of: ".", with: ",")
         
         self.groupChatByUsersRef.child(commaEmail).child("Chats").child(self.documentID).child("unreadPushMessages").setValue(self.unreadPushMessages) { err, DatabaseReference in

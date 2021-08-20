@@ -256,6 +256,8 @@ extension NewConversationViewController: UICollectionViewDataSource{
         return cell
     }
     
+    
+    
     /*func tableView(_ tableView: UITableView, numbelet cell = searchNamesCollectionView.cellForItem(at: indexPath) as! ContactCollectionViewCellrOfRowsInSection section: Int) -> Int {
      return searchNames.count
      }

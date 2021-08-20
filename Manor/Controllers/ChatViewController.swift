@@ -67,7 +67,7 @@ class ChatViewController: UIViewController {
         
         usersRef.child(otherUserCommaEmail).observeSingleEvent(of: DataEventType.value) { snapshot in
             let postDict = snapshot.value as? [String: Any] ?? [:]
-            self.otherUserVenmoName = postDict["venmoName"] as! String
+            self.otherUserVenmoName = postDict["venmoName"] as? String ?? ""
             self.otherUserProfileImageUrl = postDict["profileImageUrl"] as? String ?? "default"
         }
         
