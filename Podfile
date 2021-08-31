@@ -25,4 +25,16 @@ target 'Manor' do
   
   pod 'GrowingTextView', '0.7.2'
   
+  pod 'Amplify'
+  
+  pod 'AmplifyPlugins/AWSS3StoragePlugin'
+  
+  pod 'AmplifyPlugins/AWSCognitoAuthPlugin'
+  
+  pod 'AWSMobileClient'
+      
+  pod 'AWSPinpoint'
+  
+  pod 'SwiftKeychainWrapper'
+  
 end

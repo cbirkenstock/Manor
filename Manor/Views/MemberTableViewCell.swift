@@ -17,31 +17,29 @@ class MemberTableViewCell: UITableViewCell {
     let specificTextField = UITextField()
     var contactEmail: String?
     let usersRef = Database.database().reference().child("users")
+    var contactNameConstraints: [NSLayoutConstraint] = []
+    var profileImageViewConstraints: [NSLayoutConstraint] = []
+    var defaultContactNameConstraints: [NSLayoutConstraint] = []
+    
+    let profileImageView: UIImageView = {
+        let profileImageView = UIImageView()
+        profileImageView.translatesAutoresizingMaskIntoConstraints = false
+        profileImageView.clipsToBounds = true
+        profileImageView.image = #imageLiteral(resourceName: "NewContactIcon")
+        profileImageView.layer.cornerRadius = 42/2
+        return profileImageView
+    }()
     
     var isContact: Bool! {
         didSet {
             if isContact {
-                let contactNameConstraints = [
-                    contactName.widthAnchor.constraint(equalToConstant: UIScreen.main.bounds.width/2),
-                    contactName.leadingAnchor.constraint(equalTo: background.leadingAnchor, constant: 52),
-                    contactName.topAnchor.constraint(equalTo: background.topAnchor, constant: 10),
-                    contactName.bottomAnchor.constraint(equalTo: background.bottomAnchor, constant: -10)
-                ]
                 
+                NSLayoutConstraint.deactivate(defaultContactNameConstraints)
                 NSLayoutConstraint.activate(contactNameConstraints)
-                
-                let profileImageView: UIImageView = {
-                    let profileImageView = UIImageView()
-                    profileImageView.translatesAutoresizingMaskIntoConstraints = false
-                    profileImageView.clipsToBounds = true
-                    profileImageView.image = #imageLiteral(resourceName: "NewContactIcon")
-                    profileImageView.layer.cornerRadius = 42/2
-                    return profileImageView
-                }()
-                
+            
                 contentView.addSubview(profileImageView)
                 
-                let profileImageViewConstraints = [
+                profileImageViewConstraints = [
                     profileImageView.topAnchor.constraint(equalTo: background.topAnchor, constant: 1),
                     profileImageView.bottomAnchor.constraint(equalTo: background.bottomAnchor, constant: -1),
                     profileImageView.leadingAnchor.constraint(equalTo: background.leadingAnchor, constant: 1),
@@ -49,22 +47,26 @@ class MemberTableViewCell: UITableViewCell {
                 ]
                 
                 NSLayoutConstraint.activate(profileImageViewConstraints)
+            
+                self.profileImageView.image = nil
                 
                 if let commaEmail = self.contactEmail?.replacingOccurrences(of: ".", with: ",") {
                     usersRef.child(commaEmail).child("profileImageUrl").observeSingleEvent(of: DataEventType.value) { DataSnapshot in
-                        let postString = DataSnapshot.value as! String
-                        
-                        print("postString")
-                        print(postString)
-                        
-                        
-                        self.downloadImage(UrlString: postString) { image in
-                            profileImageView.image = image
+                        if let postString = DataSnapshot.value as? String {
+                            
+                            self.downloadImage(UrlString: postString) { image in
+                                self.profileImageView.image = image
+                            }
+                        } else {
+                            self.profileImageView.image = #imageLiteral(resourceName: "AbstractPainting")
                         }
                     }
                 }
                 
             } else {
+                NSLayoutConstraint.deactivate(contactNameConstraints)
+                NSLayoutConstraint.deactivate(profileImageViewConstraints)
+                profileImageView.removeFromSuperview()
                 SetUpNormalConstraints()
             }
             
@@ -91,6 +93,8 @@ class MemberTableViewCell: UITableViewCell {
                 ]
                 
                 NSLayoutConstraint.activate(specificTextFieldConstraints)
+            } else {
+                specificTextField.removeFromSuperview()
             }
         }
     }
@@ -123,6 +127,21 @@ class MemberTableViewCell: UITableViewCell {
         NSLayoutConstraint.activate(backgroundConstraints)
         
         
+        contactNameConstraints = [
+            contactName.leadingAnchor.constraint(equalTo: background.leadingAnchor, constant: 52),
+            contactName.trailingAnchor.constraint(equalTo: background.trailingAnchor, constant: -10),
+            contactName.topAnchor.constraint(equalTo: background.topAnchor, constant: 10),
+            contactName.bottomAnchor.constraint(equalTo: background.bottomAnchor, constant: -10)
+        ]
+        
+        defaultContactNameConstraints = [
+            contactName.leadingAnchor.constraint(equalTo: background.leadingAnchor, constant: 10),
+            contactName.trailingAnchor.constraint(equalTo: background.trailingAnchor, constant: -10),
+            contactName.topAnchor.constraint(equalTo: background.topAnchor, constant: 10),
+            contactName.bottomAnchor.constraint(equalTo: background.bottomAnchor, constant: -10)
+        ]
+        
+        
     }
     
     required init?(coder: NSCoder) {
@@ -130,14 +149,8 @@ class MemberTableViewCell: UITableViewCell {
     }
     
     func SetUpNormalConstraints() {
-        let contactNameConstraints = [
-            contactName.leadingAnchor.constraint(equalTo: background.leadingAnchor, constant: 10),
-            contactName.trailingAnchor.constraint(equalTo: background.trailingAnchor, constant: -10),
-            contactName.topAnchor.constraint(equalTo: background.topAnchor, constant: 10),
-            contactName.bottomAnchor.constraint(equalTo: background.bottomAnchor, constant: -10)
-        ]
-        
-        NSLayoutConstraint.activate(contactNameConstraints)
+        NSLayoutConstraint.deactivate(contactNameConstraints)
+        NSLayoutConstraint.activate(defaultContactNameConstraints)
     }
     
     func downloadImage(UrlString: String, completion: @escaping (UIImage) -> ()) {
@@ -152,19 +165,19 @@ class MemberTableViewCell: UITableViewCell {
             }
         }
     }
-        
-        
-        
-        
-        /*override func awakeFromNib() {
-         super.awakeFromNib()
-         // Initialization code
-         }
-         
-         override func setSelected(_ selected: Bool, animated: Bool) {
-         super.setSelected(selected, animated: animated)
-         
-         // Configure the view for the selected state
-         }*/
-        
-    }
+    
+    
+    
+    
+    /*override func awakeFromNib() {
+     super.awakeFromNib()
+     // Initialization code
+     }
+     
+     override func setSelected(_ selected: Bool, animated: Bool) {
+     super.setSelected(selected, animated: animated)
+     
+     // Configure the view for the selected state
+     }*/
+    
+}

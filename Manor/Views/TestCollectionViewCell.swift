@@ -168,26 +168,38 @@ class TestCollectionViewCell: UICollectionViewCell {
         indicatorCircle.layer.cornerRadius = (self.frame.width - 20)/2
         contactImageView.layer.cornerRadius = (self.frame.width - 30)/2
         
+        let bigCellWidth = UIScreen.main.bounds.width/2 - 10
+        let bigCellHeight = bigCellWidth/0.8244
+        let bigIconWidth = bigCellWidth - 20
+        let bigBottomConstraint = ((bigCellHeight - bigIconWidth - 5) * -1)
+        
         bigIndicatorCircleConstraints = [
+            indicatorCircle.leadingAnchor.constraint(equalTo: self.leadingAnchor, constant: 10),
+            indicatorCircle.trailingAnchor.constraint(equalTo: self.trailingAnchor, constant: -10),
+            indicatorCircle.bottomAnchor.constraint(equalTo: self.bottomAnchor, constant: bigBottomConstraint),
+            indicatorCircle.topAnchor.constraint(equalTo: self.topAnchor, constant: 5),
+            //indicatorCircle.centerXAnchor.constraint(equalTo: self.centerXAnchor)
+        ]
+        
+        /*bigIndicatorCircleConstraints = [
             indicatorCircle.widthAnchor.constraint(equalToConstant: self.frame.width - 20),
             indicatorCircle.heightAnchor.constraint(equalToConstant: self.frame.width - 20),
             indicatorCircle.topAnchor.constraint(equalTo: self.topAnchor, constant: 5),
             indicatorCircle.centerXAnchor.constraint(equalTo: self.centerXAnchor)
-        ]
+        ]*/
         
-        let cellWidth = UIScreen.main.bounds.width/3 - 10
-        let cellHeight = cellWidth/0.875
-        let iconWidth = cellWidth - 10
-        let bottomConstraint = ((cellHeight - iconWidth - 5) * -1)
-        print("bottom Constraint")
-        print(bottomConstraint)
+        let smallCellWidth = UIScreen.main.bounds.width/3 - 10
+        let smallCellHeight = smallCellWidth/0.875
+        let smallIconWidth = smallCellWidth - 10
+        let smallBottomConstraint = ((smallCellHeight - smallIconWidth - 5) * -1)
+
         
         smallIndicatorCircleConstraints = [
             //indicatorCircle.widthAnchor.constraint(equalToConstant: width),
             //indicatorCircle.heightAnchor.constraint(equalToConstant: width),
             indicatorCircle.leadingAnchor.constraint(equalTo: self.leadingAnchor, constant: 5),
             indicatorCircle.trailingAnchor.constraint(equalTo: self.trailingAnchor, constant: -5),
-            indicatorCircle.bottomAnchor.constraint(equalTo: self.bottomAnchor, constant: bottomConstraint),
+            indicatorCircle.bottomAnchor.constraint(equalTo: self.bottomAnchor, constant: smallBottomConstraint),
             indicatorCircle.topAnchor.constraint(equalTo: self.topAnchor, constant: 5),
             //indicatorCircle.centerXAnchor.constraint(equalTo: self.centerXAnchor)
         ]

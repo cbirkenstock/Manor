@@ -7,6 +7,9 @@
 
 import UIKit
 import Firebase
+import Amplify
+import AmplifyPlugins
+import SwiftKeychainWrapper
 
 
 class LogInViewController: UIViewController {
@@ -44,7 +47,7 @@ class LogInViewController: UIViewController {
         navigationController?.navigationBar.barTintColor = .black
         navigationController?.navigationBar.shadowImage = UIImage()
         //navigationItem.backBarButtonItem?.tintColor = UIColor(named: K.BrandColors.purple)
-        self.navigationController?.navigationBar.tintColor = UIColor(named: K.BrandColors.purple);
+        self.navigationController?.navigationBar.tintColor = UIColor(named: K.BrandColors.purple)
         
         
         //checks whether remember me is checked and colors in button and fills in information if it is
@@ -58,7 +61,7 @@ class LogInViewController: UIViewController {
                 emailInput.text = savedEmail
             }
             
-            if let savedPassword = defaults.string(forKey: "savedPassword") {
+            if let savedPassword = KeychainWrapper.standard.string(forKey: "savedPassword") {
                 passwordInput.text = savedPassword
             }
             
@@ -138,7 +141,7 @@ class LogInViewController: UIViewController {
             
             self.defaults.setValue(true, forKey: "rememberUser")
             self.defaults.setValue(self.emailInput.text, forKey: "savedEmail")
-            self.defaults.setValue(self.passwordInput.text, forKey: "savedPassword")
+            KeychainWrapper.standard.set(self.passwordInput.text ?? "", forKey: "savedPassword")
             
         } else {
             rememberMeButton.layer.borderColor = UIColor(named: K.BrandColors.purple)?.cgColor
@@ -146,23 +149,47 @@ class LogInViewController: UIViewController {
             
             self.defaults.setValue(false, forKey: "rememberUser")
             self.defaults.setValue(nil, forKey: "savedEmail")
-            self.defaults.setValue(nil, forKey: "savedPassword")
+            KeychainWrapper.standard.set("", forKey: "savedPassword")
+            //self.defaults.setValue(nil, forKey: "savedPassword")
         }
     }
     
     //goes through firebase authentication and lets user pass if info is correct
     @IBAction func LogInPressed(_ sender: Any){
         if let email = emailInput.text, let password = passwordInput.text {
-            Auth.auth().signIn(withEmail: email, password: password) { authResult, error in
+            
+            /*let usernameArray = email.split(separator: " ")
+            let username = "\(usernameArray[0])\(usernameArray[1])"*/
+            
+            let username = email.replacingOccurrences(of: ".", with: ",")
+            
+            /*Auth.auth().signIn(withEmail: email, password: password) { authResult, error in
                 if let e = error {
                     let alert = UIAlertController(title: "Oops...", message: "\(e.localizedDescription)", preferredStyle: .alert)
                     alert.addAction(UIAlertAction(title: "ok", style: .cancel, handler: nil))
                     self.present(alert, animated: true)
-                    
-                    
                 } else {
+                    //self.performSegue(withIdentifier: K.Segues.ContactPageViewSegue, sender: self)
+                    print("success")
+                }
+            }*/
+        
+            signIn(username: username, password: password)
+        }
+    }
+    
+    func signIn(username: String, password: String) {
+        print("PASSWORD")
+        print(password)
+        Amplify.Auth.signIn(username: username, password: password) { result in
+            switch result {
+            case .success:
+                print("Sign in succeeded")
+                DispatchQueue.main.async {
                     self.performSegue(withIdentifier: K.Segues.ContactPageViewSegue, sender: self)
                 }
+            case .failure(let error):
+                print("Sign in failed \(error)")
             }
         }
     }
@@ -178,6 +205,5 @@ class LogInViewController: UIViewController {
     override func viewWillDisappear(_ animated: Bool) {
         super.viewWillDisappear(animated)
         self.navigationController?.setNavigationBarHidden(false, animated: animated)
-
     }
 }

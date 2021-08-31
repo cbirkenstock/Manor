@@ -7,10 +7,14 @@
 
 import UIKit
 import Firebase
+import Amplify
+import AmplifyPlugins
+import SwiftKeychainWrapper
 
 class SceneDelegate: UIResponder, UIWindowSceneDelegate {
 
     var window: UIWindow?
+    let defaults = UserDefaults.standard
 
 
     func scene(_ scene: UIScene, willConnectTo session: UISceneSession, options connectionOptions: UIScene.ConnectionOptions) {
@@ -19,20 +23,65 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         // This delegate does not imply the connecting scene or session are new (see `application:configurationForConnectingSceneSession` instead).
         guard let _ = (scene as? UIWindowScene) else { return }
         
-        _ = Auth.auth().addStateDidChangeListener { (auth, user) in
-            if user == nil {
-                print("no user")
-            } else {
-                let storyboard = UIStoryboard(name: "Main", bundle: nil)
-                let initialVC = storyboard.instantiateViewController(withIdentifier: "pageViewController")
-                //self.window = UIWindow(frame: UIScreen.main.bounds)
-                self.window?.rootViewController = initialVC
-                self.window?.makeKeyAndVisible()
-                print("user")
-                
+        self.defaults.setValue(nil, forKey: "savedPassword")
+        
+        fetchCurrentAuthSession()
+        
+        if let email = defaults.string(forKey: "savedEmail") {
+            let username = email.replacingOccurrences(of: ".", with: ",")
+            let password = KeychainWrapper.standard.string(forKey: "savedPassword")
+            //signIn(username: username, password: password ?? "")
+            
+            /*Auth.auth().addStateDidChangeListener { (auth, user) in
+                if user == nil {
+                    print("no user")
+                } else {
+                    print("Firebase User Exists")
+                    /*let storyboard = UIStoryboard(name: "Main", bundle: nil)
+                    let initialVC = storyboard.instantiateViewController(withIdentifier: "homeScreenNavigation")
+                    //self.window = UIWindow(frame: UIScreen.main.bounds)
+                    self.window?.rootViewController = initialVC
+                    self.window?.makeKeyAndVisible()*/
+                }
+            }*/
+        }
+    }
+
+    
+    func fetchCurrentAuthSession() {
+        Amplify.Auth.fetchAuthSession { result in
+            switch result {
+            case .success(let session):
+                print("Is user signed in - \(session.isSignedIn)")
+                if session.isSignedIn {
+                    DispatchQueue.main.async {
+                        let storyboard = UIStoryboard(name: "Main", bundle: nil)
+                        let initialVC = storyboard.instantiateViewController(withIdentifier: "homeScreenNavigation")
+                        //self.window = UIWindow(frame: UIScreen.main.bounds)
+                        self.window?.rootViewController = initialVC
+                        self.window?.makeKeyAndVisible()
+                    }
+                }
+            case .failure(let error):
+                print("Fetch session failed with error \(error)")
             }
         }
     }
+    
+    func signIn(username: String, password: String) {
+        Amplify.Auth.signIn(username: username, password: password) { result in
+            switch result {
+            case .success:
+                print("Sign in succeeded")
+                /*DispatchQueue.main.async {
+                    self.performSegue(withIdentifier: K.Segues.ContactPageViewSegue, sender: self)
+                }*/
+            case .failure(let error):
+                print("Sign in failed \(error)")
+            }
+        }
+    }
+    
 
     func sceneDidDisconnect(_ scene: UIScene) {
         // Called as the scene is being released by the system.

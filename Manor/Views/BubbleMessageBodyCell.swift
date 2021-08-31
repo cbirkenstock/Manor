@@ -43,7 +43,7 @@ class BubbleMessageBodyCell: UITableViewCell {
     
     var isIncoming: Bool! {
         didSet {
-            bubbleView.layer.borderColor = isIncoming ? UIColor(named: K.BrandColors.purple)!.cgColor : UIColor.green.cgColor
+            bubbleView.layer.borderColor = isIncoming ? UIColor.systemGray.cgColor : UIColor(named: K.BrandColors.purple)!.cgColor
             
             if isIncoming {
                 NSLayoutConstraint.deactivate(OutgoingMessageConstraints)
@@ -224,6 +224,9 @@ class BubbleMessageBodyCell: UITableViewCell {
         doubleTapGestureRecognizer.numberOfTapsRequired = 2
         doubleTapGestureRecognizer.delegate = self
         
+        self.heartCountLabel.isHidden = true
+        self.heartIconButton.isHidden = true
+        
 
         
         /*if self.imageURL != "" {
@@ -250,7 +253,7 @@ class BubbleMessageBodyCell: UITableViewCell {
         bubbleView.backgroundColor = .clear
         bubbleView.layer.borderWidth = 2
         bubbleView.layer.borderColor = UIColor.green.cgColor
-        bubbleView.layer.cornerRadius = 10
+        bubbleView.layer.cornerRadius = 15
         
         
         contentView.addSubview(messageBody)
@@ -321,11 +324,11 @@ class BubbleMessageBodyCell: UITableViewCell {
         
         incomingMessageConstraints = [
             messageBody.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 20),
-            messageBody.trailingAnchor.constraint(lessThanOrEqualTo: trailingAnchor, constant: -150)
+            messageBody.trailingAnchor.constraint(lessThanOrEqualTo: trailingAnchor, constant: -100)
         ]
         
         OutgoingMessageConstraints = [
-            messageBody.leadingAnchor.constraint(greaterThanOrEqualTo: leadingAnchor, constant: 150),
+            messageBody.leadingAnchor.constraint(greaterThanOrEqualTo: leadingAnchor, constant: 100),
             messageBody.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -20)
         ]
         

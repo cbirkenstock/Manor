@@ -7,6 +7,9 @@
 
 import UIKit
 import Firebase
+import Amplify
+import AmplifyPlugins
+import Combine
 
 
 class SignUpViewController: UIViewController {
@@ -46,7 +49,7 @@ class SignUpViewController: UIViewController {
         navigationController?.navigationBar.barTintColor = .black
         navigationController?.navigationBar.shadowImage = UIImage()
         //navigationItem.backBarButtonItem?.tintColor = UIColor(named: K.BrandColors.purple)
-        self.navigationController?.navigationBar.tintColor = UIColor(named: K.BrandColors.purple);
+        self.navigationController?.navigationBar.tintColor = UIColor(named: K.BrandColors.purple)
         
         
         //sets up notificiations for whether keyboard is up or not
@@ -168,6 +171,11 @@ class SignUpViewController: UIViewController {
         }
         
         if let email: String = emailInput.text, let password = passwordInput.text, let firstName = firstNameInput.text, let LastName = lastNameInput.text {
+            
+            let username = email.replacingOccurrences(of: ".", with: ",")//"\(firstName)\(LastName)"
+            
+            signUp(username: username, password: password, email: email)
+            
             Auth.auth().createUser(withEmail: email, password: password) { authResult, error in
                 if let e = error {
                     print(e.localizedDescription)
@@ -182,32 +190,68 @@ class SignUpViewController: UIViewController {
                         "badgeCount": "0"
                     ]) 
                     
-                    /*self.db.collection("users").document(email).setData([
-                        "firstName": firstName,
-                        "lastName": LastName,
-                        "email": email
-                    ]) { err in
-                        if let err = err {
-                            print("Error writing document: \(err)")
-                        } else {
-                            print("Document successfully written!")
-                        }
-                    }*/
                     self.performSegue(withIdentifier: K.Segues.ContactPageViewSegue, sender: self)
                 }
             }
         }
     }
     
+    func signUp(username: String, password: String, email: String) {
+        print(username)
+        let userAttributes = [AuthUserAttribute(.email, value: email)]
+        let options = AuthSignUpRequest.Options(userAttributes: userAttributes)
+       
+        Amplify.Auth.signUp(username: username, password: password, options: options) { result in
+            
+            switch result {
+            case .success(let key):
+                print("Success!", key)
+            case .failure(let error):
+                print("error", error)
+            }
+        }
+        
+        
+        /*let sink = Amplify.Auth.signUp(username: username, password: password, options: options)
+            .resultPublisher
+            .sink {
+                if case let .failure(authError) = $0 {
+                    print("An error occurred while registering a user \(authError)")
+                }
+            }
+            receiveValue: { signUpResult in
+                if case let .confirmUser(deliveryDetails, _) = signUpResult.nextStep {
+                    print("Delivery details \(String(describing: deliveryDetails))")
+                } else {
+                    print("SignUp Complete")
+                }
+
+            }
+        return sink*/
+    }
+    
+    func confirmSignUp(for username: String, with confirmationCode: String) -> AnyCancellable {
+        Amplify.Auth.confirmSignUp(for: username, confirmationCode: confirmationCode)
+            .resultPublisher
+            .sink {
+                if case let .failure(authError) = $0 {
+                    print("An error occurred while confirming sign up \(authError)")
+                }
+            }
+            receiveValue: { _ in
+                print("Confirm signUp succeeded")
+            }
+    }
+    
     //shows navigation bar when view opening up
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
-        self.navigationController?.setNavigationBarHidden(false, animated: animated)
+        //self.navigationController?.setNavigationBarHidden(false, animated: animated)
     }
     
     //shows navigation bar when view closing
     override func viewWillDisappear(_ animated: Bool) {
         super.viewWillDisappear(animated)
-        self.navigationController?.setNavigationBarHidden(false, animated: animated)
+        //self.navigationController?.setNavigationBarHidden(false, animated: animated)
     }
 }

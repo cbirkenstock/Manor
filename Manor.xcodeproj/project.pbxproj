@@ -7,9 +7,14 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		4944356F36856E9387A45156 /* Pods_Manor.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 2D41F30993BD4B2C9C9965CE /* Pods_Manor.framework */; };
+		CC10B401A7900006D6630BD7 /* Pods_Manor.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 186B4837E8B18318994BB014 /* Pods_Manor.framework */; };
 		F90A7201264D048100D6A17E /* ContactPageViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = F90A7200264D048100D6A17E /* ContactPageViewController.swift */; };
 		F90D2B8D26A77C4600E20D9B /* UnreachedMembersViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = F90D2B8C26A77C4600E20D9B /* UnreachedMembersViewController.swift */; };
+		F912DEF626D6D16D007BD4CE /* awsconfiguration.json in Resources */ = {isa = PBXBuildFile; fileRef = F912DEF526D6D16C007BD4CE /* awsconfiguration.json */; };
+		F912DEF826D6D174007BD4CE /* amplifyconfiguration.json in Resources */ = {isa = PBXBuildFile; fileRef = F912DEF726D6D174007BD4CE /* amplifyconfiguration.json */; };
+		F912DEFA26D882D1007BD4CE /* PhotoManagerViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = F912DEF926D882D1007BD4CE /* PhotoManagerViewController.swift */; };
+		F912DEFC26DB6886007BD4CE /* FirebaseManagerViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = F912DEFB26DB6886007BD4CE /* FirebaseManagerViewController.swift */; };
+		F912DF0026DCC4DC007BD4CE /* EventTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = F912DEFF26DCC4DC007BD4CE /* EventTableViewCell.swift */; };
 		F936098526B678BB00785888 /* TestCollectionViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = F936098426B678BB00785888 /* TestCollectionViewCell.swift */; };
 		F93B2A68264BC8C40012938B /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = F93B2A67264BC8C40012938B /* GoogleService-Info.plist */; };
 		F93B2A6A264BCCFC0012938B /* SignUpViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = F93B2A69264BCCFC0012938B /* SignUpViewController.swift */; };
@@ -27,6 +32,7 @@
 		F979B700268C467600BCDD67 /* BubbleMessageBodyCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = F979B6FF268C467600BCDD67 /* BubbleMessageBodyCell.swift */; };
 		F980C8C226C10E4200EB6D3E /* ProfileViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = F980C8C126C10E4200EB6D3E /* ProfileViewController.swift */; };
 		F986FA2326CF58E400B1B6BA /* TestTwoCollectionViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = F986FA2226CF58E400B1B6BA /* TestTwoCollectionViewCell.swift */; };
+		F986FA2526D35D2900B1B6BA /* HomePageViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = F986FA2426D35D2900B1B6BA /* HomePageViewController.swift */; };
 		F98EA5802660CFC700B45D38 /* K.swift in Sources */ = {isa = PBXBuildFile; fileRef = F98EA57F2660CFC700B45D38 /* K.swift */; };
 		F9A6D693264A751F00C444FD /* BackgroundVideo.mp4 in Resources */ = {isa = PBXBuildFile; fileRef = F9A6D692264A751F00C444FD /* BackgroundVideo.mp4 */; };
 		F9A6D695264B3BF500C444FD /* LogInViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = F9A6D694264B3BF500C444FD /* LogInViewController.swift */; };
@@ -49,11 +55,16 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
-		2D41F30993BD4B2C9C9965CE /* Pods_Manor.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_Manor.framework; sourceTree = BUILT_PRODUCTS_DIR; };
-		488131C9E3FE7830AC8FCD55 /* Pods-Manor.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Manor.release.xcconfig"; path = "Target Support Files/Pods-Manor/Pods-Manor.release.xcconfig"; sourceTree = "<group>"; };
-		D379BBCD00D96B71389E6EF5 /* Pods-Manor.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Manor.debug.xcconfig"; path = "Target Support Files/Pods-Manor/Pods-Manor.debug.xcconfig"; sourceTree = "<group>"; };
+		186B4837E8B18318994BB014 /* Pods_Manor.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_Manor.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		673AA192D4E6F7ED76C630E6 /* Pods-Manor.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Manor.release.xcconfig"; path = "Target Support Files/Pods-Manor/Pods-Manor.release.xcconfig"; sourceTree = "<group>"; };
+		AE7F5D2E4DE102931B37EDB8 /* Pods-Manor.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Manor.debug.xcconfig"; path = "Target Support Files/Pods-Manor/Pods-Manor.debug.xcconfig"; sourceTree = "<group>"; };
 		F90A7200264D048100D6A17E /* ContactPageViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContactPageViewController.swift; sourceTree = "<group>"; };
 		F90D2B8C26A77C4600E20D9B /* UnreachedMembersViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UnreachedMembersViewController.swift; sourceTree = "<group>"; };
+		F912DEF526D6D16C007BD4CE /* awsconfiguration.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = awsconfiguration.json; sourceTree = "<group>"; };
+		F912DEF726D6D174007BD4CE /* amplifyconfiguration.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = amplifyconfiguration.json; sourceTree = "<group>"; };
+		F912DEF926D882D1007BD4CE /* PhotoManagerViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PhotoManagerViewController.swift; sourceTree = "<group>"; };
+		F912DEFB26DB6886007BD4CE /* FirebaseManagerViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FirebaseManagerViewController.swift; sourceTree = "<group>"; };
+		F912DEFF26DCC4DC007BD4CE /* EventTableViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EventTableViewCell.swift; sourceTree = "<group>"; };
 		F936098426B678BB00785888 /* TestCollectionViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TestCollectionViewCell.swift; sourceTree = "<group>"; };
 		F93B2A67264BC8C40012938B /* GoogleService-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
 		F93B2A69264BCCFC0012938B /* SignUpViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SignUpViewController.swift; sourceTree = "<group>"; };
@@ -72,6 +83,7 @@
 		F979B6FF268C467600BCDD67 /* BubbleMessageBodyCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BubbleMessageBodyCell.swift; sourceTree = "<group>"; };
 		F980C8C126C10E4200EB6D3E /* ProfileViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileViewController.swift; sourceTree = "<group>"; };
 		F986FA2226CF58E400B1B6BA /* TestTwoCollectionViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TestTwoCollectionViewCell.swift; sourceTree = "<group>"; };
+		F986FA2426D35D2900B1B6BA /* HomePageViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomePageViewController.swift; sourceTree = "<group>"; };
 		F98EA57F2660CFC700B45D38 /* K.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = K.swift; sourceTree = "<group>"; };
 		F9A6D692264A751F00C444FD /* BackgroundVideo.mp4 */ = {isa = PBXFileReference; lastKnownFileType = file; path = BackgroundVideo.mp4; sourceTree = "<group>"; };
 		F9A6D694264B3BF500C444FD /* LogInViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LogInViewController.swift; sourceTree = "<group>"; };
@@ -100,28 +112,28 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				4944356F36856E9387A45156 /* Pods_Manor.framework in Frameworks */,
+				CC10B401A7900006D6630BD7 /* Pods_Manor.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		13386D5840686CCC0D6D2E25 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				186B4837E8B18318994BB014 /* Pods_Manor.framework */,
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
 		9ECB4F9A3936D238F0415E28 /* Pods */ = {
 			isa = PBXGroup;
 			children = (
-				D379BBCD00D96B71389E6EF5 /* Pods-Manor.debug.xcconfig */,
-				488131C9E3FE7830AC8FCD55 /* Pods-Manor.release.xcconfig */,
+				AE7F5D2E4DE102931B37EDB8 /* Pods-Manor.debug.xcconfig */,
+				673AA192D4E6F7ED76C630E6 /* Pods-Manor.release.xcconfig */,
 			);
 			path = Pods;
-			sourceTree = "<group>";
-		};
-		B1EBF6811007A16DE5D36335 /* Frameworks */ = {
-			isa = PBXGroup;
-			children = (
-				2D41F30993BD4B2C9C9965CE /* Pods_Manor.framework */,
-			);
-			name = Frameworks;
 			sourceTree = "<group>";
 		};
 		F9E6B6B7264A598C003D1408 = {
@@ -130,7 +142,7 @@
 				F9E6B6C2264A598C003D1408 /* Manor */,
 				F9E6B6C1264A598C003D1408 /* Products */,
 				9ECB4F9A3936D238F0415E28 /* Pods */,
-				B1EBF6811007A16DE5D36335 /* Frameworks */,
+				13386D5840686CCC0D6D2E25 /* Frameworks */,
 			);
 			sourceTree = "<group>";
 		};
@@ -155,6 +167,8 @@
 				F9E6B6CC264A598D003D1408 /* Assets.xcassets */,
 				F9A6D692264A751F00C444FD /* BackgroundVideo.mp4 */,
 				F9E6B6D1264A598E003D1408 /* Info.plist */,
+				F912DEF526D6D16C007BD4CE /* awsconfiguration.json */,
+				F912DEF726D6D174007BD4CE /* amplifyconfiguration.json */,
 				F93B2A67264BC8C40012938B /* GoogleService-Info.plist */,
 				F98EA57F2660CFC700B45D38 /* K.swift */,
 			);
@@ -165,6 +179,7 @@
 			isa = PBXGroup;
 			children = (
 				F9E6B6CE264A598D003D1408 /* LaunchScreen.storyboard */,
+				F912DEFF26DCC4DC007BD4CE /* EventTableViewCell.swift */,
 				F95B2E9C265086BC0026AF75 /* ContactCell.swift */,
 				F95B2EA0265088BE0026AF75 /* ContactCell.xib */,
 				F95B2EA22650A81C0026AF75 /* RegularMessageBody.swift */,
@@ -183,11 +198,13 @@
 		F9E6B6D8264A5E54003D1408 /* Models */ = {
 			isa = PBXGroup;
 			children = (
+				F912DEFB26DB6886007BD4CE /* FirebaseManagerViewController.swift */,
 				F9A6D696264B44AF00C444FD /* BackgroundVideoPlayer.swift */,
 				F95B2E9026507EBA0026AF75 /* Message.swift */,
 				F9593F7B264D07F0006537D0 /* Contact.swift */,
 				F96EE7842658CE3D003A87B5 /* PushNotificationSender.swift */,
 				F96EE782265890C1003A87B5 /* PushNotificationManager.swift */,
+				F912DEF926D882D1007BD4CE /* PhotoManagerViewController.swift */,
 			);
 			path = Models;
 			sourceTree = "<group>";
@@ -198,12 +215,13 @@
 				F9E6B6C7264A598C003D1408 /* WelcomeViewController.swift */,
 				F9A6D694264B3BF500C444FD /* LogInViewController.swift */,
 				F93B2A69264BCCFC0012938B /* SignUpViewController.swift */,
-				F9C50E5E2660657F00B179A6 /* PageViewController.swift */,
+				F986FA2426D35D2900B1B6BA /* HomePageViewController.swift */,
 				F90A7200264D048100D6A17E /* ContactPageViewController.swift */,
 				F9C50E5A265DCCBA00B179A6 /* NewContactPageViewController.swift */,
 				F95684902659DD3100A6D685 /* NewConversationViewController.swift */,
 				F9C50E06265B479B00B179A6 /* NewGroupMessageViewController.swift */,
 				F95A0BF7264F7EB6002F8490 /* ChatViewController.swift */,
+				F9C50E5E2660657F00B179A6 /* PageViewController.swift */,
 				F9C50E56265CE22F00B179A6 /* GroupChatViewController.swift */,
 				F9F84E092691B4CD009D122F /* GroupChatInfoViewController.swift */,
 				F9EE86D126A16661005E4EED /* AddMembersViewController.swift */,
@@ -220,11 +238,11 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = F9E6B6D4264A598E003D1408 /* Build configuration list for PBXNativeTarget "Manor" */;
 			buildPhases = (
-				B4B764BA251F637001DD4366 /* [CP] Check Pods Manifest.lock */,
+				64CF12CBB00B7B9B2FAA73D8 /* [CP] Check Pods Manifest.lock */,
 				F9E6B6BC264A598C003D1408 /* Sources */,
 				F9E6B6BD264A598C003D1408 /* Frameworks */,
 				F9E6B6BE264A598C003D1408 /* Resources */,
-				43B7BD7F5F08B25E0FCBA16B /* [CP] Embed Pods Frameworks */,
+				3735CEBB7BFF82D957783288 /* [CP] Embed Pods Frameworks */,
 			);
 			buildRules = (
 			);
@@ -272,12 +290,14 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				F912DEF626D6D16D007BD4CE /* awsconfiguration.json in Resources */,
 				F95B2EA1265088BE0026AF75 /* ContactCell.xib in Resources */,
 				F9E6B6D0264A598E003D1408 /* LaunchScreen.storyboard in Resources */,
 				F9A6D693264A751F00C444FD /* BackgroundVideo.mp4 in Resources */,
 				F93B2A68264BC8C40012938B /* GoogleService-Info.plist in Resources */,
 				F9E6B6CD264A598D003D1408 /* Assets.xcassets in Resources */,
 				F95B2EA52650A81C0026AF75 /* RegularMessageBody.xib in Resources */,
+				F912DEF826D6D174007BD4CE /* amplifyconfiguration.json in Resources */,
 				F9E6B6CB264A598C003D1408 /* Main.storyboard in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -285,7 +305,7 @@
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXShellScriptBuildPhase section */
-		43B7BD7F5F08B25E0FCBA16B /* [CP] Embed Pods Frameworks */ = {
+		3735CEBB7BFF82D957783288 /* [CP] Embed Pods Frameworks */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -302,7 +322,7 @@
 			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-Manor/Pods-Manor-frameworks.sh\"\n";
 			showEnvVarsInLog = 0;
 		};
-		B4B764BA251F637001DD4366 /* [CP] Check Pods Manifest.lock */ = {
+		64CF12CBB00B7B9B2FAA73D8 /* [CP] Check Pods Manifest.lock */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -349,8 +369,11 @@
 				F90A7201264D048100D6A17E /* ContactPageViewController.swift in Sources */,
 				F986FA2326CF58E400B1B6BA /* TestTwoCollectionViewCell.swift in Sources */,
 				F9F84E0A2691B4CD009D122F /* GroupChatInfoViewController.swift in Sources */,
+				F912DF0026DCC4DC007BD4CE /* EventTableViewCell.swift in Sources */,
+				F912DEFA26D882D1007BD4CE /* PhotoManagerViewController.swift in Sources */,
 				F9E6B6C4264A598C003D1408 /* AppDelegate.swift in Sources */,
 				F9C50E33265C663500B179A6 /* ChosenNameCell.swift in Sources */,
+				F912DEFC26DB6886007BD4CE /* FirebaseManagerViewController.swift in Sources */,
 				F9F84E0C269BFF54009D122F /* MemberTableViewCell.swift in Sources */,
 				F95B2E9E265086BC0026AF75 /* ContactCell.swift in Sources */,
 				F95B2E9126507EBA0026AF75 /* Message.swift in Sources */,
@@ -359,6 +382,7 @@
 				F9A6D697264B44AF00C444FD /* BackgroundVideoPlayer.swift in Sources */,
 				F98EA5802660CFC700B45D38 /* K.swift in Sources */,
 				F9A6D695264B3BF500C444FD /* LogInViewController.swift in Sources */,
+				F986FA2526D35D2900B1B6BA /* HomePageViewController.swift in Sources */,
 				F95A0BF8264F7EB6002F8490 /* ChatViewController.swift in Sources */,
 				F9E6B6C6264A598C003D1408 /* SceneDelegate.swift in Sources */,
 				F9C50E59265DCC9C00B179A6 /* ContactCollectionViewCell.swift in Sources */,
@@ -505,7 +529,7 @@
 		};
 		F9E6B6D5264A598E003D1408 /* Debug */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = D379BBCD00D96B71389E6EF5 /* Pods-Manor.debug.xcconfig */;
+			baseConfigurationReference = AE7F5D2E4DE102931B37EDB8 /* Pods-Manor.debug.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
@@ -529,7 +553,7 @@
 		};
 		F9E6B6D6264A598E003D1408 /* Release */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 488131C9E3FE7830AC8FCD55 /* Pods-Manor.release.xcconfig */;
+			baseConfigurationReference = 673AA192D4E6F7ED76C630E6 /* Pods-Manor.release.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;

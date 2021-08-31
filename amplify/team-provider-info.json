@@ -1,0 +1,20 @@
+{
+  "dev": {
+    "awscloudformation": {
+      "AuthRoleName": "amplify-manor-dev-143340-authRole",
+      "UnauthRoleArn": "arn:aws:iam::177777110084:role/amplify-manor-dev-143340-unauthRole",
+      "AuthRoleArn": "arn:aws:iam::177777110084:role/amplify-manor-dev-143340-authRole",
+      "Region": "us-east-1",
+      "DeploymentBucketName": "amplify-manor-dev-143340-deployment",
+      "UnauthRoleName": "amplify-manor-dev-143340-unauthRole",
+      "StackName": "amplify-manor-dev-143340",
+      "StackId": "arn:aws:cloudformation:us-east-1:177777110084:stack/amplify-manor-dev-143340/f93824c0-05d2-11ec-be69-0a029b5a039d",
+      "AmplifyAppId": "d2u603htrfr0gz"
+    },
+    "categories": {
+      "auth": {
+        "manor5857b666": {}
+      }
+    }
+  }
+}

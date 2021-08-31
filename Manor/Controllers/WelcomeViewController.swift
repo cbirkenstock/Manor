@@ -47,7 +47,7 @@ class WelcomeViewController: UIViewController {
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
         //starts the video
-        navigationController?.setNavigationBarHidden(true, animated: animated)
+        //navigationController?.setNavigationBarHidden(true, animated: animated)
         backgroundVideoPlayer.avPlayer.play()
         paused = false
     }
@@ -56,8 +56,14 @@ class WelcomeViewController: UIViewController {
     override func viewDidDisappear(_ animated: Bool) {
         super.viewDidDisappear(animated)
         //stops video playback
-        backgroundVideoPlayer.avPlayer.pause()
+        //self.navigationController?.setNavigationBarHidden(false, animated: animated)
+        backgroundVideoPlayer.avPlayer?.pause()
         paused = true
+    }
+    
+    override func viewWillDisappear(_ animated: Bool) {
+        super.viewWillDisappear(animated)
+        //self.navigationController?.setNavigationBarHidden(false, animated: animated)
     }
     
     override func viewWillAppear(_ animated: Bool) {

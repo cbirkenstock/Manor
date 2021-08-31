@@ -11,7 +11,7 @@ import Firebase
 class PageViewController: UIPageViewController, UIPageViewControllerDelegate, UIPageViewControllerDataSource, MessagingDelegate, UNUserNotificationCenterDelegate {
     
     //creates two story boards
-    lazy var myControllers:[UIViewController] = {
+    lazy var myControllers: [UIViewController] = {
         let sb = UIStoryboard(name: "Main", bundle: nil)
         let vc1 = sb.instantiateViewController(withIdentifier: "DMContactView")
         let vc2 = sb.instantiateViewController(withIdentifier: "GroupChatContactView")
@@ -22,6 +22,7 @@ class PageViewController: UIPageViewController, UIPageViewControllerDelegate, UI
     let usersRef = Database.database().reference().child("users")
     
     var pushNotificationManager = PushNotificationManager()
+
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -66,7 +67,6 @@ class PageViewController: UIPageViewController, UIPageViewControllerDelegate, UI
     }
     
     @objc func disableSwipe() {
-        print("disabled")
         self.dataSource = nil
     }
     
@@ -93,6 +93,8 @@ class PageViewController: UIPageViewController, UIPageViewControllerDelegate, UI
         }
         
         let after = index + 1
+        
+       
         
         return myControllers[after]
     }

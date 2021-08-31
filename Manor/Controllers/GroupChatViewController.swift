@@ -10,6 +10,7 @@ import Firebase
 import IQKeyboardManagerSwift
 import GrowingTextView
 import PhotosUI
+import Amplify
 
 class SelfSizedTableView: UITableView {
     var maxHeight: CGFloat = UIScreen.main.bounds.size.height
@@ -28,7 +29,8 @@ class SelfSizedTableView: UITableView {
     }
 }
 
-class GroupChatViewController: UIViewController, UIImagePickerControllerDelegate, UINavigationControllerDelegate, UITextViewDelegate, PHPickerViewControllerDelegate {
+class GroupChatViewController: UIViewController, UIImagePickerControllerDelegate, UINavigationControllerDelegate, UITextViewDelegate, PHPickerViewControllerDelegate, UITextFieldDelegate {
+    
     
     
     
@@ -77,10 +79,28 @@ class GroupChatViewController: UIViewController, UIImagePickerControllerDelegate
     let cameraButton = UIButton()
     var groupChatImageUrl: String = ""
     var userNickName: String?
+    let photoManager = PhotoManagerViewController()
+    let eventButton = UIButton()
+    let plusImageView = UIImageView()
+    let titleField = UITextField()
+    let descriptionTextField = UITextView()
+    let backgroundView = UIView()
+    var a: CGFloat = 0
+    let datePicker = UIDatePicker()
+    let eventSendButton = UIButton()
+    let titleUnderline = UIView()
+    var textFieldConstraints: [NSLayoutConstraint]!
+    var titleUnderlineConstraints: [NSLayoutConstraint]!
+    var datePickerConstraints: [NSLayoutConstraint]!
+    var descriptionTextFieldConstraints: [NSLayoutConstraint]!
+    var eventSendButtonConstraints: [NSLayoutConstraint]!
+    var isCallingEvent: Bool = false
     
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        
+        self.initialBottomConstraint = self.bottomConstraint.constant
         
         self.commaEmail = user.email!.replacingOccurrences(of: ".", with: ",")
         
@@ -92,6 +112,7 @@ class GroupChatViewController: UIViewController, UIImagePickerControllerDelegate
         self.setUpSendButton()
         
         NotificationCenter.default.post(name: NSNotification.Name(rawValue: "disableSwipe"), object: nil)
+        NotificationCenter.default.post(name: NSNotification.Name(rawValue: "hideNavigationBar"), object: nil)
         
         let commaEmail = self.user!.email!.replacingOccurrences(of: ".", with: ",")
         
@@ -126,6 +147,7 @@ class GroupChatViewController: UIViewController, UIImagePickerControllerDelegate
         navigationController?.navigationBar.isTranslucent = false
         navigationController?.navigationBar.barTintColor = .black
         navigationController?.navigationBar.shadowImage = UIImage()
+        navigationController?.navigationBar.tintColor = UIColor(named: K.BrandColors.purple)
         
         //let displayWidth: CGFloat = self.view.frame.width
         //let displayHeight: CGFloat = self.view.frame.height
@@ -167,10 +189,171 @@ class GroupChatViewController: UIViewController, UIImagePickerControllerDelegate
         
         chatTableView.transform = CGAffineTransform(scaleX: 1, y: -1)
         
+        setUpEventsButton()
+        setUpEventOptions()
+        
         loadMessages()
         setUpPushMessagesTable()
         loadMessages()
         
+        
+    }
+    
+    func setUpEventsButton() {
+        eventButton.translatesAutoresizingMaskIntoConstraints = false
+        self.view.insertSubview(eventButton, aboveSubview: chatTableView)
+        eventButton.backgroundColor = UIColor(named: K.BrandColors.purple)
+        eventButton.layer.cornerRadius = 50/2
+        eventButton.addTarget(self, action: #selector(createEventButtonPressed), for: .touchUpInside)
+        
+        let eventButtonContainerConstraints = [
+            eventButton.heightAnchor.constraint(equalToConstant: 50),
+            eventButton.widthAnchor.constraint(equalToConstant: 50),
+            eventButton.trailingAnchor.constraint(equalTo: self.view.trailingAnchor, constant: -1),
+            eventButton.topAnchor.constraint(equalTo: self.view.safeAreaLayoutGuide.topAnchor, constant: 1)
+        ]
+        
+        NSLayoutConstraint.activate(eventButtonContainerConstraints)
+        
+        self.view.addSubview(plusImageView)
+        plusImageView.translatesAutoresizingMaskIntoConstraints = false
+        plusImageView.image = UIImage(systemName: "calendar")
+        plusImageView.tintColor = .white
+        
+        let plusImageViewConstraints = [
+            plusImageView.topAnchor.constraint(equalTo: eventButton.topAnchor, constant: 7),
+            plusImageView.bottomAnchor.constraint(equalTo: eventButton.bottomAnchor, constant: -7),
+            plusImageView.leadingAnchor.constraint(equalTo: eventButton.leadingAnchor, constant: 7),
+            plusImageView.trailingAnchor.constraint(equalTo: eventButton.trailingAnchor, constant: -7)
+        ]
+        
+        NSLayoutConstraint.activate(plusImageViewConstraints)
+        
+    }
+    
+    @objc func createEventButtonPressed() {
+        self.view.addSubview(self.backgroundView)
+        self.view.addSubview(self.titleField)
+        self.view.addSubview(self.titleUnderline)
+        self.view.addSubview(self.datePicker)
+        self.view.addSubview(self.descriptionTextField)
+        self.view.addSubview(self.eventSendButton)
+        
+        self.isCallingEvent = true
+        self.titleField.becomeFirstResponder()
+    }
+    
+    func setUpEventOptions() {
+        self.view.insertSubview(backgroundView, aboveSubview: plusImageView)
+        backgroundView.translatesAutoresizingMaskIntoConstraints = false
+        backgroundView.backgroundColor = UIColor(named: K.BrandColors.backgroundBlack)
+        backgroundView.layer.cornerRadius = 20
+        
+        self.view.addSubview(titleField)
+        titleField.translatesAutoresizingMaskIntoConstraints = false
+        titleField.backgroundColor = .clear
+        titleField.textColor = .clear
+        titleField.font = UIFont.systemFont(ofSize: 33)
+        titleField.text = "Title..."
+        titleField.tintColor = .white
+        titleField.delegate = self
+        
+        self.textFieldConstraints = [
+            titleField.topAnchor.constraint(equalTo: backgroundView.topAnchor, constant: 15),
+            titleField.heightAnchor.constraint(equalToConstant: 40),
+            titleField.leadingAnchor.constraint(equalTo: backgroundView.leadingAnchor, constant: 10),
+            titleField.trailingAnchor.constraint(equalTo: backgroundView.trailingAnchor, constant: -10)
+        ]
+        
+        self.view.addSubview(titleUnderline)
+        titleUnderline.translatesAutoresizingMaskIntoConstraints = false
+        titleUnderline.backgroundColor = UIColor(named: K.BrandColors.purple)
+        
+        
+        self.titleUnderlineConstraints = [
+            titleUnderline.topAnchor.constraint(equalTo: titleField.bottomAnchor, constant: 1),
+            titleUnderline.heightAnchor.constraint(equalToConstant: 2),
+            titleUnderline.leadingAnchor.constraint(equalTo: titleField.leadingAnchor, constant: 0),
+            titleUnderline.trailingAnchor.constraint(equalTo: titleField.trailingAnchor, constant: 0)
+            
+        ]
+        
+        self.view.addSubview(datePicker)
+        datePicker.translatesAutoresizingMaskIntoConstraints = false
+        datePicker.datePickerMode = .dateAndTime
+        datePicker.tintColor = .white //UIColor(named: K.BrandColors.purple)
+        datePicker.isHidden = true
+        
+        self.datePickerConstraints = [
+            datePicker.topAnchor.constraint(equalTo: titleUnderline.bottomAnchor, constant: 20),
+            datePicker.centerXAnchor.constraint(equalTo: backgroundView.centerXAnchor, constant: 0)
+            /*datePicker.leadingAnchor.constraint(equalTo: backgroundView.leadingAnchor, constant: 10),
+             datePicker.trailingAnchor.constraint(equalTo: backgroundView.trailingAnchor, constant: -10)*/
+        ]
+        
+        self.view.addSubview(descriptionTextField)
+        descriptionTextField.translatesAutoresizingMaskIntoConstraints = false
+        descriptionTextField.delegate = self
+        descriptionTextField.backgroundColor = UIColor(named: K.BrandColors.purple)
+        descriptionTextField.textColor = .systemGray
+        descriptionTextField.font = UIFont.systemFont(ofSize: 25)
+        descriptionTextField.text = "description..."
+        descriptionTextField.layer.cornerRadius = 10
+        descriptionTextField.textContainerInset = UIEdgeInsets(top: 5, left: 5, bottom: 0, right: 10)
+        descriptionTextField.tintColor = .white
+        
+        
+        self.descriptionTextFieldConstraints = [
+            descriptionTextField.topAnchor.constraint(equalTo: datePicker.bottomAnchor, constant: 20),
+            descriptionTextField.bottomAnchor.constraint(equalTo: backgroundView.bottomAnchor, constant: -65),
+            descriptionTextField.leadingAnchor.constraint(equalTo: backgroundView.leadingAnchor, constant: 10),
+            descriptionTextField.trailingAnchor.constraint(equalTo: backgroundView.trailingAnchor, constant: -10)
+        ]
+        
+        self.view.addSubview(self.eventSendButton)
+        self.eventSendButton.translatesAutoresizingMaskIntoConstraints = false
+        self.eventSendButton.backgroundColor = .clear
+        self.eventSendButton.layer.cornerRadius = 8
+        self.eventSendButton.setTitle("Create", for: .normal)
+        self.eventSendButton.setTitleColor(.clear, for: .normal)
+        self.eventSendButton.titleLabel?.font = UIFont.systemFont(ofSize: 25)
+        self.eventSendButton.addTarget(self, action: #selector(sendEventButtonPressed), for: .touchUpInside)
+        
+        
+        self.eventSendButtonConstraints = [
+            eventSendButton.topAnchor.constraint(equalTo: self.descriptionTextField.bottomAnchor, constant: 10),
+            eventSendButton.bottomAnchor.constraint(equalTo: self.backgroundView.bottomAnchor, constant: -5),
+            eventSendButton.trailingAnchor.constraint(equalTo: self.backgroundView.trailingAnchor, constant: -10),
+            eventSendButton.widthAnchor.constraint(equalToConstant: ((UIScreen.main.bounds.width - 100)/2 - 10))
+        ]
+    }
+    
+    @objc func sendEventButtonPressed() {
+        self.backgroundView.removeFromSuperview()
+        self.titleField.removeFromSuperview()
+        self.titleUnderline.removeFromSuperview()
+        self.datePicker.removeFromSuperview()
+        self.descriptionTextField.removeFromSuperview()
+        self.eventSendButton.removeFromSuperview()
+        
+        self.chatTableView.isHidden = false
+        self.eventButton.isHidden = false
+        self.plusImageView.isHidden = false
+    }
+    
+    func textViewDidBeginEditing(_ textView: UITextView) {
+        if textView.text == "description..." {
+            textView.text = ""
+            textView.textColor = .white
+        }
+    }
+    
+    func textFieldDidBeginEditing(_ textField: UITextField) {
+        textField.text = ""
+        self.titleField.textColor = .white
+    }
+    
+    private func setUpTextView() {
         
     }
     
@@ -229,7 +412,11 @@ class GroupChatViewController: UIViewController, UIImagePickerControllerDelegate
     }
     
     override func viewDidAppear(_ animated: Bool) {
+//        let window = UIApplication.shared.keyWindow
+//        self.initialBottomConstraint = window?.safeAreaInsets.bottom ?? 0.0
+        //print(self.chatTextBar.frame.origin.y)
         //pushMessagesTableView.isScrollEnabled = false
+        //self.navigationController?.setNavigationBarHidden(true, animated: false)
     }
     
     
@@ -256,19 +443,44 @@ class GroupChatViewController: UIViewController, UIImagePickerControllerDelegate
         guard let keyboardSize = userInfo[UIResponder.keyboardFrameEndUserInfoKey] as? NSValue else {return}
         let keyboardFrame = keyboardSize.cgRectValue.height
         
+        let spaceLeft = (self.view.bounds.height - keyboardFrame) - backgroundView.frame.height
+        
         bottomConstraint.constant = keyboardFrame + 1
         
-        /*if totalMessages <= 5 {
-         bottomConstraint.constant = keyboardFrame
-         } else {
-         if (self.view.bounds.origin.y == 0) {
-         self.view.bounds.origin.y += (keyboardFrame - 42)
-         }
-         }*/
-        
-        self.textBarRightConstraint.constant = 120
-        
         UIView.animate(withDuration: duration) { self.view.layoutIfNeeded() }
+        
+        if self.isCallingEvent {
+            
+            print("YAAAAAAA")
+            
+            let yValue = self.view.bounds.origin.y + (spaceLeft/6)
+            
+            let backgroundViewConstraints = [
+                backgroundView.topAnchor.constraint(equalTo: self.view.safeAreaLayoutGuide.topAnchor, constant: yValue),
+                backgroundView.leadingAnchor.constraint(equalTo: self.chatTableView.leadingAnchor, constant: 50),
+                backgroundView.trailingAnchor.constraint(equalTo: self.chatTableView.trailingAnchor, constant: -50),
+                backgroundView.heightAnchor.constraint(equalToConstant: 300)
+            ]
+            
+            
+            self.chatTableView.isHidden = true
+            self.eventButton.isHidden = true
+            self.plusImageView.isHidden = true
+            NSLayoutConstraint.activate(backgroundViewConstraints)
+            NSLayoutConstraint.activate(self.textFieldConstraints)
+            self.titleField.textColor = .systemGray
+            NSLayoutConstraint.activate(self.titleUnderlineConstraints)
+            self.datePicker.isHidden = false
+            NSLayoutConstraint.activate(self.datePickerConstraints)
+            NSLayoutConstraint.activate(self.descriptionTextFieldConstraints)
+            self.eventSendButton.backgroundColor = .systemGreen
+            self.eventSendButton.setTitleColor(.white, for: .normal)
+            NSLayoutConstraint.activate(self.eventSendButtonConstraints)
+            
+            self.textBarRightConstraint.constant = 120
+            
+            UIView.animate(withDuration: duration) { self.view.layoutIfNeeded() }
+        }
     }
     
     
@@ -277,10 +489,13 @@ class GroupChatViewController: UIViewController, UIImagePickerControllerDelegate
         self.keyboardIsShowing = false
         
         self.pushMessageButton.image = UIImage(systemName: "ellipsis")
-        self.pushMessageButton.tintColor = .systemBlue
+        self.pushMessageButton.tintColor = UIColor(named: K.BrandColors.purple)
         
         guard let userInfo = notification.userInfo else {return}
         guard let duration: TimeInterval = (userInfo[UIResponder.keyboardAnimationDurationUserInfoKey] as? NSNumber)?.doubleValue else {return}
+        
+        print("initialBottomConstraint")
+        print(initialBottomConstraint)
         
         bottomConstraint.constant = initialBottomConstraint
         
@@ -358,153 +573,207 @@ class GroupChatViewController: UIViewController, UIImagePickerControllerDelegate
     
     @objc func cameraButtonPressed() {
         
-        if #available(iOS 14, *) {
-            var configuration = PHPickerConfiguration()
-            configuration.filter = .images
-            configuration.selectionLimit = 0
-            let picker = PHPickerViewController(configuration: configuration)
-            picker.delegate = self
-            self.present(picker, animated: true)
-        } else {
-            let imagePickerController = UIImagePickerController()
-            imagePickerController.delegate = self
-            imagePickerController.allowsEditing = true
-            
-            self.present(imagePickerController, animated: true)
-        }
+        /*if #available(iOS 14, *) {
+         var configuration = PHPickerConfiguration()
+         configuration.filter = .images
+         configuration.selectionLimit = 0
+         let picker = PHPickerViewController(configuration: configuration)
+         picker.delegate = self
+         self.present(picker, animated: true)
+         } else {
+         let imagePickerController = UIImagePickerController()
+         imagePickerController.delegate = self
+         imagePickerController.allowsEditing = true
+         
+         self.present(imagePickerController, animated: true)
+         }*/
         
-        
-        
+        self.photoManager.documentID = self.documentID
+        self.photoManager.groupMembers = self.groupMembers
+        self.photoManager.groupChatTitle = self.groupChatTitle
+        self.photoManager.userFullName = self.userFullName
+        self.photoManager.setUpCameraPicker(viewController: self, desiredPicker: nil)
     }
     
     func imagePickerController(_ picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [UIImagePickerController.InfoKey : Any]) {
         
-        picker.dismiss(animated: true, completion: nil)
+        photoManager.processPickerResultOld(imagePicker: picker, info: info, isTextMessage: true)
         
-        var selectedImageFromPicker: UIImage?
-        
-        if let editedImage = info[UIImagePickerController.InfoKey(rawValue: "UIImagePickerControllerEditedImage")] as? UIImage {
-            selectedImageFromPicker = editedImage
-        } else if let originalImage = info[UIImagePickerController.InfoKey(rawValue: "UIImagePickerControllerOriginalImage")] as? UIImage {
-            selectedImageFromPicker = originalImage
-        }
-        
-        if let selectedImage = selectedImageFromPicker {
-            let imageName = NSUUID().uuidString
-            let storage = Storage.storage()
-            let ref = storage.reference().child("message_images").child(imageName)
-            
-            if let uploadData = selectedImage.jpegData(compressionQuality: 0.2) {
-                ref.putData(uploadData, metadata: nil) { metaData, err in
-                    
-                    if err != nil {
-                        print("failed to upload image:", err!)
-                        return
-                    }
-                    
-                    ref.downloadURL { url, err in
-                        if err != nil {
-                            print("failed to download URL", err!)
-                        } else if let imageURl = url?.absoluteString {
-                            
-                            let timeStamp = Date().timeIntervalSince1970
-                            let stringTimestamp = "\(timeStamp)"
-                            let commaTimestamp = stringTimestamp.replacingOccurrences(of: ".", with: ",")
-                            
-                            self.groupChatMessagesRef.child("\(self.documentID)/lastMessage").setValue("\(self.userFullName) sent an image")
-                            
-                            self.groupChatMessagesRef.child(self.documentID).child("Messages").child("Message,\(commaTimestamp)").setValue([
-                                "messageSender": self.userFullName,
-                                "imageURL": imageURl,
-                                "timeStamp": commaTimestamp
-                            ])
-                            
-                            for email in self.groupMembers[1] {
-                                let commaEmail = email.replacingOccurrences(of: ".", with: ",")
-                                self.groupChatByUsersRef.child(commaEmail).child("Chats").child(self.documentID).setValue([
-                                    "title": self.groupChatTitle,
-                                    "documentID": self.documentID,
-                                    "imageURL": imageURl,
-                                    "lastMessage": "\(self.userFullName) sent an image",
-                                    "timeStamp": commaTimestamp
-                                ])
-                            }
-                        }
-                    }
-                }
-                
-            }
-            
-        }
     }
+    /*picker.dismiss(animated: true, completion: nil)
+     
+     var selectedImageFromPicker: UIImage?
+     
+     if let editedImage = info[UIImagePickerController.InfoKey(rawValue: "UIImagePickerControllerEditedImage")] as? UIImage {
+     selectedImageFromPicker = editedImage
+     } else if let originalImage = info[UIImagePickerController.InfoKey(rawValue: "UIImagePickerControllerOriginalImage")] as? UIImage {
+     selectedImageFromPicker = originalImage
+     }
+     
+     if let selectedImage = selectedImageFromPicker {
+     let imageName = NSUUID().uuidString
+     let storage = Storage.storage()
+     let ref = storage.reference().child("message_images").child(imageName)
+     
+     if let uploadData = selectedImage.jpegData(compressionQuality: 0.2) {
+     ref.putData(uploadData, metadata: nil) { metaData, err in
+     
+     if err != nil {
+     print("failed to upload image:", err!)
+     return
+     }
+     
+     ref.downloadURL { url, err in
+     if err != nil {
+     print("failed to download URL", err!)
+     } else if let imageURl = url?.absoluteString {
+     
+     let timeStamp = Date().timeIntervalSince1970
+     let stringTimestamp = "\(timeStamp)"
+     let commaTimestamp = stringTimestamp.replacingOccurrences(of: ".", with: ",")
+     
+     self.groupChatMessagesRef.child("\(self.documentID)/lastMessage").setValue("\(self.userFullName) sent an image")
+     
+     self.groupChatMessagesRef.child(self.documentID).child("Messages").child("Message,\(commaTimestamp)").setValue([
+     "messageSender": self.userFullName,
+     "imageURL": imageURl,
+     "timeStamp": commaTimestamp
+     ])
+     
+     for email in self.groupMembers[1] {
+     let commaEmail = email.replacingOccurrences(of: ".", with: ",")
+     self.groupChatByUsersRef.child(commaEmail).child("Chats").child(self.documentID).setValue([
+     "title": self.groupChatTitle,
+     "documentID": self.documentID,
+     "imageURL": imageURl,
+     "lastMessage": "\(self.userFullName) sent an image",
+     "timeStamp": commaTimestamp
+     ])
+     }
+     }
+     }
+     }
+     
+     }
+     
+     }
+     }*/
     
     @available(iOS 14, *)
     func picker(_ picker: PHPickerViewController, didFinishPicking results: [PHPickerResult]) {
-        picker.dismiss(animated: true, completion: nil)
-        
-        for result in results {
-            let itemProvider = result.itemProvider
-            if itemProvider.canLoadObject(ofClass: UIImage.self) {
-                itemProvider.loadObject(ofClass: UIImage.self)
-                { [weak self]  image, error in
-                    if error != nil {
-                        print("Error", error!)
-                        return
-                    }
-                    
-                    if let selectedImage = image as? UIImage {
-                        let imageName = NSUUID().uuidString
-                        let storage = Storage.storage()
-                        let ref = storage.reference().child("message_images").child(imageName)
-                        
-                        if let uploadData = selectedImage.jpegData(compressionQuality: 0.2) {
-                            ref.putData(uploadData, metadata: nil) { metaData, err in
-                                
-                                if err != nil {
-                                    print("failed to upload image:", err!)
-                                    return
-                                }
-                                
-                                ref.downloadURL { url, err in
-                                    if err != nil {
-                                        print("failed to download URL", err!)
-                                    } else if let imageURl = url?.absoluteString {
-                                        
-                                        let timeStamp = Date().timeIntervalSince1970
-                                        let stringTimestamp = "\(timeStamp)"
-                                        let commaTimestamp = stringTimestamp.replacingOccurrences(of: ".", with: ",")
-                                        
-                                        self?.groupChatMessagesRef.child("\(self!.documentID)/lastMessage").setValue("\(self!.userFullName) sent an image")
-                                        
-                                        self?.groupChatMessagesRef.child(self!.documentID).child("Messages").child("Message,\(commaTimestamp)").setValue([
-                                            "messageSender": self?.userFullName,
-                                            "imageURL": imageURl,
-                                            "timeStamp": commaTimestamp
-                                        ])
-                                        
-                                        for email in self?.groupMembers[1] ?? [] {
-                                            let commaEmail = email.replacingOccurrences(of: ".", with: ",")
-                                            self!.groupChatByUsersRef.child(commaEmail).child("Chats").child(self!.documentID).setValue([
-                                                "title": self!.groupChatTitle,
-                                                "documentID": self!.documentID,
-                                                "imageURL": imageURl,
-                                                "lastMessage": "\(self!.userFullName) sent an image",
-                                                "timeStamp": commaTimestamp
-                                            ])
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        }
+        photoManager.processPickerResultsPHP(imagePicker: picker, results: results)
     }
-    
-    func imagePickerControllerDidCancel(_ picker: UIImagePickerController) {
-        dismiss(animated: true, completion: nil)
-    }
+    /*picker.dismiss(animated: true, completion: nil)
+     
+     for result in results {
+     let itemProvider = result.itemProvider
+     if itemProvider.canLoadObject(ofClass: UIImage.self) {
+     itemProvider.loadObject(ofClass: UIImage.self)
+     { [weak self]  image, error in
+     if error != nil {
+     print("Error", error!)
+     return
+     }
+     
+     if let selectedImage = image as? UIImage {
+     let imageName = NSUUID().uuidString
+     //let storage = Storage.storage()
+     //let ref = storage.reference().child("message_images").child(imageName)
+     
+     
+     if let fileData = selectedImage.jpegData(compressionQuality: 0.2) {
+     Amplify.Storage.uploadData(key: imageName, data: fileData) { result in
+     switch result {
+     case .success(let key):
+     print("Upload Successful", key)
+     case .failure(let error):
+     print("Upload failed:", error)
+     }
+     }
+     
+     Amplify.Storage.getURL(key: imageName) { result in
+     switch result {
+     case .success(let URL):
+     let timeStamp = Date().timeIntervalSince1970
+     let stringTimestamp = "\(timeStamp)"
+     let commaTimestamp = stringTimestamp.replacingOccurrences(of: ".", with: ",")
+     
+     let imageURL = URL.absoluteString
+     
+     self?.groupChatMessagesRef.child("\(self!.documentID)/lastMessage").setValue("\(self!.userFullName) sent an image")
+     
+     self?.groupChatMessagesRef.child(self!.documentID).child("Messages").child("Message,\(commaTimestamp)").setValue([
+     "messageSender": self?.userFullName,
+     "imageURL": imageURL,
+     "timeStamp": commaTimestamp
+     ])
+     
+     for email in self?.groupMembers[1] ?? [] {
+     let commaEmail = email.replacingOccurrences(of: ".", with: ",")
+     self!.groupChatByUsersRef.child(commaEmail).child("Chats").child(self!.documentID).setValue([
+     "title": self!.groupChatTitle,
+     "documentID": self!.documentID,
+     "imageURL": imageURL,
+     "lastMessage": "\(self!.userFullName) sent an image",
+     "timeStamp": commaTimestamp
+     ])
+     }
+     
+     case .failure(let error):
+     print(error)
+     }
+     }
+     
+     }
+     
+     /*if let uploadData = selectedImage.jpegData(compressionQuality: 0.2) {
+     ref.putData(uploadData, metadata: nil) { metaData, err in
+     
+     if err != nil {
+     print("failed to upload image:", err!)
+     return
+     }
+     
+     ref.downloadURL { url, err in
+     if err != nil {
+     print("failed to download URL", err!)
+     } else if let imageURl = url?.absoluteString {
+     
+     let timeStamp = Date().timeIntervalSince1970
+     let stringTimestamp = "\(timeStamp)"
+     let commaTimestamp = stringTimestamp.replacingOccurrences(of: ".", with: ",")
+     
+     self?.groupChatMessagesRef.child("\(self!.documentID)/lastMessage").setValue("\(self!.userFullName) sent an image")
+     
+     self?.groupChatMessagesRef.child(self!.documentID).child("Messages").child("Message,\(commaTimestamp)").setValue([
+     "messageSender": self?.userFullName,
+     "imageURL": imageURl,
+     "timeStamp": commaTimestamp
+     ])
+     
+     for email in self?.groupMembers[1] ?? [] {
+     let commaEmail = email.replacingOccurrences(of: ".", with: ",")
+     self!.groupChatByUsersRef.child(commaEmail).child("Chats").child(self!.documentID).setValue([
+     "title": self!.groupChatTitle,
+     "documentID": self!.documentID,
+     "imageURL": imageURl,
+     "lastMessage": "\(self!.userFullName) sent an image",
+     "timeStamp": commaTimestamp
+     ])
+     }
+     }
+     }
+     }
+     }*/
+     }
+     }
+     }
+     }
+     }
+     
+     func imagePickerControllerDidCancel(_ picker: UIImagePickerController) {
+     dismiss(animated: true, completion: nil)
+     }*/
     
     @IBAction func pushButtonPressed(_ sender: UIBarButtonItem) {
         
@@ -545,6 +814,8 @@ class GroupChatViewController: UIViewController, UIImagePickerControllerDelegate
                 }
             })
             
+            self.groupChatMessagesRef.child("\(self.documentID)/timeStamp").setValue(commaTimestamp)
+            
             for email in groupMembers[1] {
                 let commaEmail = email.replacingOccurrences(of: ".", with: ",")
                 
@@ -556,13 +827,19 @@ class GroupChatViewController: UIViewController, UIImagePickerControllerDelegate
                         self.unreadPushMessages = unreadPushMessages
                     }
                     
-                    self.groupChatByUsersRef.child(commaEmail).child("Chats").child(self.documentID).setValue([
-                        "title": self.groupChatTitle,
-                        "documentID": self.documentID,
-                        "lastMessage": messageBody,
-                        "timeStamp": commaTimestamp,
-                        "unreadPushMessages": unreadPushMessages
-                    ])
+                    /*self.groupChatByUsersRef.child(commaEmail).child("Chats").child(self.documentID).setValue([
+                     "title": self.groupChatTitle,
+                     "documentID": self.documentID,
+                     "lastMessage": messageBody,
+                     "timeStamp": commaTimestamp,
+                     "unreadPushMessages": unreadPushMessages
+                     ])*/
+                    
+                    self.groupChatByUsersRef.child("\(commaEmail)/Chats/\(self.documentID)/title").setValue(self.groupChatTitle)
+                    self.groupChatByUsersRef.child("\(commaEmail)/Chats/\(self.documentID)/documentID").setValue(self.documentID)
+                    self.groupChatByUsersRef.child("\(commaEmail)/Chats/\(self.documentID)/lastMessage").setValue(messageBody)
+                    self.groupChatByUsersRef.child("\(commaEmail)/Chats/\(self.documentID)/timeStamp").setValue(commaTimestamp)
+                    self.groupChatByUsersRef.child("\(commaEmail)/Chats/\(self.documentID)/unreadPushMessages").setValue(unreadPushMessages)
                 }
             }
         } else if keyboardIsShowing == false{
@@ -659,27 +936,31 @@ class GroupChatViewController: UIViewController, UIImagePickerControllerDelegate
                 let email = member[1]
                 let commaEmail = email.replacingOccurrences(of: ".", with: ",")
                 
-                self.groupChatByUsersRef.child(commaEmail).child("Chats").child(documentID).setValue([
-                    "title": groupChatTitle,
-                    "documentID": documentID,
-                    "profileImageUrl": self.groupChatImageUrl,
-                    "notificationsEnabled": true
-                    
+                /*self.groupChatByUsersRef.child(commaEmail).child("Chats").child(documentID).setValue([
+                 "title": groupChatTitle,
+                 "documentID": documentID,
+                 "profileImageUrl": self.groupChatImageUrl,
+                 "notificationsEnabled": true
+                 
                  //"lastMessage": messageBody,
                  //"timeStamp": commaTimestamp,
                  //"readNotification": false
-                 ])
+                 ])*/
                 
+                self.groupChatByUsersRef.child("\(commaEmail)/Chats/\(documentID)/title").setValue(groupChatTitle)
+                self.groupChatByUsersRef.child("\(commaEmail)/Chats/\(documentID)/documentID").setValue(documentID)
+                self.groupChatByUsersRef.child("\(commaEmail)/Chats/\(documentID)/profileImageUrl").setValue(self.groupChatImageUrl)
+                self.groupChatByUsersRef.child("\(commaEmail)/Chats/\(documentID)/notificationsEnabled").setValue(true)
                 self.groupChatByUsersRef.child("\(commaEmail)/Chats/\(documentID)/lastMessage").setValue(messageBody)
                 self.groupChatByUsersRef.child("\(commaEmail)/Chats/\(documentID)/timeStamp").setValue(commaTimestamp)
                 self.groupChatByUsersRef.child("\(commaEmail)/Chats/\(documentID)/readNotification").setValue(false)
-
+                
                 
                 /*usersRef.child(commaEmail).child("profileImageUrl").observe(DataEventType.value) { Snapshot in
-                    let profileImageUrl = Snapshot.value as? String
-                    self.groupChatByUsersRef.child("\(commaEmail)/Chats/\(self.documentID)/profileImageUrl").setValue(profileImageUrl)
-                }*/
-            
+                 let profileImageUrl = Snapshot.value as? String
+                 self.groupChatByUsersRef.child("\(commaEmail)/Chats/\(self.documentID)/profileImageUrl").setValue(profileImageUrl)
+                 }*/
+                
                 /*db.collection("GroupChatsByUser").document(email).collection("Chats").document(documentID).setData([
                  "title": groupChatTitle,
                  "documentID": documentID,
@@ -785,11 +1066,26 @@ class GroupChatViewController: UIViewController, UIImagePickerControllerDelegate
                              self.chatTableView.scrollToRow(at: indexPath, at: .top, animated: true)*/
                         }
                     } else if let imageURL = value.object(forKey: "imageURL") as? String {
-                        print("Image")
                         self.totalMessages += 1
                         let timeStamp = Double(commaTimeStamp.replacingOccurrences(of: ",", with: "."))!
                         
                         let message = Message(messageSender: messageSender, messageBody: nil, timeStamp: timeStamp, pushMessageUID: nil, imageURL: imageURL, messageSenderNickName: messageSenderNickName)
+                        
+                        /*let imageUrl = message.imageURL! as NSString
+                         
+                         Amplify.Storage.downloadData(key: message.imageURL!) { result in
+                         switch result {
+                         case .success(let data):
+                         print("Success downloading image", data)
+                         if let image = UIImage(data: data) {
+                         DispatchQueue.main.async {
+                         self.imageCache.setObject(image, forKey: imageUrl)
+                         }
+                         }
+                         case .failure(let error):
+                         print("failure downloading image", error)
+                         }
+                         }*/
                         
                         self.dateFormatter.dateFormat = "MM/dd/yyyy"
                         let messageDate = self.dateFormatter.string(from: Date(timeIntervalSince1970: timeStamp))
@@ -868,10 +1164,15 @@ class GroupChatViewController: UIViewController, UIImagePickerControllerDelegate
     
     override func viewDidDisappear(_ animated: Bool) {
         NotificationCenter.default.post(name: NSNotification.Name(rawValue: "enableSwipe"), object: nil)
+        
     }
     
     override func viewWillDisappear(_ animated: Bool) {
+        super.viewWillDisappear(animated)
+        
         if self.isMovingFromParent {
+            
+            NotificationCenter.default.post(name: NSNotification.Name(rawValue: "showNavigationBar"), object: nil)
             
             guard let navigationController = self.navigationController else { return }
             var navigationArray = navigationController.viewControllers
@@ -955,6 +1256,30 @@ extension GroupChatViewController: UITableViewDataSource, UITableViewDelegate {
             
             let message = sortedMessages[indexPath.row]
             
+            /*if indexPath.row < sortedMessages.count - 1 {
+             let message2 = sortedMessages[indexPath.row + 1]
+             if message2.imageURL != "" {
+             let imageURL = message2.imageURL! as NSString
+             //if let _ = self.imageCache.object(forKey: imageURL) {
+             //} else {
+             Amplify.Storage.downloadData(key: message.imageURL!) { result in
+             switch result {
+             case .success(let data):
+             print("Success downloading image", data)
+             if let image = UIImage(data: data) {
+             DispatchQueue.main.async {
+             self.imageCache.setObject(image, forKey: imageURL)
+             }
+             }
+             case .failure(let error):
+             print("failure downloading image", error)
+             }
+             }
+             //}
+             }
+             }*/
+            
+            
             
             
             if message.imageURL != "" {
@@ -975,20 +1300,37 @@ extension GroupChatViewController: UITableViewDataSource, UITableViewDelegate {
                 if let cachedImage = self.imageCache.object(forKey: imageURL) {
                     cell.messageImageView.image = cachedImage as? UIImage
                 } else {
-                    DispatchQueue.global().async { [weak self] in
-                        let URL = URL(string: message.imageURL!)
-                        if let data = try? Data(contentsOf: URL!) {
+                    Amplify.Storage.downloadData(key: message.imageURL!) { result in
+                        switch result {
+                        case .success(let data):
+                            print("Success downloading image", data)
                             if let image = UIImage(data: data) {
                                 let imageHeight = CGFloat(image.size.height/image.size.width * 300)
                                 DispatchQueue.main.async {
-                                    self!.imageCache.setObject(image, forKey: imageURL)
+                                    self.imageCache.setObject(image, forKey: imageURL)
                                     cell.imageHeight = imageHeight
                                     cell.imageWidth = 300
                                     cell.messageImageView.image = image
                                 }
                             }
+                        case .failure(let error):
+                            print("failure downloading image", error)
                         }
                     }
+                    /*DispatchQueue.global().async { [weak self] in
+                     let URL = URL(string: message.imageURL!)
+                     if let data = try? Data(contentsOf: URL!) {
+                     if let image = UIImage(data: data) {
+                     let imageHeight = CGFloat(image.size.height/image.size.width * 300)
+                     DispatchQueue.main.async {
+                     self!.imageCache.setObject(image, forKey: imageURL)
+                     cell.imageHeight = imageHeight
+                     cell.imageWidth = 300
+                     cell.messageImageView.image = image
+                     }
+                     }
+                     }
+                     }*/
                 }
                 
                 cell.emailLabel.text = message.messageSenderNickName
@@ -1176,7 +1518,14 @@ extension GroupChatViewController: UITableViewDataSource, UITableViewDelegate {
     
     func tableView(_ tableView: UITableView, viewForFooterInSection section: Int) -> UIView? {
         if tableView == chatTableView {
-            let specificSection = self.keyArray[section]
+            
+            var reversedKeyArray: [String] = []
+            
+            for value in self.keyArray.reversed() {
+                reversedKeyArray.append(value)
+            }
+            
+            let specificSection = reversedKeyArray[section]
             
             if let firstMessageInSection = self.messages[specificSection]?.first {
                 dateFormatter.dateFormat = "MM/dd/yyyy"

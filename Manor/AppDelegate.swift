@@ -7,12 +7,20 @@
 
 import UIKit
 import Firebase
+import Amplify
+import AmplifyPlugins
 import IQKeyboardManagerSwift
 
 @UIApplicationMain
 class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterDelegate,  MessagingDelegate {
     
+    let defaults = UserDefaults.standard
+    let imageCache = NSCache<NSString, AnyObject>()
+    let firebaseManager = FirebaseManagerViewController()
+    
+    
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
+        self.defaults.setValue(nil, forKey: "savedPassword")
         
         FirebaseApp.configure()
         
@@ -21,9 +29,28 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
         let pushNotificationManager = PushNotificationManager()
         
         pushNotificationManager.registerForPushNotifications()
-    
         
+        configureAmplify()
+        /*firebaseManager.downloadContactPhotos { contactPhotosDictionary in
+            print("photos1")
+            print(contactPhotosDictionary)
+        }*/
+        
+
         return true
+    }
+    
+
+    
+    func configureAmplify() {
+        do {
+            try Amplify.add(plugin: AWSCognitoAuthPlugin())
+            try Amplify.add(plugin: AWSS3StoragePlugin())
+            try Amplify.configure()
+            
+        } catch {
+            print("error configuring Amplify", error)
+        }
     }
     
     // MARK: UISceneSession Lifecycle
@@ -41,8 +68,8 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
     }
     
     /*func application(_ application: UIApplication, didReceiveRemoteNotification userInfo: [AnyHashable : Any],fetchCompletionHandler completionHandler: @escaping (UIBackgroundFetchResult) -> Void) {
-        UIApplication.shared.applicationIconBadgeNumber = 40
-    }*/
+     UIApplication.shared.applicationIconBadgeNumber = 40
+     }*/
     
     
 }

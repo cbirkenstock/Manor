@@ -8,6 +8,8 @@
 import UIKit
 import Firebase
 import DropDown
+import Amplify
+import AmplifyPlugins
 
 class ContactPageViewController: UIViewController {
     
@@ -38,17 +40,26 @@ class ContactPageViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         
+        Amplify.Auth.fetchAuthSession { result in
+            switch result {
+            case .success(let session):
+                print("Is user signed in - \(session.isSignedIn)")
+            case .failure(let error):
+                print("Fetch session failed with error \(error)")
+            }
+        }
+        
         self.contactCollectionView.register(TestCollectionViewCell.self, forCellWithReuseIdentifier: "testCell")
         
         //shows navigation bar
-        navigationController?.setNavigationBarHidden(false, animated: true)
-        
-        navigationController?.navigationBar.isHidden = false
-        navigationController?.navigationBar.isTranslucent = false
-        navigationController?.navigationBar.barTintColor = .black
-        navigationController?.navigationBar.shadowImage = UIImage()
-        //navigationItem.backBarButtonItem?.tintColor = UIColor(named: K.BrandColors.purple)
-        self.navigationController!.navigationBar.tintColor = UIColor(named: K.BrandColors.purple);
+        /*navigationController?.setNavigationBarHidden(false, animated: true)
+         
+         navigationController?.navigationBar.isHidden = false
+         navigationController?.navigationBar.isTranslucent = false
+         navigationController?.navigationBar.barTintColor = .black
+         navigationController?.navigationBar.shadowImage = UIImage()
+         //navigationItem.backBarButtonItem?.tintColor = UIColor(named: K.BrandColors.purple)
+         self.navigationController!.navigationBar.tintColor = UIColor(named: K.BrandColors.purple)*/
         
         
         //sets size, scroll direction, etc. of contacts in collection view
@@ -101,6 +112,18 @@ class ContactPageViewController: UIViewController {
             vc.otherUserFullName = self.otherUserFullName
             vc.otherUserEmail = self.otherUserEmail
             vc.userFullName = self.userFullName
+            
+            if(user.email! < otherUserEmail ) {
+                let chatTitle = "\(self.user!.email!) + \(otherUserEmail)"
+                vc.documentID = chatTitle.replacingOccurrences(of: ".", with: ",")
+                print("vc")
+                print("\(self.user!.email!) + \(otherUserEmail)")
+            } else {
+                let chatTitle = "\(self.user!.email!) + \(otherUserEmail)"
+                vc.documentID = chatTitle.replacingOccurrences(of: ".", with: ",")
+                print("vc")
+                print("\(self.user!.email!) + \(otherUserEmail)")
+            }
         }
     }
     
@@ -139,7 +162,7 @@ class ContactPageViewController: UIViewController {
                     
                     self.contacts.append(userContact)
                 }
-
+                
                 DispatchQueue.main.async {
                     self.contactCollectionView.reloadData()
                 }
@@ -173,6 +196,13 @@ class ContactPageViewController: UIViewController {
          }
          }
          }*/
+    }
+    
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        
+        NotificationCenter.default.post(name: NSNotification.Name(rawValue: "makeDMTitleBold"), object: nil)
+        self.navigationController?.setNavigationBarHidden(true, animated: false)
     }
 }
 
@@ -233,7 +263,7 @@ extension ContactPageViewController: UICollectionViewDataSource {
                 
             }
         }
-
+        
         
         return cell
     }
@@ -248,6 +278,7 @@ extension ContactPageViewController: UICollectionViewDelegate {
             self.otherUserFullName = cell.contactName.text ?? ""
             self.otherUserEmail = cell.documentID
         }
+        
         performSegue(withIdentifier: K.Segues.DirectMessageChatSegue, sender: self)
     }
 }

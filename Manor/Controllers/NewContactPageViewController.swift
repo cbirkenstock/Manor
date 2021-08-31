@@ -8,6 +8,8 @@
 import UIKit
 import Firebase
 import DropDown
+import Amplify
+import AmplifyPlugins
 
 class NewContactPageViewController: UIViewController {
     
@@ -41,6 +43,12 @@ class NewContactPageViewController: UIViewController {
     
     //--//
     
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        
+        NotificationCenter.default.post(name: NSNotification.Name(rawValue: "makeGroupChatTitleBold"), object: nil)
+        self.navigationController?.setNavigationBarHidden(true, animated: false)
+    }
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -51,15 +59,15 @@ class NewContactPageViewController: UIViewController {
         title = "Messages"
         
         //shows navigation bar
-        navigationController?.setNavigationBarHidden(false, animated: true)
+        //navigationController?.setNavigationBarHidden(false, animated: true)
         self.navigationItem.setHidesBackButton(false, animated: false)
         
-        navigationController?.navigationBar.isHidden = false
+        /*navigationController?.navigationBar.isHidden = false
         navigationController?.navigationBar.isTranslucent = false
         navigationController?.navigationBar.barTintColor = .black
         navigationController?.navigationBar.shadowImage = UIImage()
         //navigationItem.backBarButtonItem?.tintColor = UIColor(named: K.BrandColors.purple)
-        self.navigationController!.navigationBar.tintColor = UIColor(named: K.BrandColors.purple);
+        self.navigationController?.navigationBar.tintColor = UIColor(named: K.BrandColors.purple)*/
         
         contactCollectionView.delegate = self
         contactCollectionView.dataSource = self
@@ -250,6 +258,21 @@ extension NewContactPageViewController: UICollectionViewDataSource {
         }  else if let cachedImage = self.imageCache.object(forKey: profileImageUrl as NSString) {
             cell.contactImageView.image = cachedImage as? UIImage
         } else {
+            Amplify.Storage.downloadData(key: profileImageUrl) { result in
+                switch result {
+                case .success(let data):
+                    print("Success downloading image", data)
+                    if let image = UIImage(data: data) {
+                        //let imageHeight = CGFloat(image.size.height/image.size.width * 300)
+                        DispatchQueue.main.async {
+                            self.imageCache.setObject(image, forKey: profileImageUrl as NSString)
+                            cell.contactImageView.image = image
+                        }
+                    }
+                case .failure(let error):
+                    print("failure downloading image", error)
+                }
+            }
             DispatchQueue.global().async { [weak self] in
                 let URL = URL(string: profileImageUrl)
                 if let data = try? Data(contentsOf: URL!) {

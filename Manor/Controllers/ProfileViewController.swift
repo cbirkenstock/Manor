@@ -9,7 +9,7 @@ import UIKit
 import PhotosUI
 import Firebase
 
-class ProfileViewController: UIViewController, UIImagePickerControllerDelegate & UINavigationControllerDelegate {
+class ProfileViewController: UIViewController, UIImagePickerControllerDelegate & UINavigationControllerDelegate, UITextFieldDelegate {
     
     @IBOutlet weak var profilePictureButton: UIButton!
     @IBOutlet weak var firstName: UITextField!
@@ -22,6 +22,9 @@ class ProfileViewController: UIViewController, UIImagePickerControllerDelegate &
     override func viewDidLoad() {
         super.viewDidLoad()
         
+        firstName.delegate = self
+        lastName.delegate = self
+        
         self.commaUserEmail = self.user.email!.replacingOccurrences(of: ".", with: ",")
         
         self.loadInfo()
@@ -30,10 +33,28 @@ class ProfileViewController: UIViewController, UIImagePickerControllerDelegate &
         profilePictureButton.layer.cornerRadius = profilePictureButton.bounds.height/2
         
         profilePictureButton.clipsToBounds = true
+    }
+    
+    
+    @IBAction func firstNameEditingBegan(_ sender: Any) {
+        self.firstName.text = ""
+    }
+    
+ 
+    @IBAction func lastNameEditingBegan(_ sender: Any) {
+        self.lastName.text = ""
+    }
+    
+    func textFieldShouldReturn(_ textField: UITextField) -> Bool {
+        textField.resignFirstResponder()
         
-        
-        
-        // Do any additional setup after loading the view.
+        if textField == firstName {
+            self.usersRef.child("\(self.commaUserEmail)/firstName").setValue(firstName.text)
+        } else {
+            self.usersRef.child("\(self.commaUserEmail)/lastName").setValue(lastName.text)
+        }
+
+        return true
     }
     
     @IBAction func ProfilePicturePressed(_ sender: UIButton) {

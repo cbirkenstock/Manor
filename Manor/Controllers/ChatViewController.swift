@@ -32,7 +32,7 @@ class ChatViewController: UIViewController {
     let db = Firestore.firestore()
     var user: User! = Firebase.Auth.auth().currentUser
     var ref: DocumentReference? = nil
-    var documentName = ""
+    var documentID = ""
     var initialBottomConstraint: CGFloat = 0
     var userFullName: String = ""
     var messages: [String:[Message]]  = [:]
@@ -52,12 +52,8 @@ class ChatViewController: UIViewController {
     var otherUserProfileImageUrl: String = ""
     //var conversationBadgeCountHandler: UInt?
     
-    override func viewDidDisappear(_ animated: Bool) {
-        NotificationCenter.default.post(name: NSNotification.Name(rawValue: "enableSwipe"), object: nil)
-    }
+
     override func viewDidAppear(_ animated: Bool) {
-        print(self.view.frame.origin.y)
-        print(self.view.bounds.origin.y)
     }
     
     override func viewDidLoad() {
@@ -86,7 +82,7 @@ class ChatViewController: UIViewController {
         navigationController?.navigationBar.barTintColor = .black
         navigationController?.navigationBar.shadowImage = UIImage()
         //navigationItem.backBarButtonItem?.tintColor = UIColor(named: K.BrandColors.purple)
-        self.navigationController!.navigationBar.tintColor = UIColor(named: K.BrandColors.purple);
+        self.navigationController?.navigationBar.tintColor = UIColor(named: K.BrandColors.purple)
         
         /*let navigationBar = navigationController!.navigationBar
          navigationBar.barTintColor = UIColor.clear
@@ -103,17 +99,13 @@ class ChatViewController: UIViewController {
         pushMessageButton.isEnabled = false
         pushMessageButton.tintColor = UIColor.clear
         
-        if(user.email! < otherUserEmail ) {
-            documentName = "\(self.user!.email!) + \(otherUserEmail)"
-        } else {
-            documentName = "\(otherUserEmail) + \(self.user!.email!)"
-        }
+        
         
         commaUserEmail = self.user!.email!.replacingOccurrences(of: ".", with: ",")
         
         commaOtherUserEmail = otherUserEmail.replacingOccurrences(of: ".", with: ",")
         
-        commaDocumentName = documentName.replacingOccurrences(of: ".", with: ",")
+        commaDocumentName = documentID.replacingOccurrences(of: ".", with: ",")
         
         initialBottomConstraint = bottomConstraint.constant
         
@@ -176,6 +168,9 @@ class ChatViewController: UIViewController {
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         
+        NotificationCenter.default.post(name: NSNotification.Name(rawValue: "hideNavigationBar"), object: nil)
+        self.navigationController?.setNavigationBarHidden(false, animated: false)
+        
         guard let navigationController = self.navigationController else { return }
         var navigationArray = navigationController.viewControllers
         for array in navigationArray {
@@ -186,7 +181,7 @@ class ChatViewController: UIViewController {
         }
         
         // Hide the navigation bar on the this view controller
-        self.navigationController?.setNavigationBarHidden(false, animated: animated)
+        //self.navigationController?.setNavigationBarHidden(false, animated: animated)
         //navigationController?.navigationBar.isHidden = false
     }
     
@@ -434,6 +429,8 @@ class ChatViewController: UIViewController {
         super.viewWillDisappear(animated)
         
         if self.isMovingFromParent {
+            NotificationCenter.default.post(name: NSNotification.Name(rawValue: "showNavigationBar"), object: nil)
+
             guard let navigationController = self.navigationController else { return }
             var navigationArray = navigationController.viewControllers
             
@@ -450,6 +447,11 @@ class ChatViewController: UIViewController {
             
             userMessagesRef.removeAllObservers()
         }
+    }
+    
+    override func viewDidDisappear(_ animated: Bool) {
+        NotificationCenter.default.post(name: NSNotification.Name(rawValue: "enableSwipe"), object: nil)
+        
     }
 }
 
@@ -483,6 +485,8 @@ extension ChatViewController: UITableViewDataSource, UITableViewDelegate {
         if let messageBody = message.messageBody {
             
             cell.messageBody.text = messageBody
+            cell.documentID = self.documentID
+            cell.timeStamp = message.timeStamp
             
             let decimalRange = messageBody.rangeOfCharacter(from: CharacterSet.decimalDigits)
             
@@ -595,7 +599,14 @@ extension ChatViewController: UITableViewDataSource, UITableViewDelegate {
     }
     
     func tableView(_ tableView: UITableView, viewForFooterInSection section: Int) -> UIView? {
-        let specificSection = self.keyArray[section]
+        
+        var reversedKeyArray: [String] = []
+        
+        for value in self.keyArray.reversed() {
+            reversedKeyArray.append(value)
+        }
+
+        let specificSection = reversedKeyArray[section]
         
         if let firstMessageInSection = self.messages[specificSection]?.first {
             dateFormatter.dateFormat = "MM/dd/yyyy"
@@ -631,6 +642,7 @@ extension ChatViewController: UITableViewDataSource, UITableViewDelegate {
         }
         return nil
     }
+    
     
     /*func tableView(_ tableView: UITableView, viewForHeaderInSection section: Int) -> UIView? {
      let specificSection = self.keyArray[section]

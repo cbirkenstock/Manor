@@ -7,6 +7,8 @@
 
 import UIKit
 import Firebase
+import Amplify
+import AmplifyPlugins
 
 class GroupChatInfoViewController: UIViewController, UIImagePickerControllerDelegate, UINavigationControllerDelegate, UITextFieldDelegate {
     
@@ -35,6 +37,7 @@ class GroupChatInfoViewController: UIViewController, UIImagePickerControllerDele
     var notificationsOn: Bool?
     var userEmail: String = ""
     var userNickName: String = ""
+    let photoManager = PhotoManagerViewController()
     
     
     override func viewDidLoad() {
@@ -60,7 +63,7 @@ class GroupChatInfoViewController: UIViewController, UIImagePickerControllerDele
         
         self.groupChatTitleTextField.text = self.groupChatTitle
         
-        setUpAddMemberButton()
+        //setUpAddMemberButton()
         
         pushMessagesTableView.register(MemberTableViewCell.self, forCellReuseIdentifier: "MemberCell")
         
@@ -135,9 +138,9 @@ class GroupChatInfoViewController: UIViewController, UIImagePickerControllerDele
             }
         })
         
-
+        /*let commaEmail = self.userEmail.replacingOccurrences(of: ".", with: ",")
         
-        /*self.groupChatByUsersRef.child(commaEmail).child("Chats").child(self.documentID!).child("notificationsEnabled").observeSingleEvent(of: DataEventType.value) { DataSnapshot in
+        self.groupChatByUsersRef.child(commaEmail).child("Chats").child(self.documentID!).child("notificationsEnabled").observeSingleEvent(of: DataEventType.value) { DataSnapshot in
             if let notificationsEnabled = DataSnapshot.value as? Bool {
                 if notificationsEnabled {
                     self.notificationsOn = true
@@ -157,11 +160,16 @@ class GroupChatInfoViewController: UIViewController, UIImagePickerControllerDele
     }
     
     @IBAction func ProfilePicturePressed(_ sender: UIButton) {
-        let imagePickerController = UIImagePickerController()
+        self.photoManager.documentID = self.documentID
+        self.photoManager.userFullName = self.userFullName
+        self.photoManager.groupChatTitle = self.groupChatTitle
+        self.photoManager.groupMembers = self.groupMembers
+        self.photoManager.setUpCameraPicker(viewController: self, desiredPicker: "old")
+        /*let imagePickerController = UIImagePickerController()
         imagePickerController.delegate = self
         imagePickerController.allowsEditing = true
         
-        self.present(imagePickerController, animated: true)
+        self.present(imagePickerController, animated: true)*/
     }
     
     func downloadImage(completion: @escaping (UIImage) -> ()) {
@@ -170,12 +178,17 @@ class GroupChatInfoViewController: UIViewController, UIImagePickerControllerDele
                 if groupChatImageUrl == "" {
                     groupChatImageUrl = "default"
                 }
-                let URL = URL(string: groupChatImageUrl)
-                if let data = try? Data(contentsOf: URL!) {
-                    if let image = UIImage(data: data) {
-                        DispatchQueue.main.async {
-                            completion(image)
+                Amplify.Storage.downloadData(key: groupChatImageUrl) { result in
+                    switch result {
+                    case .success(let data):
+                        print("Success downloading image", data)
+                        if let image = UIImage(data: data) {
+                            DispatchQueue.main.async {
+                                completion(image)
+                            }
                         }
+                    case .failure(let error):
+                        print("failure downloading image", error)
                     }
                 }
             }
@@ -183,8 +196,11 @@ class GroupChatInfoViewController: UIViewController, UIImagePickerControllerDele
     }
     
     func imagePickerController(_ picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [UIImagePickerController.InfoKey : Any]) {
+        photoManager.processPickerResultOld(imagePicker: picker, info: info, isTextMessage: false)
+        //self.groupChatImageButton.setBackgroundImage(image, for: .normal)
+        //self.groupChatTitleTextField.text = self.groupChatTitle
         
-        picker.dismiss(animated: true, completion: nil)
+        /*picker.dismiss(animated: true, completion: nil)
         
         var selectedImageFromPicker: UIImage?
         
@@ -227,7 +243,7 @@ class GroupChatInfoViewController: UIViewController, UIImagePickerControllerDele
                     }
                 }
             }
-        }
+        }*/
     }
     
     
@@ -280,7 +296,10 @@ extension GroupChatInfoViewController: UITableViewDelegate, UITableViewDataSourc
         
         switch indexPath.section {
         case 0:
+            cell.contactName.textColor = .white
+            cell.contactName.font = UIFont.systemFont(ofSize: 22, weight: .regular)
             cell.isContact = false
+            cell.isSettingsButton = false
             let name = tableViewContents[indexPath.section][indexPath.row] as? String
             cell.contactName.text = name
             if name == "Add Members" {
@@ -300,25 +319,39 @@ extension GroupChatInfoViewController: UITableViewDelegate, UITableViewDataSourc
                             cell.specificTextFieldText = "Disabled"
                             cell.background.backgroundColor = .systemRed
                         }
+                    } else {
+                        cell.specificTextFieldText = "Enabled"
+                        cell.background.backgroundColor = .systemGreen 
                     }
                 }
             }
         case 1:
             let email = groupMembers[indexPath.row][1]
             cell.contactEmail = email
-            
+            cell.background.backgroundColor = UIColor(named: K.BrandColors.navigationBarGray)
+            cell.contactName.textColor = .white
+            cell.contactName.font = UIFont.systemFont(ofSize: 22, weight: .regular)
             
             cell.isContact = true
+            cell.isSettingsButton = false
             
             let name = groupMembers[indexPath.row][0]
             cell.contactName.text = name
             
         case 2:
+            cell.contactName.textColor = .white
+            cell.contactName.font = UIFont.systemFont(ofSize: 22, weight: .regular)
+            cell.background.backgroundColor = UIColor(named: K.BrandColors.navigationBarGray)
             cell.isContact = false
+            cell.isSettingsButton = false
+
             let message = tableViewContents[indexPath.section][indexPath.row] as? Message
             cell.contactName.text = message?.messageBody
             cell.pushMessageUID = message?.pushMessageUID ?? ""
         case 3:
+            cell.contactName.textColor = .white
+            cell.contactName.font = UIFont.systemFont(ofSize: 22, weight: .regular)
+            cell.background.backgroundColor = UIColor(named: K.BrandColors.navigationBarGray)
             cell.isContact = false
             if indexPath.row == 0 {
                 cell.specificTextFieldText = self.userNickName
@@ -326,13 +359,18 @@ extension GroupChatInfoViewController: UITableViewDelegate, UITableViewDataSourc
                 cell.contactName.text = email
                 cell.isSettingsButton = true
             } else {
+                cell.isSettingsButton = false
                 let title = tableViewContents[indexPath.section][indexPath.row] as? String
                 cell.contactName.text = title
                 cell.contactName.textColor = .systemRed
                 cell.contactName.font = UIFont.systemFont(ofSize: 22, weight: .semibold)
             }
         default:
+            cell.contactName.textColor = .white
+            cell.contactName.font = UIFont.systemFont(ofSize: 22, weight: .regular)
+            cell.background.backgroundColor = UIColor(named: K.BrandColors.navigationBarGray)
             cell.isContact = false
+            cell.isSettingsButton = false
             let email = tableViewContents[indexPath.section][indexPath.row] as? String
             cell.contactName.text = email
         }
@@ -481,7 +519,6 @@ extension GroupChatInfoViewController: UITableViewDelegate, UITableViewDataSourc
         } else {
             textField.text = self.userFullName
         }
-        
         return true
     }
     
