@@ -11,6 +11,7 @@ import IQKeyboardManagerSwift
 import GrowingTextView
 import PhotosUI
 import Amplify
+import AmplifyPlugins
 
 class SelfSizedTableView: UITableView {
     var maxHeight: CGFloat = UIScreen.main.bounds.size.height
@@ -95,10 +96,19 @@ class GroupChatViewController: UIViewController, UIImagePickerControllerDelegate
     var descriptionTextFieldConstraints: [NSLayoutConstraint]!
     var eventSendButtonConstraints: [NSLayoutConstraint]!
     var isCallingEvent: Bool = false
+    var photoDictionary: [String: UIImage] = [:]
+    let firebaseManager = FirebaseManagerViewController()
     
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        
+        chatTableView.keyboardDismissMode = .interactive
+        
+        chatTextBar.attributedPlaceholder = NSAttributedString(string: "Chat...", attributes: [NSAttributedString.Key.foregroundColor: UIColor.systemGray, NSAttributedString.Key.font : UIFont.systemFont(ofSize: 18)])
+        
+
+        
         
         self.initialBottomConstraint = self.bottomConstraint.constant
         
@@ -186,15 +196,16 @@ class GroupChatViewController: UIViewController, UIImagePickerControllerDelegate
         textBarView.layer.borderWidth = 3
         textBarView.layer.borderColor =
             UIColor.white.cgColor//UIColor(named: "BrandPurpleColor")?.cgColor
+        textBarView.backgroundColor = .black
         
         chatTableView.transform = CGAffineTransform(scaleX: 1, y: -1)
         
         setUpEventsButton()
         setUpEventOptions()
         
-        loadMessages()
-        setUpPushMessagesTable()
-        loadMessages()
+        self.loadMessages()
+        self.setUpPushMessagesTable()
+        self.loadMessages()
         
         
     }
@@ -287,8 +298,6 @@ class GroupChatViewController: UIViewController, UIImagePickerControllerDelegate
         self.datePickerConstraints = [
             datePicker.topAnchor.constraint(equalTo: titleUnderline.bottomAnchor, constant: 20),
             datePicker.centerXAnchor.constraint(equalTo: backgroundView.centerXAnchor, constant: 0)
-            /*datePicker.leadingAnchor.constraint(equalTo: backgroundView.leadingAnchor, constant: 10),
-             datePicker.trailingAnchor.constraint(equalTo: backgroundView.trailingAnchor, constant: -10)*/
         ]
         
         self.view.addSubview(descriptionTextField)
@@ -412,8 +421,8 @@ class GroupChatViewController: UIViewController, UIImagePickerControllerDelegate
     }
     
     override func viewDidAppear(_ animated: Bool) {
-//        let window = UIApplication.shared.keyWindow
-//        self.initialBottomConstraint = window?.safeAreaInsets.bottom ?? 0.0
+        //        let window = UIApplication.shared.keyWindow
+        //        self.initialBottomConstraint = window?.safeAreaInsets.bottom ?? 0.0
         //print(self.chatTextBar.frame.origin.y)
         //pushMessagesTableView.isScrollEnabled = false
         //self.navigationController?.setNavigationBarHidden(true, animated: false)
@@ -423,6 +432,13 @@ class GroupChatViewController: UIViewController, UIImagePickerControllerDelegate
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         
+        /*self.firebaseManager.downloadChatPhotos(documentID: self.documentID) { photoDictionary in
+         DispatchQueue.main.async {
+         print("we finished")
+         self.photoDictionary = photoDictionary
+         
+         }
+         }*/
         
         self.pushMessagesTableView.backgroundColor = .clear
         
@@ -447,12 +463,11 @@ class GroupChatViewController: UIViewController, UIImagePickerControllerDelegate
         
         bottomConstraint.constant = keyboardFrame + 1
         
+        self.textBarRightConstraint.constant = 120
+        
         UIView.animate(withDuration: duration) { self.view.layoutIfNeeded() }
         
         if self.isCallingEvent {
-            
-            print("YAAAAAAA")
-            
             let yValue = self.view.bounds.origin.y + (spaceLeft/6)
             
             let backgroundViewConstraints = [
@@ -462,6 +477,11 @@ class GroupChatViewController: UIViewController, UIImagePickerControllerDelegate
                 backgroundView.heightAnchor.constraint(equalToConstant: 300)
             ]
             
+            /*let blurEffect = UIBlurEffect(style: UIBlurEffect.Style.dark)
+            let blurEffectView = UIVisualEffectView(effect: blurEffect)
+            blurEffectView.frame = UIScreen.main.bounds//chatTableView.bounds
+            blurEffectView.autoresizingMask = [.flexibleWidth, .flexibleHeight]
+            chatTableView.addSubview(blurEffectView)*/
             
             self.chatTableView.isHidden = true
             self.eventButton.isHidden = true
@@ -476,8 +496,6 @@ class GroupChatViewController: UIViewController, UIImagePickerControllerDelegate
             self.eventSendButton.backgroundColor = .systemGreen
             self.eventSendButton.setTitleColor(.white, for: .normal)
             NSLayoutConstraint.activate(self.eventSendButtonConstraints)
-            
-            self.textBarRightConstraint.constant = 120
             
             UIView.animate(withDuration: duration) { self.view.layoutIfNeeded() }
         }
@@ -597,7 +615,7 @@ class GroupChatViewController: UIViewController, UIImagePickerControllerDelegate
     
     func imagePickerController(_ picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [UIImagePickerController.InfoKey : Any]) {
         
-        photoManager.processPickerResultOld(imagePicker: picker, info: info, isTextMessage: true)
+        photoManager.processPickerResultOld(imagePicker: picker, info: info, isTextMessage: true, isGroupMessage: true)
         
     }
     /*picker.dismiss(animated: true, completion: nil)
@@ -661,7 +679,7 @@ class GroupChatViewController: UIViewController, UIImagePickerControllerDelegate
     
     @available(iOS 14, *)
     func picker(_ picker: PHPickerViewController, didFinishPicking results: [PHPickerResult]) {
-        photoManager.processPickerResultsPHP(imagePicker: picker, results: results)
+        photoManager.processPickerResultsPHP(imagePicker: picker, results: results, isGroupMessage: true)
     }
     /*picker.dismiss(animated: true, completion: nil)
      
@@ -1066,26 +1084,16 @@ class GroupChatViewController: UIViewController, UIImagePickerControllerDelegate
                              self.chatTableView.scrollToRow(at: indexPath, at: .top, animated: true)*/
                         }
                     } else if let imageURL = value.object(forKey: "imageURL") as? String {
+                        
                         self.totalMessages += 1
+                        
                         let timeStamp = Double(commaTimeStamp.replacingOccurrences(of: ",", with: "."))!
                         
                         let message = Message(messageSender: messageSender, messageBody: nil, timeStamp: timeStamp, pushMessageUID: nil, imageURL: imageURL, messageSenderNickName: messageSenderNickName)
                         
-                        /*let imageUrl = message.imageURL! as NSString
-                         
-                         Amplify.Storage.downloadData(key: message.imageURL!) { result in
-                         switch result {
-                         case .success(let data):
-                         print("Success downloading image", data)
-                         if let image = UIImage(data: data) {
-                         DispatchQueue.main.async {
-                         self.imageCache.setObject(image, forKey: imageUrl)
-                         }
-                         }
-                         case .failure(let error):
-                         print("failure downloading image", error)
-                         }
-                         }*/
+                        //let NSImageUrl = message.imageURL! as NSString
+                        
+                        //self.cacheImage(imageURL: imageURL)
                         
                         self.dateFormatter.dateFormat = "MM/dd/yyyy"
                         let messageDate = self.dateFormatter.string(from: Date(timeIntervalSince1970: timeStamp))
@@ -1161,6 +1169,23 @@ class GroupChatViewController: UIViewController, UIImagePickerControllerDelegate
             }
         }
     }
+    
+    /*func cacheImage(imageURL: String, completion: () -> ()) {
+     Amplify.Storage.downloadData(key: imageURL) { result in
+     switch result {
+     case .success(let data):
+     print("Success downloading image XYZ", data)
+     if let image = UIImage(data: data) {
+     DispatchQueue.main.async {
+     let NSImageUrl = imageURL as NSString
+     self.imageCache.setObject(image, forKey: NSImageUrl)
+     }
+     }
+     case .failure(let error):
+     print("failure downloading image", error)
+     }
+     }
+     }*/
     
     override func viewDidDisappear(_ animated: Bool) {
         NotificationCenter.default.post(name: NSNotification.Name(rawValue: "enableSwipe"), object: nil)
@@ -1256,28 +1281,57 @@ extension GroupChatViewController: UITableViewDataSource, UITableViewDelegate {
             
             let message = sortedMessages[indexPath.row]
             
-            /*if indexPath.row < sortedMessages.count - 1 {
-             let message2 = sortedMessages[indexPath.row + 1]
-             if message2.imageURL != "" {
-             let imageURL = message2.imageURL! as NSString
-             //if let _ = self.imageCache.object(forKey: imageURL) {
-             //} else {
-             Amplify.Storage.downloadData(key: message.imageURL!) { result in
-             switch result {
-             case .success(let data):
-             print("Success downloading image", data)
-             if let image = UIImage(data: data) {
-             DispatchQueue.main.async {
-             self.imageCache.setObject(image, forKey: imageURL)
-             }
-             }
-             case .failure(let error):
-             print("failure downloading image", error)
-             }
-             }
-             //}
-             }
-             }*/
+            if indexPath.row < sortedMessages.count - 2 {
+                let message2 = sortedMessages[indexPath.row + 1]
+                if message2.imageURL != "" {
+                    let imageURL = message2.imageURL!
+                    let NSImageURL = message2.imageURL! as NSString
+                    //if let _ = self.imageCache.object(forKey: imageURL) {
+                    //} else {
+                    if let _ = self.imageCache.object(forKey: NSImageURL) {
+                        print("already contained")
+                    } else {
+                        Amplify.Storage.downloadData(key: message2.imageURL!) { result in
+                            switch result {
+                            case .success(let data):
+                                print("Success downloading image", data)
+                                if let image = UIImage(data: data) {
+                                    DispatchQueue.main.async {
+                                        self.imageCache.setObject(image, forKey: NSImageURL)
+                                    }
+                                }
+                            case .failure(let error):
+                                print("failure downloading image", error)
+                            }
+                        }
+                    }
+                }
+                
+                /*let message3 = sortedMessages[indexPath.row + 1]
+                if message3.imageURL != "" {
+                    let imageURL = message3.imageURL!
+                    let NSImageURL = message3.imageURL! as NSString
+                    //if let _ = self.imageCache.object(forKey: imageURL) {
+                    //} else {
+                    if let _ = self.imageCache.object(forKey: NSImageURL) {
+                        print("already contained")
+                    } else {
+                        Amplify.Storage.downloadData(key: message3.imageURL!) { result in
+                            switch result {
+                            case .success(let data):
+                                print("Success downloading image", data)
+                                if let image = UIImage(data: data) {
+                                    DispatchQueue.main.async {
+                                        self.imageCache.setObject(image, forKey: NSImageURL)
+                                    }
+                                }
+                            case .failure(let error):
+                                print("failure downloading image", error)
+                            }
+                        }
+                    }
+                }*/
+            }
             
             
             
@@ -1295,43 +1349,69 @@ extension GroupChatViewController: UITableViewDataSource, UITableViewDelegate {
                 
                 cell.imageURL = message.imageURL!
                 
-                let imageURL = message.imageURL! as NSString
+                let imageURL = message.imageURL!
                 
-                if let cachedImage = self.imageCache.object(forKey: imageURL) {
+                let NSImageURL = message.imageURL! as NSString
+                
+                if let cachedImage = self.imageCache.object(forKey: NSImageURL as NSString) {
                     cell.messageImageView.image = cachedImage as? UIImage
+                /*} else if let storedImage = self.photoDictionary[imageURL] {
+                    cell.messageImageView.image = storedImage
+                    self.imageCache.setObject(storedImage, forKey: NSImageURL)*/
                 } else {
-                    Amplify.Storage.downloadData(key: message.imageURL!) { result in
+                    Amplify.Storage.downloadData(key: imageURL) { result in
                         switch result {
                         case .success(let data):
                             print("Success downloading image", data)
                             if let image = UIImage(data: data) {
-                                let imageHeight = CGFloat(image.size.height/image.size.width * 300)
+                                //let imageHeight = CGFloat(image.size.height/image.size.width * 300)
                                 DispatchQueue.main.async {
-                                    self.imageCache.setObject(image, forKey: imageURL)
-                                    cell.imageHeight = imageHeight
-                                    cell.imageWidth = 300
                                     cell.messageImageView.image = image
+                                    self.imageCache.setObject(image, forKey: NSImageURL as NSString)
+                                    //self.photoDictionary[imageURL] = image
                                 }
                             }
                         case .failure(let error):
                             print("failure downloading image", error)
                         }
                     }
-                    /*DispatchQueue.global().async { [weak self] in
-                     let URL = URL(string: message.imageURL!)
-                     if let data = try? Data(contentsOf: URL!) {
-                     if let image = UIImage(data: data) {
-                     let imageHeight = CGFloat(image.size.height/image.size.width * 300)
-                     DispatchQueue.main.async {
-                     self!.imageCache.setObject(image, forKey: imageURL)
-                     cell.imageHeight = imageHeight
-                     cell.imageWidth = 300
-                     cell.messageImageView.image = image
-                     }
-                     }
-                     }
-                     }*/
                 }
+                
+                /*if let cachedImage = self.imageCache.object(forKey: imageURL) {
+                 cell.messageImageView.image = cachedImage as? UIImage
+                 } else {
+                 Amplify.Storage.downloadData(key: message.imageURL!) { result in
+                 switch result {
+                 case .success(let data):
+                 print("Success downloading image", data)
+                 if let image = UIImage(data: data) {
+                 let imageHeight = CGFloat(image.size.height/image.size.width * 300)
+                 DispatchQueue.main.async {
+                 self.imageCache.setObject(image, forKey: imageURL)
+                 cell.imageHeight = imageHeight
+                 cell.imageWidth = 300
+                 cell.messageImageView.image = image
+                 }
+                 }
+                 case .failure(let error):
+                 print("failure downloading image", error)
+                 }
+                 }
+                 /*DispatchQueue.global().async { [weak self] in
+                 let URL = URL(string: message.imageURL!)
+                 if let data = try? Data(contentsOf: URL!) {
+                 if let image = UIImage(data: data) {
+                 let imageHeight = CGFloat(image.size.height/image.size.width * 300)
+                 DispatchQueue.main.async {
+                 self!.imageCache.setObject(image, forKey: imageURL)
+                 cell.imageHeight = imageHeight
+                 cell.imageWidth = 300
+                 cell.messageImageView.image = image
+                 }
+                 }
+                 }
+                 }*/
+                 }*/
                 
                 cell.emailLabel.text = message.messageSenderNickName
                 

@@ -9,8 +9,13 @@ import UIKit
 import Firebase
 import IQKeyboardManagerSwift
 import GrowingTextView
+import PhotosUI
+import Amplify
+import AmplifyPlugins
 
-class ChatViewController: UIViewController {
+class ChatViewController: UIViewController, PHPickerViewControllerDelegate, UIImagePickerControllerDelegate, UINavigationControllerDelegate, UITextViewDelegate, UITextFieldDelegate {
+    
+    @IBOutlet weak var textBarRightConstraint: NSLayoutConstraint!
     
     @IBOutlet weak var stackView: UIStackView!
     //@IBOutlet weak var chatTextBar: UITextField!
@@ -50,9 +55,12 @@ class ChatViewController: UIViewController {
     var otherUserVenmoName: String = ""
     var userProfileImageUrl: String = ""
     var otherUserProfileImageUrl: String = ""
+    let cameraButton = UIButton()
+    let photoManager = PhotoManagerViewController()
+    let imageCache = NSCache<NSString, AnyObject>()
     //var conversationBadgeCountHandler: UInt?
     
-
+    
     override func viewDidAppear(_ animated: Bool) {
     }
     
@@ -67,7 +75,7 @@ class ChatViewController: UIViewController {
             self.otherUserProfileImageUrl = postDict["profileImageUrl"] as? String ?? "default"
         }
         
-
+        
         
         chatTableView.allowsSelection = false
         
@@ -75,7 +83,7 @@ class ChatViewController: UIViewController {
         //postNotificationName("enableSwipe", object: nil)
         
         self.chatTableView.isHidden = false
-        self.textBarAndButtonHolder.isHidden = false
+        //self.textBarAndButtonHolder.isHidden = false
         
         navigationController?.navigationBar.isHidden = false
         navigationController?.navigationBar.isTranslucent = false
@@ -149,6 +157,8 @@ class ChatViewController: UIViewController {
         
         chatTableView.register(BubbleMessageBodyCell.self, forCellReuseIdentifier: "regularMessageCell")
         
+        chatTableView.register(PictureMessageTableViewCell.self, forCellReuseIdentifier: "pictureMessageCell")
+        
         
         NotificationCenter.default.addObserver(self, selector: #selector(ChatViewController.keyboardWillShow), name: UIResponder.keyboardWillShowNotification, object: nil)
         
@@ -162,7 +172,91 @@ class ChatViewController: UIViewController {
         
         chatTableView.transform = CGAffineTransform(scaleX: 1, y: -1)
         
+        self.setUpCamerabutton()
+        self.setUpSendButton()
+        
         loadMessages()
+    }
+    
+    func setUpCamerabutton() {
+        
+        let cameraContainerView = UIView()
+        self.view.addSubview(cameraContainerView)
+        cameraContainerView.translatesAutoresizingMaskIntoConstraints = false
+        cameraContainerView.backgroundColor = UIColor(named: K.BrandColors.purple)
+        cameraContainerView.center.y = textBarView.center.y
+        
+        let cameraButtonContainerViewConstraints = [
+            cameraContainerView.heightAnchor.constraint(equalToConstant: textBarView.frame.height),
+            cameraContainerView.widthAnchor.constraint(equalToConstant: 40),
+            cameraContainerView.bottomAnchor.constraint(equalTo: textBarView.bottomAnchor, constant: 0),
+            cameraContainerView.leadingAnchor.constraint(equalTo: textBarView.trailingAnchor, constant: 15)
+        ]
+        
+        NSLayoutConstraint.activate(cameraButtonContainerViewConstraints)
+        
+        cameraContainerView.layer.cornerRadius = textBarView.frame.height/2
+        
+        cameraContainerView.addSubview(cameraButton)
+        cameraButton.translatesAutoresizingMaskIntoConstraints = false
+        cameraButton.tintColor = .white
+        cameraButton.center.y = textBarView.center.y
+        let cameraImageConfiguration = UIImage.SymbolConfiguration(pointSize: 30, weight: .regular, scale: .large)
+        let cameraImage = UIImage(systemName: "camera", withConfiguration: cameraImageConfiguration)
+        cameraButton.setImage(cameraImage, for: .normal)
+        cameraButton.addTarget(self, action: #selector(cameraButtonPressed), for: .touchUpInside)
+        
+        let cameraButtonConstraints = [
+            cameraButton.leadingAnchor.constraint(equalTo: cameraContainerView.leadingAnchor, constant: 5),
+            cameraButton.trailingAnchor.constraint(equalTo: cameraContainerView.trailingAnchor, constant: -5),
+            cameraButton.topAnchor.constraint(equalTo: cameraContainerView.topAnchor, constant: 5),
+            cameraButton.bottomAnchor.constraint(equalTo: cameraContainerView.bottomAnchor, constant: -7),
+        ]
+        
+        NSLayoutConstraint.activate(cameraButtonConstraints)
+        
+    }
+    
+    func setUpSendButton() {
+        let senderButton = UIButton()
+        self.view.addSubview(senderButton)
+        senderButton.translatesAutoresizingMaskIntoConstraints = false
+        senderButton.tintColor = UIColor(named: K.BrandColors.purple)
+        senderButton.center.y = textBarView.center.y
+        let cameraImageConfiguration = UIImage.SymbolConfiguration(pointSize: 40, weight: .regular, scale: .large)
+        let cameraImage = UIImage(systemName: "location.north", withConfiguration: cameraImageConfiguration)
+        senderButton.setImage(cameraImage, for: .normal)
+        senderButton.addTarget(self, action: #selector(sendButtonPressed), for: .touchUpInside)
+        
+        let cameraButtonConstraints = [
+            senderButton.heightAnchor.constraint(equalToConstant: 35),
+            senderButton.widthAnchor.constraint(equalToConstant: 35),
+            senderButton.bottomAnchor.constraint(equalTo: textBarView.bottomAnchor, constant: 0),
+            senderButton.leadingAnchor.constraint(equalTo: cameraButton.trailingAnchor, constant: 12)
+        ]
+        
+        NSLayoutConstraint.activate(cameraButtonConstraints)
+        
+    }
+    
+    @objc func cameraButtonPressed() {
+        self.photoManager.commaDocumentName = self.commaDocumentName
+        self.photoManager.otherUserFullName = self.otherUserFullName
+        self.photoManager.otherUserProfileImageUrl = self.otherUserProfileImageUrl
+        self.photoManager.userProfileImageUrl = self.userProfileImageUrl
+        self.photoManager.commaOtherUserEmail = self.commaOtherUserEmail
+        self.photoManager.userFullName = self.userFullName
+        self.photoManager.setUpCameraPicker(viewController: self, desiredPicker: nil)
+    }
+    
+    func imagePickerController(_ picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [UIImagePickerController.InfoKey : Any]) {
+        
+        photoManager.processPickerResultOld(imagePicker: picker, info: info, isTextMessage: true, isGroupMessage: false)
+    }
+    
+    @available(iOS 14, *)
+    func picker(_ picker: PHPickerViewController, didFinishPicking results: [PHPickerResult]) {
+        photoManager.processPickerResultsPHP(imagePicker: picker, results: results, isGroupMessage: false)
     }
     
     override func viewWillAppear(_ animated: Bool) {
@@ -193,16 +287,20 @@ class ChatViewController: UIViewController {
         guard let keyboardSize = userInfo[UIResponder.keyboardFrameEndUserInfoKey] as? NSValue else {return}
         let keyboardFrame = keyboardSize.cgRectValue.height
         
-        if totalMessages <= 5 {
-            bottomConstraint.constant = keyboardFrame
-        } else {
-            if (self.view.bounds.origin.y == 0) {
-                //self.stackView.bounds.origin.y += (keyboardFrame - 42)
-                // print(self.view.bounds.origin.y)
-                self.view.bounds.origin.y += (keyboardFrame - 42)
-                //print(self.view.bounds.origin.y)
-            }
-        }
+        bottomConstraint.constant = keyboardFrame
+        
+        /*if totalMessages <= 5 {
+         bottomConstraint.constant = keyboardFrame
+         } else {
+         if (self.view.bounds.origin.y == 0) {
+         //self.stackView.bounds.origin.y += (keyboardFrame - 42)
+         // print(self.view.bounds.origin.y)
+         self.view.bounds.origin.y += (keyboardFrame - 42)
+         //print(self.view.bounds.origin.y)
+         }
+         }*/
+        
+        self.textBarRightConstraint.constant = 120
         
         UIView.animate(withDuration: duration) { self.view.layoutIfNeeded() }
     }
@@ -357,80 +455,75 @@ class ChatViewController: UIViewController {
             self.messages = [:]
             self.keyArray = []
             for value in postDict.values {
-                if let messageSender = value.object(forKey: "messageSender")! as? String, let messageBody = value.object(forKey: "messageBody") as? String, let timeStamp = value.object(forKey: "timeStamp") as? Double {
+                if let messageSender = value.object(forKey: "messageSender")! as? String, let timeStamp = value.object(forKey: "timeStamp") as? Double {
                     self.totalMessages += 1
-                    let message = Message(messageSender: messageSender, messageBody: messageBody, timeStamp: timeStamp, pushMessageUID: nil)
-                    self.dateFormatter.dateFormat = "MM/dd/yyyy"
-                    let messageDate = self.dateFormatter.string(from: Date(timeIntervalSince1970: timeStamp))
-                    
-                    
-                    if self.messages[messageDate] != nil {
-                        var messageArray = self.messages[messageDate]!
-                        messageArray.append(message)
-                        self.messages.updateValue(messageArray, forKey: messageDate)
-                    } else {
-                        self.messages[messageDate] = [message]
-                        self.keyArray.append(messageDate)
-                        self.keyArray = self.keyArray.sorted(by: { $0 < $1 })
-                    }
-                    
-                    self.chatTableView.reloadData()
-                    //DispatchQueue.main.asyncAfter(deadline: .now() + 0.02) {
-                    DispatchQueue.main.async {
-                        let indexPath = IndexPath(row: self.messages[self.keyArray.last!]!.count - 1, section: self.keyArray.count - 1)
-                        //self.chatTableView.scrollToRow(at: indexPath, at: .top, animated: false)
+                    if let messageBody = value.object(forKey: "messageBody") as? String {
+                        let message = Message(messageSender: messageSender, messageBody: messageBody, timeStamp: timeStamp, pushMessageUID: nil)
+                        self.dateFormatter.dateFormat = "MM/dd/yyyy"
+                        let messageDate = self.dateFormatter.string(from: Date(timeIntervalSince1970: timeStamp))
                         
+                        
+                        if self.messages[messageDate] != nil {
+                            var messageArray = self.messages[messageDate]!
+                            messageArray.append(message)
+                            self.messages.updateValue(messageArray, forKey: messageDate)
+                        } else {
+                            self.messages[messageDate] = [message]
+                            self.keyArray.append(messageDate)
+                            self.keyArray = self.keyArray.sorted(by: { $0 < $1 })
+                        }
+                        
+                        self.chatTableView.reloadData()
+                        //DispatchQueue.main.asyncAfter(deadline: .now() + 0.02) {
+                        DispatchQueue.main.async {
+                            //let indexPath = IndexPath(row: self.messages[self.keyArray.last!]!.count - 1, section: self.keyArray.count - 1)
+                            //self.chatTableView.scrollToRow(at: indexPath, at: .top, animated: false)
+                            
+                        }
+                    } else if let imageURL = value.object(forKey: "imageURL") as? String {
+                        
+                        self.totalMessages += 1
+                        
+                        let message = Message(messageSender: messageSender, messageBody: nil, timeStamp: timeStamp, pushMessageUID: nil, imageURL: imageURL, messageSenderNickName: nil)
+                        
+                        self.dateFormatter.dateFormat = "MM/dd/yyyy"
+                        let messageDate = self.dateFormatter.string(from: Date(timeIntervalSince1970: timeStamp))
+                        
+                        if self.messages[messageDate] != nil {
+                            var messageArray = self.messages[messageDate]
+                            messageArray!.append(message)
+                            self.messages.updateValue(messageArray!, forKey: messageDate)
+                        } else {
+                            self.messages[messageDate] = [message]
+                            self.keyArray.append(messageDate)
+                            self.keyArray = self.keyArray.sorted(by: { $0 < $1 })
+                        }
+                        
+                        self.chatTableView.reloadData()
+                        DispatchQueue.main.async() {
+                            //let indexPath = IndexPath(row: self.messages[self.keyArray.last!]!.count - 1, section: self.keyArray.count - 1)
+                            //self.chatTableView.scrollToRow(at: indexPath, at: .top, animated: true)
+                        }
                     }
-                    
-                    /*DispatchQueue.main.asyncAfter(deadline: .now() + 0.02) {
-                     
-                     self.chatTableView.isHidden = false
-                     self.textBarAndButtonHolder.isHidden = false
-                     }*/
                 }
             }
         })
         
-        
         userBadgeCountRef.observe(DataEventType.value, with: { (snapshot) in
-            print(snapshot.value)
             let postIntAsString = snapshot.value! as! String
             let postInt = Int(postIntAsString)
             UIApplication.shared.applicationIconBadgeNumber = postInt!
         })
-        
-        
-        /*self.chatsByUserRef.child("\(commaUserEmail!)/Chats/\(commaDocumentName)/badgeCount").setValue("0")*/
-        
-        //UIApplication.shared.applicationIconBadgeNumber = 50
-        
-        
-        /*db.collection("ChatMessages").document(documentName).collection("Messages").order(by: "timeStamp").addSnapshotListener { querySnapshot, err in
-         if let err = err {
-         print("Error getting documents: \(err)")
-         } else {
-         self.messages = []
-         for document in querySnapshot!.documents {
-         if let messageSender = document.data()["messageSender"] as? String, let messageBody = document.data()["messageBody"] as? String, let timeStamp =  document.data()["timeStamp"] as? Double {
-         let message = Message(messageSender: messageSender, messageBody: messageBody, timeStamp: timeStamp)
-         self.messages.append(message)
-         DispatchQueue.main.async {
-         self.chatTableView.reloadData()
-         let indexPath = IndexPath(row: self.messages.count - 1, section: 0)
-         self.chatTableView.scrollToRow(at: indexPath, at: .top, animated: false)
-         }
-         }
-         }
-         }
-         }*/
     }
+    
+    
     
     override func viewWillDisappear(_ animated: Bool) {
         super.viewWillDisappear(animated)
         
         if self.isMovingFromParent {
             NotificationCenter.default.post(name: NSNotification.Name(rawValue: "showNavigationBar"), object: nil)
-
+            
             guard let navigationController = self.navigationController else { return }
             var navigationArray = navigationController.viewControllers
             
@@ -468,8 +561,6 @@ extension ChatViewController: UITableViewDataSource, UITableViewDelegate {
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        let cell = chatTableView.dequeueReusableCell(withIdentifier: "regularMessageCell", for: indexPath) as! BubbleMessageBodyCell
-        
         var reversedKeyArray: [String] = []
         
         for value in self.keyArray.reversed() {
@@ -482,35 +573,162 @@ extension ChatViewController: UITableViewDataSource, UITableViewDelegate {
         
         let message = sortedMessages[indexPath.row]
         
-        if let messageBody = message.messageBody {
+        if indexPath.row < sortedMessages.count - 2 {
+            let message2 = sortedMessages[indexPath.row + 1]
+            if message2.imageURL != "" {
+                let imageURL = message2.imageURL!
+                let NSImageURL = message2.imageURL! as NSString
+                //if let _ = self.imageCache.object(forKey: imageURL) {
+                //} else {
+                if let _ = self.imageCache.object(forKey: NSImageURL) {
+                    print("already contained")
+                } else {
+                    Amplify.Storage.downloadData(key: message2.imageURL!) { result in
+                        switch result {
+                        case .success(let data):
+                            print("Success downloading image", data)
+                            if let image = UIImage(data: data) {
+                                DispatchQueue.main.async {
+                                    self.imageCache.setObject(image, forKey: NSImageURL)
+                                }
+                            }
+                        case .failure(let error):
+                            print("failure downloading image", error)
+                        }
+                    }
+                }
+            }
             
-            cell.messageBody.text = messageBody
-            cell.documentID = self.documentID
-            cell.timeStamp = message.timeStamp
+            /*let message3 = sortedMessages[indexPath.row + 1]
+             if message3.imageURL != "" {
+             let imageURL = message3.imageURL!
+             let NSImageURL = message3.imageURL! as NSString
+             //if let _ = self.imageCache.object(forKey: imageURL) {
+             //} else {
+             if let _ = self.imageCache.object(forKey: NSImageURL) {
+             print("already contained")
+             } else {
+             Amplify.Storage.downloadData(key: message3.imageURL!) { result in
+             switch result {
+             case .success(let data):
+             print("Success downloading image", data)
+             if let image = UIImage(data: data) {
+             DispatchQueue.main.async {
+             self.imageCache.setObject(image, forKey: NSImageURL)
+             }
+             }
+             case .failure(let error):
+             print("failure downloading image", error)
+             }
+             }
+             }
+             }*/
+        }
+        
+        if message.imageURL != "" {
+            let cell = chatTableView.dequeueReusableCell(withIdentifier: "pictureMessageCell", for: indexPath) as! PictureMessageTableViewCell
             
-            let decimalRange = messageBody.rangeOfCharacter(from: CharacterSet.decimalDigits)
+            cell.groupPosition = self.checkCellPosition(sortedMessages: sortedMessages, indexPathRow: indexPath.row)
             
-            let messageBodyHasNumbers = (decimalRange != nil)
+            if message.messageSender == userFullName {
+                cell.isIncoming = false
+            } else {
+                cell.isIncoming = true
+            }
             
-            if messageBody.contains("Venmo") && messageBodyHasNumbers {
+            cell.imageURL = message.imageURL!
+            
+            let imageURL = message.imageURL!
+            
+            let NSImageURL = message.imageURL! as NSString
+            
+            if let cachedImage = self.imageCache.object(forKey: NSImageURL as NSString) {
+                cell.messageImageView.image = cachedImage as? UIImage
+                /*} else if let storedImage = self.photoDictionary[imageURL] {
+                 cell.messageImageView.image = storedImage
+                 self.imageCache.setObject(storedImage, forKey: NSImageURL)*/
+            } else {
+                Amplify.Storage.downloadData(key: imageURL) { result in
+                    switch result {
+                    case .success(let data):
+                        print("Success downloading image", data)
+                        if let image = UIImage(data: data) {
+                            //let imageHeight = CGFloat(image.size.height/image.size.width * 300)
+                            DispatchQueue.main.async {
+                                cell.messageImageView.image = image
+                                self.imageCache.setObject(image, forKey: NSImageURL as NSString)
+                                //self.photoDictionary[imageURL] = image
+                            }
+                        }
+                    case .failure(let error):
+                        print("failure downloading image", error)
+                    }
+                }
+            }
+            
+            cell.emailLabel.text = message.messageSenderNickName
+            
+            cell.isGroupMessage = true
+            
+            cell.transform = CGAffineTransform(scaleX: 1, y: -1)
+            
+            return cell
+            
+        } else {
+            let cell = chatTableView.dequeueReusableCell(withIdentifier: "regularMessageCell", for: indexPath) as! BubbleMessageBodyCell
+            
+            var reversedKeyArray: [String] = []
+            
+            for value in self.keyArray.reversed() {
+                reversedKeyArray.append(value)
+            }
+            
+            let key = reversedKeyArray[indexPath.section]
+            
+            let sortedMessages = self.messages[key]!.sorted(by: { $0.timeStamp > $1.timeStamp })
+            
+            let message = sortedMessages[indexPath.row]
+            
+            if let messageBody = message.messageBody {
                 
-                if message.messageSender != userFullName {
-                    cell.isVenmoRequest = true
-                    cell.venmoName = self.otherUserVenmoName
+                cell.messageBody.text = messageBody
+                cell.documentID = self.documentID
+                cell.timeStamp = message.timeStamp
+                
+                let decimalRange = messageBody.rangeOfCharacter(from: CharacterSet.decimalDigits)
+                
+                let messageBodyHasNumbers = (decimalRange != nil)
+                
+                if messageBody.contains("Venmo") && messageBodyHasNumbers {
                     
-                    let numString = messageBody.numArray.joined(separator: " ")
-                    let numArray = numString.split(separator: " ").map(String.init)
-                    
-                    if numArray.count == 1 {
-                        cell.venmoAmount = numArray.first!
-                    }
-                    
-                    if message.messageSender == userFullName {
-                        cell.isIncoming = false
+                    if message.messageSender != userFullName {
+                        cell.isVenmoRequest = true
+                        cell.venmoName = self.otherUserVenmoName
+                        
+                        let numString = messageBody.numArray.joined(separator: " ")
+                        let numArray = numString.split(separator: " ").map(String.init)
+                        
+                        if numArray.count == 1 {
+                            cell.venmoAmount = numArray.first!
+                        }
+                        
+                        if message.messageSender == userFullName {
+                            cell.isIncoming = false
+                        } else {
+                            cell.isIncoming = true
+                        }
+                        
                     } else {
-                        cell.isIncoming = true
+                        cell.isVenmoRequest = false
+                        
+                        if message.messageSender == userFullName {
+                            cell.isIncoming = false
+                        } else {
+                            cell.isIncoming = true
+                        }
+                        
+                        cell.bubbleView.layer.borderColor = UIColor(named: "BrightBlue")?.cgColor
                     }
-                    
                 } else {
                     cell.isVenmoRequest = false
                     
@@ -519,67 +737,63 @@ extension ChatViewController: UITableViewDataSource, UITableViewDelegate {
                     } else {
                         cell.isIncoming = true
                     }
-                    
-                    cell.bubbleView.layer.borderColor = UIColor(named: "BrightBlue")?.cgColor
-                }
-            } else {
-                cell.isVenmoRequest = false
-                
-                if message.messageSender == userFullName {
-                    cell.isIncoming = false
-                } else {
-                    cell.isIncoming = true
                 }
             }
+            cell.groupPosition = self.checkCellPosition(sortedMessages: sortedMessages, indexPathRow: indexPath.row)
+            cell.messageBody.text = message.messageBody
+            cell.transform = CGAffineTransform(scaleX: 1, y: -1)
+            return cell
         }
-
+    }
+    
+    func checkCellPosition(sortedMessages: [Message], indexPathRow: Int) -> String {
         
-        //if message is only message in section
-        if (indexPath.row == 0 && indexPath.row == sortedMessages.count - 1) {
-            cell.groupPosition = "notOfGroup"
+        if (indexPathRow == 0 && indexPathRow == sortedMessages.count - 1) {
+            //let message = sortedMessages[indexPath.row]
+            return "notOfGroup"
         }
         // if first message in section
-        else if (indexPath.row == 0) {
-            let message = sortedMessages[indexPath.row]
-            let nextMessage = sortedMessages[indexPath.row + 1]
+        else if (indexPathRow == 0) {
+            let message = sortedMessages[indexPathRow]
+            let nextMessage = sortedMessages[indexPathRow + 1]
             
             if message.messageSender == nextMessage.messageSender {
-                cell.groupPosition = "groupEnd"
+                return "groupEnd"
             } else {
-                cell.groupPosition = "notOfGroup"
+                return "notOfGroup"
             }
             
             //if last message of section
-        } else if (indexPath.row == sortedMessages.count - 1) {
-            let previousMessage = sortedMessages[indexPath.row - 1]
-            let message = sortedMessages[indexPath.row]
+        } else if (indexPathRow == sortedMessages.count - 1) {
+            let previousMessage = sortedMessages[indexPathRow - 1]
+            let message = sortedMessages[indexPathRow]
             
             if previousMessage.messageSender == message.messageSender {
-                cell.groupPosition = "groupStart"
+                return "groupStart"
             } else {
-                cell.groupPosition = "notOfGroup"
+                return "notOfGroup"
             }
+            
             //if in the middle of section
         } else {
-            let previousMessage = sortedMessages[indexPath.row - 1]
-            let message = sortedMessages[indexPath.row]
-            let nextMessage = sortedMessages[indexPath.row + 1]
+            let previousMessage = sortedMessages[indexPathRow - 1]
+            let message = sortedMessages[indexPathRow]
+            let nextMessage = sortedMessages[indexPathRow + 1]
             
             if previousMessage.messageSender == message.messageSender {
                 if message.messageSender == nextMessage.messageSender {
-                    cell.groupPosition = "groupMiddle"
+                    return "groupMiddle"
                 } else {
-                    cell.groupPosition = "groupStart"
+                    return "groupStart"
                 }
             } else if (message.messageSender == nextMessage.messageSender){
-                cell.groupPosition = "groupEnd"
+                return"groupEnd"
             } else {
-                cell.groupPosition = "notOfGroup"
+                return "notOfGroup"
             }
         }
-        cell.messageBody.text = message.messageBody
-        cell.transform = CGAffineTransform(scaleX: 1, y: -1)
-        return cell
+        
+        return "notOfGroup"
     }
     
     
@@ -605,7 +819,7 @@ extension ChatViewController: UITableViewDataSource, UITableViewDelegate {
         for value in self.keyArray.reversed() {
             reversedKeyArray.append(value)
         }
-
+        
         let specificSection = reversedKeyArray[section]
         
         if let firstMessageInSection = self.messages[specificSection]?.first {

@@ -31,10 +31,11 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
         pushNotificationManager.registerForPushNotifications()
         
         configureAmplify()
-        /*firebaseManager.downloadContactPhotos { contactPhotosDictionary in
+        firebaseManager.downloadContactPhotos { contactPhotosDictionary in
             print("photos1")
             print(contactPhotosDictionary)
-        }*/
+            self.defaults.setValue(contactPhotosDictionary, forKey: "groupContactPictures")
+        }
         
 
         return true

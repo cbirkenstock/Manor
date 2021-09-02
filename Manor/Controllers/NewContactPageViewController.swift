@@ -24,6 +24,7 @@ class NewContactPageViewController: UIViewController {
     let groupChatsByUserRef = Database.database().reference().child("GroupChatsByUser")
     let groupChatMessages = Database.database().reference().child("GroupChatMessages")
     let chatViewController = ChatViewController()
+    let firebaseManager = FirebaseManagerViewController()
     
     let dropDown = DropDown()
     let flowLayout = UICollectionViewFlowLayout()
@@ -40,6 +41,7 @@ class NewContactPageViewController: UIViewController {
     @IBOutlet weak var profileBarButton: UIBarButtonItem!
     
     let imageCache = NSCache<NSString, AnyObject>()
+    let defaults = UserDefaults.standard
     
     //--//
     
@@ -255,25 +257,36 @@ extension NewContactPageViewController: UICollectionViewDataSource {
         
         if profileImageUrl == "default" || profileImageUrl == "" {
             return cell
-        }  else if let cachedImage = self.imageCache.object(forKey: profileImageUrl as NSString) {
-            cell.contactImageView.image = cachedImage as? UIImage
         } else {
-            Amplify.Storage.downloadData(key: profileImageUrl) { result in
-                switch result {
-                case .success(let data):
-                    print("Success downloading image", data)
-                    if let image = UIImage(data: data) {
-                        //let imageHeight = CGFloat(image.size.height/image.size.width * 300)
-                        DispatchQueue.main.async {
-                            self.imageCache.setObject(image, forKey: profileImageUrl as NSString)
-                            cell.contactImageView.image = image
+            if let cachedImage = self.imageCache.object(forKey: profileImageUrl as NSString) {
+                cell.contactImageView.image = cachedImage as? UIImage
+            } else if var imageDictionary = defaults.dictionary(forKey: "groupContactPictures") {
+                if let storedImageData = imageDictionary[profileImageUrl] {
+                    let image = UIImage(data: storedImageData as! Data)
+                    cell.contactImageView.image = image
+                    let NSProfileImageUrl = profileImageUrl as NSString
+                    self.imageCache.setObject(image!, forKey: NSProfileImageUrl)
+                } else {
+                    Amplify.Storage.downloadData(key: profileImageUrl) { result in
+                        switch result {
+                        case .success(let data):
+                            print("Success downloading image", data)
+                            if let image = UIImage(data: data) {
+                                //let imageHeight = CGFloat(image.size.height/image.size.width * 300)
+                                DispatchQueue.main.async {
+                                    cell.contactImageView.image = image
+                                    self.imageCache.setObject(image, forKey: profileImageUrl as NSString)
+                                    imageDictionary[profileImageUrl] = data
+                                    self.defaults.setValue(imageDictionary, forKey: "groupContactPictures")
+                                }
+                            }
+                        case .failure(let error):
+                            print("failure downloading image", error)
                         }
                     }
-                case .failure(let error):
-                    print("failure downloading image", error)
                 }
             }
-            DispatchQueue.global().async { [weak self] in
+            /*DispatchQueue.global().async { [weak self] in
                 let URL = URL(string: profileImageUrl)
                 if let data = try? Data(contentsOf: URL!) {
                     if let image = UIImage(data: data) {
@@ -283,7 +296,7 @@ extension NewContactPageViewController: UICollectionViewDataSource {
                         }
                     }
                 }
-            }
+            }*/
         }
         return cell
     }

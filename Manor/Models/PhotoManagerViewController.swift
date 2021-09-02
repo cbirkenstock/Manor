@@ -14,11 +14,19 @@ class PhotoManagerViewController: UIViewController {
     
     let groupChatMessagesRef = Database.database().reference().child("GroupChatMessages")
     let groupChatByUsersRef = Database.database().reference().child("GroupChatsByUser")
+    let chatMessagesRef = Database.database().reference().child("ChatMessages")
+    let chatsByUserRef = Database.database().reference().child("ChatsByUser")
     let usersRef = Database.database().reference().child("users")
+    var user: User! = Firebase.Auth.auth().currentUser
     var userFullName: String?
     var groupMembers: [[String]]?
     var documentID: String?
     var groupChatTitle: String?
+    var commaDocumentName: String?
+    var otherUserFullName: String?
+    var otherUserProfileImageUrl: String?
+    var userProfileImageUrl: String?
+    var commaOtherUserEmail: String?
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -49,7 +57,7 @@ class PhotoManagerViewController: UIViewController {
     
     
     @available(iOS 14, *)
-    func processPickerResultsPHP(imagePicker: PHPickerViewController, results: [PHPickerResult]) {
+    func processPickerResultsPHP(imagePicker: PHPickerViewController, results: [PHPickerResult], isGroupMessage: Bool) {
         imagePicker.dismiss(animated: true, completion: nil)
         
         for result in results {
@@ -73,11 +81,14 @@ class PhotoManagerViewController: UIViewController {
                                 switch result {
                                 case .success(let key):
                                     print("Upload Successful", key)
-                                    self?.groupChatMessagesRef.child("\(self!.documentID!)/lastMessage").setValue("\(self!.userFullName!) sent an image")
                                     
                                     let timeStamp = Date().timeIntervalSince1970
                                     let stringTimestamp = "\(timeStamp)"
                                     let commaTimestamp = stringTimestamp.replacingOccurrences(of: ".", with: ",")
+                                    
+                                    if isGroupMessage {
+                                        
+                                    self?.groupChatMessagesRef.child("\(self!.documentID!)/lastMessage").setValue("\(self!.userFullName!) sent an image")
                                     
                                     self?.groupChatMessagesRef.child(self!.documentID!).child("Messages").child("Message,\(commaTimestamp)").setValue([
                                         "messageSender": self?.userFullName,
@@ -94,6 +105,29 @@ class PhotoManagerViewController: UIViewController {
                                             "lastMessage": "\(self!.userFullName ?? "") sent an image",
                                             "timeStamp": commaTimestamp
                                         ])
+                                    }
+                                    } else {
+                                        let commaUserEmail = self!.user.email!.replacingOccurrences(of: ".", with: ",")
+                                        
+                                        self!.chatMessagesRef.child(self!.commaDocumentName!).child("Messages").child(commaTimestamp).setValue([
+                                            "messageSender": self!.userFullName!,
+                                            "imageURL": imageName,
+                                            "timeStamp": timeStamp
+                                        ])
+                                        
+                                        self!.chatsByUserRef.child("\(commaUserEmail)/Chats/\(self!.commaDocumentName!)/senderEmail").setValue(commaUserEmail)
+                                        self!.chatsByUserRef.child("\(commaUserEmail)/Chats/\(self!.commaDocumentName!)/lastMessage").setValue("you sent an image")
+                                        self!.chatsByUserRef.child("\(commaUserEmail)/Chats/\(self!.commaDocumentName!)/timeStamp").setValue(timeStamp)
+                                        self!.chatsByUserRef.child("\(commaUserEmail)/Chats/\(self!.commaDocumentName!)/title").setValue(self!.otherUserFullName)
+                                        self!.chatsByUserRef.child("\(commaUserEmail)/Chats/\(self!.commaDocumentName!)/profileImageUrl").setValue(self!.otherUserProfileImageUrl)
+                                        
+                                        
+                                        self!.chatsByUserRef.child("\(self!.commaOtherUserEmail!)/Chats/\(self!.commaDocumentName!)/senderEmail").setValue(commaUserEmail)
+                                        self!.chatsByUserRef.child("\(self!.commaOtherUserEmail!)/Chats/\(self!.commaDocumentName!)/lastMessage").setValue("\(self!.userFullName ?? "") sent an image")
+                                        self!.chatsByUserRef.child("\(self!.commaOtherUserEmail!)/Chats/\(self!.commaDocumentName!)/timeStamp").setValue(timeStamp)
+                                        self!.chatsByUserRef.child("\(self!.commaOtherUserEmail!)/Chats/\(self!.commaDocumentName!)/title").setValue(self!.userFullName!)
+                                        self!.chatsByUserRef.child("\(self!.commaOtherUserEmail!)/Chats/\(self!.commaDocumentName!)/readNotification").setValue(false)
+                                        self!.chatsByUserRef.child("\(self!.commaOtherUserEmail!)/Chats/\(self!.commaDocumentName!)/profileImageUrl").setValue(self!.userProfileImageUrl!)
                                     }
                                     
                                 case .failure(let error):
@@ -145,7 +179,7 @@ class PhotoManagerViewController: UIViewController {
         }
     }
     
-    func processPickerResultOld(imagePicker: UIImagePickerController, info: [UIImagePickerController.InfoKey : Any], isTextMessage: Bool?) {
+    func processPickerResultOld(imagePicker: UIImagePickerController, info: [UIImagePickerController.InfoKey : Any], isTextMessage: Bool?, isGroupMessage: Bool) {
         imagePicker.dismiss(animated: true, completion: nil)
         
         var selectedImageFromPicker: UIImage?
@@ -172,23 +206,49 @@ class PhotoManagerViewController: UIViewController {
                         
                         if isTextMessage ?? true {
                             
-                            self.groupChatMessagesRef.child("\(self.documentID ?? "")/lastMessage").setValue("\(self.userFullName ?? "") sent an image")
-                            
-                            self.groupChatMessagesRef.child(self.documentID!).child("Messages").child("Message,\(commaTimestamp)").setValue([
-                                "messageSender": self.userFullName,
-                                "imageURL": imageName,
-                                "timeStamp": commaTimestamp
-                            ])
-                            
-                            for email in self.groupMembers?[1] ?? [] {
-                                let commaEmail = email.replacingOccurrences(of: ".", with: ",")
-                                self.groupChatByUsersRef.child(commaEmail).child("Chats").child(self.documentID!).setValue([
-                                    "title": self.groupChatTitle,
-                                    "documentID": self.documentID,
+                            if isGroupMessage {
+                                
+                                self.groupChatMessagesRef.child("\(self.documentID ?? "")/lastMessage").setValue("\(self.userFullName ?? "") sent an image")
+                                
+                                self.groupChatMessagesRef.child(self.documentID!).child("Messages").child("Message,\(commaTimestamp)").setValue([
+                                    "messageSender": self.userFullName,
                                     "imageURL": imageName,
-                                    "lastMessage": "\(self.userFullName ?? "") sent an image",
                                     "timeStamp": commaTimestamp
                                 ])
+                                
+                                for email in self.groupMembers?[1] ?? [] {
+                                    let commaEmail = email.replacingOccurrences(of: ".", with: ",")
+                                    self.groupChatByUsersRef.child(commaEmail).child("Chats").child(self.documentID!).setValue([
+                                        "title": self.groupChatTitle,
+                                        "documentID": self.documentID,
+                                        "imageURL": imageName,
+                                        "lastMessage": "\(self.userFullName ?? "") sent an image",
+                                        "timeStamp": commaTimestamp
+                                    ])
+                                }
+                            } else {
+                                
+                                let commaUserEmail = self.user.email!.replacingOccurrences(of: ".", with: ",")
+                                
+                                self.chatMessagesRef.child(self.commaDocumentName!).child("Messages").child(commaTimestamp).setValue([
+                                    "messageSender": self.userFullName!,
+                                    "imageURL": imageName,
+                                    "timeStamp": timeStamp
+                                ])
+                                
+                                self.chatsByUserRef.child("\(commaUserEmail)/Chats/\(self.commaDocumentName!)/senderEmail").setValue(commaUserEmail)
+                                self.chatsByUserRef.child("\(commaUserEmail)/Chats/\(self.commaDocumentName!)/lastMessage").setValue("you sent an image")
+                                self.chatsByUserRef.child("\(commaUserEmail)/Chats/\(self.commaDocumentName!)/timeStamp").setValue(timeStamp)
+                                self.chatsByUserRef.child("\(commaUserEmail)/Chats/\(self.commaDocumentName!)/title").setValue(self.otherUserFullName)
+                                self.chatsByUserRef.child("\(commaUserEmail)/Chats/\(self.commaDocumentName!)/profileImageUrl").setValue(self.otherUserProfileImageUrl)
+                                
+                                
+                                self.chatsByUserRef.child("\(self.commaOtherUserEmail!)/Chats/\(self.commaDocumentName!)/senderEmail").setValue(commaUserEmail)
+                                self.chatsByUserRef.child("\(self.commaOtherUserEmail!)/Chats/\(self.commaDocumentName!)/lastMessage").setValue("\(self.userFullName ?? "") sent an image")
+                                self.chatsByUserRef.child("\(self.commaOtherUserEmail!)/Chats/\(self.commaDocumentName!)/timeStamp").setValue(timeStamp)
+                                self.chatsByUserRef.child("\(self.commaOtherUserEmail!)/Chats/\(self.commaDocumentName!)/title").setValue(self.userFullName!)
+                                self.chatsByUserRef.child("\(self.commaOtherUserEmail!)/Chats/\(self.commaDocumentName!)/readNotification").setValue(false)
+                                self.chatsByUserRef.child("\(self.commaOtherUserEmail!)/Chats/\(self.commaDocumentName!)/profileImageUrl").setValue(self.userProfileImageUrl!)
                             }
                         } else {
                             for member in self.groupMembers! {
@@ -198,7 +258,7 @@ class PhotoManagerViewController: UIViewController {
                             }
                         }
                     case .failure(let error):
-                    print("Upload failed:", error)
+                        print("Upload failed:", error)
                     }
                 }
             }
@@ -253,4 +313,6 @@ class PhotoManagerViewController: UIViewController {
      }
      }*/
 }
+
+
 

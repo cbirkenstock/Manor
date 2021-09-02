@@ -196,7 +196,7 @@ class GroupChatInfoViewController: UIViewController, UIImagePickerControllerDele
     }
     
     func imagePickerController(_ picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [UIImagePickerController.InfoKey : Any]) {
-        photoManager.processPickerResultOld(imagePicker: picker, info: info, isTextMessage: false)
+        photoManager.processPickerResultOld(imagePicker: picker, info: info, isTextMessage: false, isGroupMessage: true)
         //self.groupChatImageButton.setBackgroundImage(image, for: .normal)
         //self.groupChatTitleTextField.text = self.groupChatTitle
         
