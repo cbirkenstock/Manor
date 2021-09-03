@@ -15,4 +15,5 @@ struct Message{
     var imageURL: String? = ""
     var venmoName: String = ""
     var messageSenderNickName: String? = ""
+    var event: Event? = nil
 }

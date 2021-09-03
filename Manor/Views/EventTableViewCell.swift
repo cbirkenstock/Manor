@@ -9,18 +9,29 @@ import UIKit
 
 class EventTableViewCell: UITableViewCell {
     
-    let eventContainer: UIView = {
-        let eventContainer = UIView()
+    let joinEventButton: UIButton = {
+        let joinEventButton = UIButton()
+        joinEventButton.translatesAutoresizingMaskIntoConstraints = false
+        joinEventButton.backgroundColor = .clear
+        joinEventButton.addTarget(self, action: #selector(joinEvent), for: .touchUpInside)
+        return joinEventButton
+    }()
+    
+    let eventContainer: UIImageView = {
+        let eventContainer = UIImageView()
         eventContainer.translatesAutoresizingMaskIntoConstraints = false
         eventContainer.layer.cornerRadius = 10
-        eventContainer.backgroundColor = UIColor(named: "Green")
+        eventContainer.backgroundColor = UIColor(named: K.BrandColors.purple)
+        //eventContainer.image = #imageLiteral(resourceName: "AbstractPainting")
+        //eventContainer.clipsToBounds = true
+        //eventContainer.contentMode = .scaleToFill
         return eventContainer
     }()
     
     let titleContainer: UIView = {
         let titleContainer = UIView()
         titleContainer.translatesAutoresizingMaskIntoConstraints = false
-        titleContainer.backgroundColor = .black
+        titleContainer.backgroundColor = UIColor(named: "Gray")
         titleContainer.clipsToBounds = true
         titleContainer.layer.maskedCorners = [.layerMaxXMinYCorner, .layerMinXMinYCorner]
         titleContainer.layer.cornerRadius = 10
@@ -40,7 +51,7 @@ class EventTableViewCell: UITableViewCell {
     let timeContainer: UIView = {
         let timeContainer = UIView()
         timeContainer.translatesAutoresizingMaskIntoConstraints = false
-        timeContainer.backgroundColor = UIColor(named: "Green")
+        timeContainer.backgroundColor = .clear
         timeContainer.clipsToBounds = true
         timeContainer.layer.borderWidth = 3
         timeContainer.layer.borderColor = UIColor.white.cgColor
@@ -62,7 +73,7 @@ class EventTableViewCell: UITableViewCell {
     let bodyContainer: UIView = {
         let bodyContainer = UIView()
         bodyContainer.translatesAutoresizingMaskIntoConstraints = false
-        bodyContainer.backgroundColor = UIColor(named: "Green")
+        bodyContainer.backgroundColor = .clear
         bodyContainer.layer.cornerRadius = 10
         bodyContainer.clipsToBounds = true
         return bodyContainer
@@ -81,7 +92,7 @@ class EventTableViewCell: UITableViewCell {
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
         
-        self.backgroundColor = .darkGray
+        self.backgroundColor = .clear
         
         contentView.addSubview(eventContainer)
         eventContainer.addSubview(titleContainer)
@@ -90,10 +101,11 @@ class EventTableViewCell: UITableViewCell {
         timeContainer.addSubview(timeTextField)
         eventContainer.addSubview(bodyContainer)
         bodyContainer.addSubview(bodyTextField)
+        contentView.insertSubview(joinEventButton, aboveSubview: eventContainer)
         
         let titleTextFieldConstraints = [
             titleTextField.topAnchor.constraint(equalTo: contentView.topAnchor, constant: 5),
-            titleTextField.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 20),
+            titleTextField.centerXAnchor.constraint(equalTo: contentView.centerXAnchor),
             titleTextField.widthAnchor.constraint(equalToConstant: 200)
 
         ]
@@ -131,7 +143,7 @@ class EventTableViewCell: UITableViewCell {
         let bodyTextFieldConstraints = [
             bodyTextField.topAnchor.constraint(equalTo: timeContainer.bottomAnchor, constant: 5),
             bodyTextField.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: -15),
-            bodyTextField.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 20),
+            bodyTextField.centerXAnchor.constraint(equalTo: contentView.centerXAnchor),
             bodyTextField.widthAnchor.constraint(equalToConstant: 200)
         ]
         
@@ -155,10 +167,26 @@ class EventTableViewCell: UITableViewCell {
         
         NSLayoutConstraint.activate(eventContainerConstraints)
         
+        let joinEventButtonConstraints = [
+            joinEventButton.topAnchor.constraint(equalTo: eventContainer.topAnchor, constant: 0),
+            joinEventButton.bottomAnchor.constraint(equalTo: eventContainer.bottomAnchor, constant: 0),
+            joinEventButton.leadingAnchor.constraint(equalTo: eventContainer.leadingAnchor, constant: 0),
+            joinEventButton.trailingAnchor.constraint(equalTo: eventContainer.trailingAnchor, constant: 0),
+        ]
+        
+        NSLayoutConstraint.activate(joinEventButtonConstraints)
+        
+
+        
+        //eventContainer.image = #imageLiteral(resourceName: "AbstractPainting")
+        
     }
     
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
     
+    @objc func joinEvent() {
+        print("YEAHHHH")
+    }
 }

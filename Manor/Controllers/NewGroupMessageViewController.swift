@@ -164,7 +164,6 @@ class NewGroupMessageViewController: UIViewController {
     //everytime a letter is entered into the search bar it reloads the search names
     
     @IBAction func contactTextFieldEditingChanged(_ sender: Any) {
-        print("CHANGED")
         loadSearchNames()
     }
     

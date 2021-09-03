@@ -39,15 +39,15 @@
       <BreakpointProxy
          BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
          <BreakpointContent
-            uuid = "C44C78D9-04E3-41E9-BFBA-15869E6A181B"
+            uuid = "2B4ADB80-C712-4796-B923-F4C5A1365EB8"
             shouldBeEnabled = "Yes"
             ignoreCount = "0"
             continueAfterRunningActions = "No"
-            filePath = "Manor/Controllers/ChatViewController.swift"
+            filePath = "Manor/Controllers/GroupChatViewController.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "459"
-            endingLineNumber = "459"
+            startingLineNumber = "995"
+            endingLineNumber = "995"
             landmarkName = "loadMessages()"
             landmarkType = "7">
          </BreakpointContent>
@@ -55,15 +55,15 @@
       <BreakpointProxy
          BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
          <BreakpointContent
-            uuid = "F1528440-10EF-47F1-9FA2-0B4AFDFAC6B5"
+            uuid = "F527FDA2-40DF-47E9-A76C-F394B6609630"
             shouldBeEnabled = "Yes"
             ignoreCount = "0"
             continueAfterRunningActions = "No"
-            filePath = "Manor/Controllers/ChatViewController.swift"
+            filePath = "Manor/Controllers/GroupChatViewController.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "461"
-            endingLineNumber = "461"
+            startingLineNumber = "991"
+            endingLineNumber = "991"
             landmarkName = "loadMessages()"
             landmarkType = "7">
          </BreakpointContent>

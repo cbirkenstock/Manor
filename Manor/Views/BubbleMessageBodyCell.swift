@@ -370,8 +370,6 @@ class BubbleMessageBodyCell: UITableViewCell {
     }
     
     @objc func openVenmo() {
-        print(self.venmoAmount)
-        print(self.venmoName)
         let application = UIApplication.shared
         let appPath = "venmo://paycharge?txn=pay&recipients=\(self.venmoName)&amount=\(self.venmoAmount)&note=Thanks!"
         let appURL = URL(string: appPath)!

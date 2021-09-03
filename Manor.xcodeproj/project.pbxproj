@@ -34,6 +34,7 @@
 		F986FA2326CF58E400B1B6BA /* TestTwoCollectionViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = F986FA2226CF58E400B1B6BA /* TestTwoCollectionViewCell.swift */; };
 		F986FA2526D35D2900B1B6BA /* HomePageViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = F986FA2426D35D2900B1B6BA /* HomePageViewController.swift */; };
 		F98EA5802660CFC700B45D38 /* K.swift in Sources */ = {isa = PBXBuildFile; fileRef = F98EA57F2660CFC700B45D38 /* K.swift */; };
+		F99C706926E1AF4200D2B671 /* Event.swift in Sources */ = {isa = PBXBuildFile; fileRef = F99C706826E1AF4200D2B671 /* Event.swift */; };
 		F9A6D693264A751F00C444FD /* BackgroundVideo.mp4 in Resources */ = {isa = PBXBuildFile; fileRef = F9A6D692264A751F00C444FD /* BackgroundVideo.mp4 */; };
 		F9A6D695264B3BF500C444FD /* LogInViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = F9A6D694264B3BF500C444FD /* LogInViewController.swift */; };
 		F9A6D697264B44AF00C444FD /* BackgroundVideoPlayer.swift in Sources */ = {isa = PBXBuildFile; fileRef = F9A6D696264B44AF00C444FD /* BackgroundVideoPlayer.swift */; };
@@ -85,6 +86,7 @@
 		F986FA2226CF58E400B1B6BA /* TestTwoCollectionViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TestTwoCollectionViewCell.swift; sourceTree = "<group>"; };
 		F986FA2426D35D2900B1B6BA /* HomePageViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomePageViewController.swift; sourceTree = "<group>"; };
 		F98EA57F2660CFC700B45D38 /* K.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = K.swift; sourceTree = "<group>"; };
+		F99C706826E1AF4200D2B671 /* Event.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Event.swift; sourceTree = "<group>"; };
 		F9A6D692264A751F00C444FD /* BackgroundVideo.mp4 */ = {isa = PBXFileReference; lastKnownFileType = file; path = BackgroundVideo.mp4; sourceTree = "<group>"; };
 		F9A6D694264B3BF500C444FD /* LogInViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LogInViewController.swift; sourceTree = "<group>"; };
 		F9A6D696264B44AF00C444FD /* BackgroundVideoPlayer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BackgroundVideoPlayer.swift; sourceTree = "<group>"; };
@@ -200,6 +202,7 @@
 			children = (
 				F912DEFB26DB6886007BD4CE /* FirebaseManagerViewController.swift */,
 				F9A6D696264B44AF00C444FD /* BackgroundVideoPlayer.swift */,
+				F99C706826E1AF4200D2B671 /* Event.swift */,
 				F95B2E9026507EBA0026AF75 /* Message.swift */,
 				F9593F7B264D07F0006537D0 /* Contact.swift */,
 				F96EE7842658CE3D003A87B5 /* PushNotificationSender.swift */,
@@ -379,6 +382,7 @@
 				F95B2E9126507EBA0026AF75 /* Message.swift in Sources */,
 				F9C50E5F2660657F00B179A6 /* PageViewController.swift in Sources */,
 				F90D2B8D26A77C4600E20D9B /* UnreachedMembersViewController.swift in Sources */,
+				F99C706926E1AF4200D2B671 /* Event.swift in Sources */,
 				F9A6D697264B44AF00C444FD /* BackgroundVideoPlayer.swift in Sources */,
 				F98EA5802660CFC700B45D38 /* K.swift in Sources */,
 				F9A6D695264B3BF500C444FD /* LogInViewController.swift in Sources */,

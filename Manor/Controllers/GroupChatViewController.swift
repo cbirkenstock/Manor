@@ -66,6 +66,9 @@ class GroupChatViewController: UIViewController, UIImagePickerControllerDelegate
     var groupMembers: [[String]] = []
     let groupChatMessagesRef = Database.database().reference().child("GroupChatMessages")
     let groupChatByUsersRef = Database.database().reference().child("GroupChatsByUser")
+    let eventChatsByUserRef =
+        Database.database().reference().child("EventChatsByUser")
+    let eventChatMessagesRef = Database.database().reference().child("EventChatMessages")
     let usersRef = Database.database().reference().child("users")
     let defaults = UserDefaults.standard
     var heightLoaded = false
@@ -89,25 +92,31 @@ class GroupChatViewController: UIViewController, UIImagePickerControllerDelegate
     var a: CGFloat = 0
     let datePicker = UIDatePicker()
     let eventSendButton = UIButton()
+    var eventCancelButton = UIButton()
     let titleUnderline = UIView()
     var textFieldConstraints: [NSLayoutConstraint]!
     var titleUnderlineConstraints: [NSLayoutConstraint]!
     var datePickerConstraints: [NSLayoutConstraint]!
     var descriptionTextFieldConstraints: [NSLayoutConstraint]!
     var eventSendButtonConstraints: [NSLayoutConstraint]!
+    var eventCancelButtonConstraints: [NSLayoutConstraint]!
     var isCallingEvent: Bool = false
     var photoDictionary: [String: UIImage] = [:]
     let firebaseManager = FirebaseManagerViewController()
+    var isEventChat: Bool! = false
     
     
     override func viewDidLoad() {
         super.viewDidLoad()
         
+        print("boolean")
+        print(isEventChat)
+        
         chatTableView.keyboardDismissMode = .interactive
         
         chatTextBar.attributedPlaceholder = NSAttributedString(string: "Chat...", attributes: [NSAttributedString.Key.foregroundColor: UIColor.systemGray, NSAttributedString.Key.font : UIFont.systemFont(ofSize: 18)])
         
-
+        
         
         
         self.initialBottomConstraint = self.bottomConstraint.constant
@@ -141,15 +150,29 @@ class GroupChatViewController: UIViewController, UIImagePickerControllerDelegate
             print(error.localizedDescription)
         }
         
-        groupChatByUsersRef.child(commaEmail).child("Chats").child(self.documentID).child("nickName").observe(DataEventType.value, with: { (snapshot) in
-            // Get user value
-            if let userNickName = snapshot.value as? String {
-                self.userNickName = userNickName
-            } else {
-                print("No Value")
+        
+        if self.isEventChat {
+            groupChatByUsersRef.child(commaEmail).child("Chats").child(self.documentID).child("nickName").observe(DataEventType.value, with: { (snapshot) in
+                // Get user value
+                if let userNickName = snapshot.value as? String {
+                    self.userNickName = userNickName
+                } else {
+                    print("No Value")
+                }
+            }) { (error) in
+                print(error.localizedDescription)
             }
-        }) { (error) in
-            print(error.localizedDescription)
+        } else {
+            eventChatsByUserRef.child(commaEmail).child("Chats").child(self.documentID).child("nickName").observe(DataEventType.value, with: { (snapshot) in
+                // Get user value
+                if let userNickName = snapshot.value as? String {
+                    self.userNickName = userNickName
+                } else {
+                    print("No Value")
+                }
+            }) { (error) in
+                print(error.localizedDescription)
+            }
         }
         
         self.keyboardIsShowing = false
@@ -186,6 +209,8 @@ class GroupChatViewController: UIViewController, UIImagePickerControllerDelegate
         
         chatTableView.register(PictureMessageTableViewCell.self, forCellReuseIdentifier: "pictureMessageCell")
         
+        chatTableView.register(EventTableViewCell.self, forCellReuseIdentifier: "eventMessageCell")
+        
         
         NotificationCenter.default.addObserver(self, selector: #selector(ChatViewController.keyboardWillShow), name: UIResponder.keyboardWillShowNotification, object: nil)
         
@@ -200,8 +225,10 @@ class GroupChatViewController: UIViewController, UIImagePickerControllerDelegate
         
         chatTableView.transform = CGAffineTransform(scaleX: 1, y: -1)
         
-        setUpEventsButton()
-        setUpEventOptions()
+        if !isEventChat {
+            setUpEventsButton()
+            setUpEventOptions()
+        }
         
         self.loadMessages()
         self.setUpPushMessagesTable()
@@ -249,6 +276,7 @@ class GroupChatViewController: UIViewController, UIImagePickerControllerDelegate
         self.view.addSubview(self.datePicker)
         self.view.addSubview(self.descriptionTextField)
         self.view.addSubview(self.eventSendButton)
+        self.view.addSubview(self.eventCancelButton)
         
         self.isCallingEvent = true
         self.titleField.becomeFirstResponder()
@@ -333,7 +361,24 @@ class GroupChatViewController: UIViewController, UIImagePickerControllerDelegate
             eventSendButton.topAnchor.constraint(equalTo: self.descriptionTextField.bottomAnchor, constant: 10),
             eventSendButton.bottomAnchor.constraint(equalTo: self.backgroundView.bottomAnchor, constant: -5),
             eventSendButton.trailingAnchor.constraint(equalTo: self.backgroundView.trailingAnchor, constant: -10),
-            eventSendButton.widthAnchor.constraint(equalToConstant: ((UIScreen.main.bounds.width - 100)/2 - 10))
+            eventSendButton.widthAnchor.constraint(equalToConstant: ((UIScreen.main.bounds.width - 100)/2 - 15))
+        ]
+        
+        self.view.addSubview(self.eventCancelButton)
+        self.eventCancelButton.translatesAutoresizingMaskIntoConstraints = false
+        self.eventCancelButton.backgroundColor = .clear
+        self.eventCancelButton.layer.cornerRadius = 8
+        self.eventCancelButton.setTitle("Cancel", for: .normal)
+        self.eventCancelButton.setTitleColor(.clear, for: .normal)
+        self.eventCancelButton.titleLabel?.font = UIFont.systemFont(ofSize: 25)
+        self.eventCancelButton.addTarget(self, action: #selector(sendEventButtonPressed), for: .touchUpInside)
+        
+        
+        self.eventCancelButtonConstraints = [
+            eventCancelButton.topAnchor.constraint(equalTo: self.descriptionTextField.bottomAnchor, constant: 10),
+            eventCancelButton.bottomAnchor.constraint(equalTo: self.backgroundView.bottomAnchor, constant: -5),
+            eventCancelButton.leadingAnchor.constraint(equalTo: self.backgroundView.leadingAnchor, constant: 10),
+            eventCancelButton.widthAnchor.constraint(equalToConstant: ((UIScreen.main.bounds.width - 100)/2 - 15))
         ]
     }
     
@@ -344,6 +389,83 @@ class GroupChatViewController: UIViewController, UIImagePickerControllerDelegate
         self.datePicker.removeFromSuperview()
         self.descriptionTextField.removeFromSuperview()
         self.eventSendButton.removeFromSuperview()
+        self.eventCancelButton.removeFromSuperview()
+        
+        self.chatTableView.isHidden = false
+        self.eventButton.isHidden = false
+        self.plusImageView.isHidden = false
+        
+        if self.titleField.text != "" && self.descriptionTextField.text != "" {
+            self.dateFormatter.dateFormat = "MM/dd/yyyy"
+            
+            let eventTitle = titleField.text
+            let eventDescription = descriptionTextField.text
+            
+            let eventTimeStamp = self.dateFormatter.string(from: datePicker.date)
+            
+            let timeStamp = Date().timeIntervalSince1970
+            let stringTimestamp = "\(timeStamp)"
+            let commaTimestamp = stringTimestamp.replacingOccurrences(of: ".", with: ",")
+            
+            let eventDocumentID: String = "\(Int.random(in: 1...10000000000000))"
+            
+            self.eventChatMessagesRef.child(eventDocumentID).setValue([
+                "title": eventTitle ?? "",
+                "messageCreator": self.user!.email!,
+                "timeStamp": commaTimestamp,
+                "Members": [[self.userFullName, self.user!.email!]],
+                "lastMessage": "",
+            ])
+            
+            self.eventChatsByUserRef.child("\(commaEmail)/Chats/\(eventDocumentID)/title").setValue(eventTitle)
+            self.eventChatsByUserRef.child("\(commaEmail)/Chats/\(eventDocumentID)/documentID").setValue(eventDocumentID)
+            self.eventChatsByUserRef.child("\(commaEmail)/Chats/\(eventDocumentID)/lastMessage").setValue("")
+            self.eventChatsByUserRef.child("\(commaEmail)/Chats/\(eventDocumentID)/profileImageUrl").setValue("default")
+            self.eventChatsByUserRef.child("\(commaEmail)/Chats/\(eventDocumentID)/notificationsEnabled").setValue(true)
+            self.eventChatsByUserRef.child("\(commaEmail)/Chats/\(eventDocumentID)/timeStamp").setValue(commaTimestamp)
+            self.eventChatsByUserRef.child("\(commaEmail)/Chats/\(eventDocumentID)/readNotification").setValue(false)
+            
+            titleField.text = ""
+            descriptionTextField.text = ""
+            
+            
+            self.groupChatMessagesRef.child("\(documentID)/lastMessage").setValue("\(self.userFullName) sent an event")
+            self.groupChatMessagesRef.child("\(documentID)/senderEmail").setValue(self.user.email!)
+            self.groupChatMessagesRef.child("\(documentID)/timeStamp").setValue(commaTimestamp)
+            
+            self.groupChatMessagesRef.child(documentID).child("Messages").child("Message,\(commaTimestamp)").setValue([
+                "messageSender": userFullName,
+                "messageSenderNickName": self.userNickName ?? self.userFullName,
+                "eventTitle": eventTitle,
+                "eventDescription": eventDescription,
+                "eventTimeStamp": eventTimeStamp,
+                "timeStamp": commaTimestamp,
+                "likes": "0"
+            ])
+            
+            for member in groupMembers {
+                let email = member[1]
+                let commaEmail = email.replacingOccurrences(of: ".", with: ",")
+                
+                self.groupChatByUsersRef.child("\(commaEmail)/Chats/\(documentID)/title").setValue(groupChatTitle)
+                self.groupChatByUsersRef.child("\(commaEmail)/Chats/\(documentID)/documentID").setValue(documentID)
+                self.groupChatByUsersRef.child("\(commaEmail)/Chats/\(documentID)/profileImageUrl").setValue(self.groupChatImageUrl)
+                self.groupChatByUsersRef.child("\(commaEmail)/Chats/\(documentID)/notificationsEnabled").setValue(true)
+                self.groupChatByUsersRef.child("\(commaEmail)/Chats/\(documentID)/lastMessage").setValue("\(self.userFullName) sent an event")
+                self.groupChatByUsersRef.child("\(commaEmail)/Chats/\(documentID)/timeStamp").setValue(commaTimestamp)
+                self.groupChatByUsersRef.child("\(commaEmail)/Chats/\(documentID)/readNotification").setValue(false)
+            }
+        }
+    }
+    
+    @objc func cancelEventbuttonPressed() {
+        self.backgroundView.removeFromSuperview()
+        self.titleField.removeFromSuperview()
+        self.titleUnderline.removeFromSuperview()
+        self.datePicker.removeFromSuperview()
+        self.descriptionTextField.removeFromSuperview()
+        self.eventSendButton.removeFromSuperview()
+        self.eventCancelButton.removeFromSuperview()
         
         self.chatTableView.isHidden = false
         self.eventButton.isHidden = false
@@ -478,10 +600,10 @@ class GroupChatViewController: UIViewController, UIImagePickerControllerDelegate
             ]
             
             /*let blurEffect = UIBlurEffect(style: UIBlurEffect.Style.dark)
-            let blurEffectView = UIVisualEffectView(effect: blurEffect)
-            blurEffectView.frame = UIScreen.main.bounds//chatTableView.bounds
-            blurEffectView.autoresizingMask = [.flexibleWidth, .flexibleHeight]
-            chatTableView.addSubview(blurEffectView)*/
+             let blurEffectView = UIVisualEffectView(effect: blurEffect)
+             blurEffectView.frame = UIScreen.main.bounds//chatTableView.bounds
+             blurEffectView.autoresizingMask = [.flexibleWidth, .flexibleHeight]
+             chatTableView.addSubview(blurEffectView)*/
             
             self.chatTableView.isHidden = true
             self.eventButton.isHidden = true
@@ -496,6 +618,9 @@ class GroupChatViewController: UIViewController, UIImagePickerControllerDelegate
             self.eventSendButton.backgroundColor = .systemGreen
             self.eventSendButton.setTitleColor(.white, for: .normal)
             NSLayoutConstraint.activate(self.eventSendButtonConstraints)
+            self.eventCancelButton.backgroundColor = .systemRed
+            self.eventCancelButton.setTitleColor(.white, for: .normal)
+            NSLayoutConstraint.activate(eventCancelButtonConstraints)
             
             UIView.animate(withDuration: duration) { self.view.layoutIfNeeded() }
         }
@@ -590,22 +715,6 @@ class GroupChatViewController: UIViewController, UIImagePickerControllerDelegate
     }
     
     @objc func cameraButtonPressed() {
-        
-        /*if #available(iOS 14, *) {
-         var configuration = PHPickerConfiguration()
-         configuration.filter = .images
-         configuration.selectionLimit = 0
-         let picker = PHPickerViewController(configuration: configuration)
-         picker.delegate = self
-         self.present(picker, animated: true)
-         } else {
-         let imagePickerController = UIImagePickerController()
-         imagePickerController.delegate = self
-         imagePickerController.allowsEditing = true
-         
-         self.present(imagePickerController, animated: true)
-         }*/
-        
         self.photoManager.documentID = self.documentID
         self.photoManager.groupMembers = self.groupMembers
         self.photoManager.groupChatTitle = self.groupChatTitle
@@ -618,200 +727,17 @@ class GroupChatViewController: UIViewController, UIImagePickerControllerDelegate
         photoManager.processPickerResultOld(imagePicker: picker, info: info, isTextMessage: true, isGroupMessage: true)
         
     }
-    /*picker.dismiss(animated: true, completion: nil)
-     
-     var selectedImageFromPicker: UIImage?
-     
-     if let editedImage = info[UIImagePickerController.InfoKey(rawValue: "UIImagePickerControllerEditedImage")] as? UIImage {
-     selectedImageFromPicker = editedImage
-     } else if let originalImage = info[UIImagePickerController.InfoKey(rawValue: "UIImagePickerControllerOriginalImage")] as? UIImage {
-     selectedImageFromPicker = originalImage
-     }
-     
-     if let selectedImage = selectedImageFromPicker {
-     let imageName = NSUUID().uuidString
-     let storage = Storage.storage()
-     let ref = storage.reference().child("message_images").child(imageName)
-     
-     if let uploadData = selectedImage.jpegData(compressionQuality: 0.2) {
-     ref.putData(uploadData, metadata: nil) { metaData, err in
-     
-     if err != nil {
-     print("failed to upload image:", err!)
-     return
-     }
-     
-     ref.downloadURL { url, err in
-     if err != nil {
-     print("failed to download URL", err!)
-     } else if let imageURl = url?.absoluteString {
-     
-     let timeStamp = Date().timeIntervalSince1970
-     let stringTimestamp = "\(timeStamp)"
-     let commaTimestamp = stringTimestamp.replacingOccurrences(of: ".", with: ",")
-     
-     self.groupChatMessagesRef.child("\(self.documentID)/lastMessage").setValue("\(self.userFullName) sent an image")
-     
-     self.groupChatMessagesRef.child(self.documentID).child("Messages").child("Message,\(commaTimestamp)").setValue([
-     "messageSender": self.userFullName,
-     "imageURL": imageURl,
-     "timeStamp": commaTimestamp
-     ])
-     
-     for email in self.groupMembers[1] {
-     let commaEmail = email.replacingOccurrences(of: ".", with: ",")
-     self.groupChatByUsersRef.child(commaEmail).child("Chats").child(self.documentID).setValue([
-     "title": self.groupChatTitle,
-     "documentID": self.documentID,
-     "imageURL": imageURl,
-     "lastMessage": "\(self.userFullName) sent an image",
-     "timeStamp": commaTimestamp
-     ])
-     }
-     }
-     }
-     }
-     
-     }
-     
-     }
-     }*/
     
     @available(iOS 14, *)
     func picker(_ picker: PHPickerViewController, didFinishPicking results: [PHPickerResult]) {
         photoManager.processPickerResultsPHP(imagePicker: picker, results: results, isGroupMessage: true)
     }
-    /*picker.dismiss(animated: true, completion: nil)
-     
-     for result in results {
-     let itemProvider = result.itemProvider
-     if itemProvider.canLoadObject(ofClass: UIImage.self) {
-     itemProvider.loadObject(ofClass: UIImage.self)
-     { [weak self]  image, error in
-     if error != nil {
-     print("Error", error!)
-     return
-     }
-     
-     if let selectedImage = image as? UIImage {
-     let imageName = NSUUID().uuidString
-     //let storage = Storage.storage()
-     //let ref = storage.reference().child("message_images").child(imageName)
-     
-     
-     if let fileData = selectedImage.jpegData(compressionQuality: 0.2) {
-     Amplify.Storage.uploadData(key: imageName, data: fileData) { result in
-     switch result {
-     case .success(let key):
-     print("Upload Successful", key)
-     case .failure(let error):
-     print("Upload failed:", error)
-     }
-     }
-     
-     Amplify.Storage.getURL(key: imageName) { result in
-     switch result {
-     case .success(let URL):
-     let timeStamp = Date().timeIntervalSince1970
-     let stringTimestamp = "\(timeStamp)"
-     let commaTimestamp = stringTimestamp.replacingOccurrences(of: ".", with: ",")
-     
-     let imageURL = URL.absoluteString
-     
-     self?.groupChatMessagesRef.child("\(self!.documentID)/lastMessage").setValue("\(self!.userFullName) sent an image")
-     
-     self?.groupChatMessagesRef.child(self!.documentID).child("Messages").child("Message,\(commaTimestamp)").setValue([
-     "messageSender": self?.userFullName,
-     "imageURL": imageURL,
-     "timeStamp": commaTimestamp
-     ])
-     
-     for email in self?.groupMembers[1] ?? [] {
-     let commaEmail = email.replacingOccurrences(of: ".", with: ",")
-     self!.groupChatByUsersRef.child(commaEmail).child("Chats").child(self!.documentID).setValue([
-     "title": self!.groupChatTitle,
-     "documentID": self!.documentID,
-     "imageURL": imageURL,
-     "lastMessage": "\(self!.userFullName) sent an image",
-     "timeStamp": commaTimestamp
-     ])
-     }
-     
-     case .failure(let error):
-     print(error)
-     }
-     }
-     
-     }
-     
-     /*if let uploadData = selectedImage.jpegData(compressionQuality: 0.2) {
-     ref.putData(uploadData, metadata: nil) { metaData, err in
-     
-     if err != nil {
-     print("failed to upload image:", err!)
-     return
-     }
-     
-     ref.downloadURL { url, err in
-     if err != nil {
-     print("failed to download URL", err!)
-     } else if let imageURl = url?.absoluteString {
-     
-     let timeStamp = Date().timeIntervalSince1970
-     let stringTimestamp = "\(timeStamp)"
-     let commaTimestamp = stringTimestamp.replacingOccurrences(of: ".", with: ",")
-     
-     self?.groupChatMessagesRef.child("\(self!.documentID)/lastMessage").setValue("\(self!.userFullName) sent an image")
-     
-     self?.groupChatMessagesRef.child(self!.documentID).child("Messages").child("Message,\(commaTimestamp)").setValue([
-     "messageSender": self?.userFullName,
-     "imageURL": imageURl,
-     "timeStamp": commaTimestamp
-     ])
-     
-     for email in self?.groupMembers[1] ?? [] {
-     let commaEmail = email.replacingOccurrences(of: ".", with: ",")
-     self!.groupChatByUsersRef.child(commaEmail).child("Chats").child(self!.documentID).setValue([
-     "title": self!.groupChatTitle,
-     "documentID": self!.documentID,
-     "imageURL": imageURl,
-     "lastMessage": "\(self!.userFullName) sent an image",
-     "timeStamp": commaTimestamp
-     ])
-     }
-     }
-     }
-     }
-     }*/
-     }
-     }
-     }
-     }
-     }
-     
-     func imagePickerControllerDidCancel(_ picker: UIImagePickerController) {
-     dismiss(animated: true, completion: nil)
-     }*/
     
     @IBAction func pushButtonPressed(_ sender: UIBarButtonItem) {
         
         if let messageBody = chatTextBar.text, self.keyboardIsShowing == true {
             
-            /*let pushMessagesRef = self.groupChatMessagesRef.child(self.documentID).child("pushMessages")
-             pushMessagesRef.removeAllObservers()*/
-            
             let pushMessageUID = String(Int.random(in: 1...10000000000000))
-            
-            /*if var unreadPushMessages = defaults.array(forKey: "unreadPushMessages") {
-             unreadPushMessages.append(pushMessageUID)
-             defaults.setValue(unreadPushMessages, forKey: "unreadPushMessages")
-             } else {
-             let undreadPushMessages = [pushMessageUID]
-             defaults.setValue(undreadPushMessages, forKey: "unreadPushMessages")
-             }
-             
-             let currentUnreadPushMessages = defaults.array(forKey: "unreadPushMessages")*/
-            
             
             let timestamp = (Date().timeIntervalSince1970)
             let timestampString = ("\(timestamp)")
@@ -819,45 +745,75 @@ class GroupChatViewController: UIViewController, UIImagePickerControllerDelegate
             
             self.chatTextBar.text = ""
             
-            self.groupChatMessagesRef.child(documentID).child("pushMessages").child(String(pushMessageUID)).setValue([
-                "messageSender": userFullName,
-                "messageBody": messageBody,
-                "timeStamp": commaTimestamp
-            ], withCompletionBlock: { err, DatabaseReference in
-                if let err = err {
-                    print(err)
-                } else {
-                    self.loadMessages()
-                    self.pushMessagesTableView.reloadData()
-                }
-            })
-            
-            self.groupChatMessagesRef.child("\(self.documentID)/timeStamp").setValue(commaTimestamp)
-            
-            for email in groupMembers[1] {
-                let commaEmail = email.replacingOccurrences(of: ".", with: ",")
+            if isEventChat {
                 
-                self.groupChatByUsersRef.child(commaEmail).child("Chats").child(documentID).child("unreadPushMessages").observeSingleEvent(of: DataEventType.value) { snapshot in
-                    var unreadPushMessages = snapshot.value as? [String] ?? []
-                    unreadPushMessages.append(pushMessageUID)
-                    
-                    if email == self.user.email {
-                        self.unreadPushMessages = unreadPushMessages
+                self.eventChatMessagesRef.child(documentID).child("pushMessages").child(String(pushMessageUID)).setValue([
+                    "messageSender": userFullName,
+                    "messageBody": messageBody,
+                    "timeStamp": commaTimestamp
+                ], withCompletionBlock: { err, DatabaseReference in
+                    if let err = err {
+                        print(err)
+                    } else {
+                        self.loadMessages()
+                        self.pushMessagesTableView.reloadData()
                     }
+                })
+                
+                self.eventChatMessagesRef.child("\(self.documentID)/timeStamp").setValue(commaTimestamp)
+                
+                for email in groupMembers[1] {
+                    let commaEmail = email.replacingOccurrences(of: ".", with: ",")
                     
-                    /*self.groupChatByUsersRef.child(commaEmail).child("Chats").child(self.documentID).setValue([
-                     "title": self.groupChatTitle,
-                     "documentID": self.documentID,
-                     "lastMessage": messageBody,
-                     "timeStamp": commaTimestamp,
-                     "unreadPushMessages": unreadPushMessages
-                     ])*/
+                    self.eventChatsByUserRef.child(commaEmail).child("Chats").child(documentID).child("unreadPushMessages").observeSingleEvent(of: DataEventType.value) { snapshot in
+                        var unreadPushMessages = snapshot.value as? [String] ?? []
+                        unreadPushMessages.append(pushMessageUID)
+                        
+                        if email == self.user.email {
+                            self.unreadPushMessages = unreadPushMessages
+                        }
+                        
+                        self.eventChatsByUserRef.child("\(commaEmail)/Chats/\(self.documentID)/title").setValue(self.groupChatTitle)
+                        self.eventChatsByUserRef.child("\(commaEmail)/Chats/\(self.documentID)/documentID").setValue(self.documentID)
+                        self.eventChatsByUserRef.child("\(commaEmail)/Chats/\(self.documentID)/lastMessage").setValue(messageBody)
+                        self.eventChatsByUserRef.child("\(commaEmail)/Chats/\(self.documentID)/timeStamp").setValue(commaTimestamp)
+                        self.eventChatsByUserRef.child("\(commaEmail)/Chats/\(self.documentID)/unreadPushMessages").setValue(unreadPushMessages)
+                    }
+                }
+            } else {
+                
+                self.groupChatMessagesRef.child(documentID).child("pushMessages").child(String(pushMessageUID)).setValue([
+                    "messageSender": userFullName,
+                    "messageBody": messageBody,
+                    "timeStamp": commaTimestamp
+                ], withCompletionBlock: { err, DatabaseReference in
+                    if let err = err {
+                        print(err)
+                    } else {
+                        self.loadMessages()
+                        self.pushMessagesTableView.reloadData()
+                    }
+                })
+                
+                self.groupChatMessagesRef.child("\(self.documentID)/timeStamp").setValue(commaTimestamp)
+                
+                for email in groupMembers[1] {
+                    let commaEmail = email.replacingOccurrences(of: ".", with: ",")
                     
-                    self.groupChatByUsersRef.child("\(commaEmail)/Chats/\(self.documentID)/title").setValue(self.groupChatTitle)
-                    self.groupChatByUsersRef.child("\(commaEmail)/Chats/\(self.documentID)/documentID").setValue(self.documentID)
-                    self.groupChatByUsersRef.child("\(commaEmail)/Chats/\(self.documentID)/lastMessage").setValue(messageBody)
-                    self.groupChatByUsersRef.child("\(commaEmail)/Chats/\(self.documentID)/timeStamp").setValue(commaTimestamp)
-                    self.groupChatByUsersRef.child("\(commaEmail)/Chats/\(self.documentID)/unreadPushMessages").setValue(unreadPushMessages)
+                    self.groupChatByUsersRef.child(commaEmail).child("Chats").child(documentID).child("unreadPushMessages").observeSingleEvent(of: DataEventType.value) { snapshot in
+                        var unreadPushMessages = snapshot.value as? [String] ?? []
+                        unreadPushMessages.append(pushMessageUID)
+                        
+                        if email == self.user.email {
+                            self.unreadPushMessages = unreadPushMessages
+                        }
+                        
+                        self.groupChatByUsersRef.child("\(commaEmail)/Chats/\(self.documentID)/title").setValue(self.groupChatTitle)
+                        self.groupChatByUsersRef.child("\(commaEmail)/Chats/\(self.documentID)/documentID").setValue(self.documentID)
+                        self.groupChatByUsersRef.child("\(commaEmail)/Chats/\(self.documentID)/lastMessage").setValue(messageBody)
+                        self.groupChatByUsersRef.child("\(commaEmail)/Chats/\(self.documentID)/timeStamp").setValue(commaTimestamp)
+                        self.groupChatByUsersRef.child("\(commaEmail)/Chats/\(self.documentID)/unreadPushMessages").setValue(unreadPushMessages)
+                    }
                 }
             }
         } else if keyboardIsShowing == false{
@@ -885,19 +841,30 @@ class GroupChatViewController: UIViewController, UIImagePickerControllerDelegate
         self.pushMessagesTableView.reloadData()
         let commaEmail = self.user!.email!.replacingOccurrences(of: ".", with: ",")
         
-        self.groupChatByUsersRef.child(commaEmail).child("Chats").child(self.documentID).child("unreadPushMessages").setValue(self.unreadPushMessages) { err, DatabaseReference in
-            if let err = err {
-                print(err)
-            } else {
-                if self.unreadPushMessages.count == 0 {
-                    self.pushMessages = []
-                    
-                    /*NSLayoutConstraint.deactivate(self.pushMessagesContainerViewConstraintsFullScreen)
-                     NSLayoutConstraint.deactivate(self.pushMessagesContainerViewConstraintsFitted)
-                     NSLayoutConstraint.activate(self.pushMessagesContainerViewConstraintsZero)*/
-                    self.pushMessagesTableView.reloadData()
+        if self.isEventChat {
+            self.eventChatsByUserRef.child(commaEmail).child("Chats").child(self.documentID).child("unreadPushMessages").setValue(self.unreadPushMessages) { err, DatabaseReference in
+                if let err = err {
+                    print(err)
                 } else {
-                    self.loadMessages()
+                    if self.unreadPushMessages.count == 0 {
+                        self.pushMessages = []
+                        self.pushMessagesTableView.reloadData()
+                    } else {
+                        self.loadMessages()
+                    }
+                }
+            }
+        } else {
+            self.groupChatByUsersRef.child(commaEmail).child("Chats").child(self.documentID).child("unreadPushMessages").setValue(self.unreadPushMessages) { err, DatabaseReference in
+                if let err = err {
+                    print(err)
+                } else {
+                    if self.unreadPushMessages.count == 0 {
+                        self.pushMessages = []
+                        self.pushMessagesTableView.reloadData()
+                    } else {
+                        self.loadMessages()
+                    }
                 }
             }
         }
@@ -912,129 +879,113 @@ class GroupChatViewController: UIViewController, UIImagePickerControllerDelegate
             let commaTimestamp = stringTimestamp.replacingOccurrences(of: ".", with: ",")
             self.chatTextBar.text = ""
             
-            self.groupChatMessagesRef.child("\(documentID)/lastMessage").setValue(messageBody)
-            self.groupChatMessagesRef.child("\(documentID)/senderEmail").setValue(self.user.email!)
-            self.groupChatMessagesRef.child("\(documentID)/timeStamp").setValue(commaTimestamp)
-            
-            let decimalRange = messageBody.rangeOfCharacter(from: CharacterSet.decimalDigits)
-            
-            let messageBodyHasNumbers = (decimalRange != nil)
-            
-            if messageBody.contains("Venmo") && messageBodyHasNumbers {
-                self.groupChatMessagesRef.child(documentID).child("Messages").child("Message,\(commaTimestamp)").setValue([
-                    "messageSender": userFullName,
-                    "messageSenderNickName": self.userNickName ?? self.userFullName,
-                    "messageBody": messageBody,
-                    "timeStamp": commaTimestamp,
-                    "venmoName": self.userVenmoName
-                ])
+            if isEventChat {
+                self.eventChatMessagesRef.child("\(documentID)/lastMessage").setValue(messageBody)
+                self.eventChatMessagesRef.child("\(documentID)/senderEmail").setValue(self.user.email!)
+                self.eventChatMessagesRef.child("\(documentID)/timeStamp").setValue(commaTimestamp)
+                
+                let decimalRange = messageBody.rangeOfCharacter(from: CharacterSet.decimalDigits)
+                
+                let messageBodyHasNumbers = (decimalRange != nil)
+                
+                if messageBody.contains("Venmo") && messageBodyHasNumbers {
+                    self.eventChatMessagesRef.child(documentID).child("Messages").child("Message,\(commaTimestamp)").setValue([
+                        "messageSender": userFullName,
+                        "messageSenderNickName": self.userNickName ?? self.userFullName,
+                        "messageBody": messageBody,
+                        "timeStamp": commaTimestamp,
+                        "venmoName": self.userVenmoName
+                    ])
+                } else {
+                    self.eventChatMessagesRef.child(documentID).child("Messages").child("Message,\(commaTimestamp)").setValue([
+                        "messageSender": userFullName,
+                        "messageSenderNickName": self.userNickName ?? self.userFullName,
+                        "messageBody": messageBody,
+                        "timeStamp": commaTimestamp,
+                        "likes": "0"
+                    ])
+                }
+                
+                for member in groupMembers {
+                    let email = member[1]
+                    let commaEmail = email.replacingOccurrences(of: ".", with: ",")
+                    
+                    self.eventChatsByUserRef.child("\(commaEmail)/Chats/\(documentID)/title").setValue(groupChatTitle)
+                    self.eventChatsByUserRef.child("\(commaEmail)/Chats/\(documentID)/documentID").setValue(documentID)
+                    self.eventChatsByUserRef.child("\(commaEmail)/Chats/\(documentID)/profileImageUrl").setValue(self.groupChatImageUrl)
+                    self.eventChatsByUserRef.child("\(commaEmail)/Chats/\(documentID)/notificationsEnabled").setValue(true)
+                    self.eventChatsByUserRef.child("\(commaEmail)/Chats/\(documentID)/lastMessage").setValue(messageBody)
+                    self.eventChatsByUserRef.child("\(commaEmail)/Chats/\(documentID)/timeStamp").setValue(commaTimestamp)
+                    self.eventChatsByUserRef.child("\(commaEmail)/Chats/\(documentID)/readNotification").setValue(false)
+                }
             } else {
-                self.groupChatMessagesRef.child(documentID).child("Messages").child("Message,\(commaTimestamp)").setValue([
-                    "messageSender": userFullName,
-                    "messageSenderNickName": self.userNickName ?? self.userFullName,
-                    "messageBody": messageBody,
-                    "timeStamp": commaTimestamp,
-                    "likes": "0"
-                ])
-            }
-            
-            /*db.collection("GroupChatMessages").document(documentID).collection("Messages").document("Message.\(Date().timeIntervalSince1970)").setData([
-             "messageSender": userFullName,
-             "messageBody": messageBody,
-             "timeStamp": timeStamp
-             ]) { err in
-             if let err = err {
-             print("Error writing document: \(err)")
-             } else {
-             print("Document successfully written!")
-             }
-             }*/
-            
-            for member in groupMembers {
-                let email = member[1]
-                let commaEmail = email.replacingOccurrences(of: ".", with: ",")
                 
-                /*self.groupChatByUsersRef.child(commaEmail).child("Chats").child(documentID).setValue([
-                 "title": groupChatTitle,
-                 "documentID": documentID,
-                 "profileImageUrl": self.groupChatImageUrl,
-                 "notificationsEnabled": true
-                 
-                 //"lastMessage": messageBody,
-                 //"timeStamp": commaTimestamp,
-                 //"readNotification": false
-                 ])*/
+                self.groupChatMessagesRef.child("\(documentID)/lastMessage").setValue(messageBody)
+                self.groupChatMessagesRef.child("\(documentID)/senderEmail").setValue(self.user.email!)
+                self.groupChatMessagesRef.child("\(documentID)/timeStamp").setValue(commaTimestamp)
                 
-                self.groupChatByUsersRef.child("\(commaEmail)/Chats/\(documentID)/title").setValue(groupChatTitle)
-                self.groupChatByUsersRef.child("\(commaEmail)/Chats/\(documentID)/documentID").setValue(documentID)
-                self.groupChatByUsersRef.child("\(commaEmail)/Chats/\(documentID)/profileImageUrl").setValue(self.groupChatImageUrl)
-                self.groupChatByUsersRef.child("\(commaEmail)/Chats/\(documentID)/notificationsEnabled").setValue(true)
-                self.groupChatByUsersRef.child("\(commaEmail)/Chats/\(documentID)/lastMessage").setValue(messageBody)
-                self.groupChatByUsersRef.child("\(commaEmail)/Chats/\(documentID)/timeStamp").setValue(commaTimestamp)
-                self.groupChatByUsersRef.child("\(commaEmail)/Chats/\(documentID)/readNotification").setValue(false)
+                let decimalRange = messageBody.rangeOfCharacter(from: CharacterSet.decimalDigits)
                 
+                let messageBodyHasNumbers = (decimalRange != nil)
                 
-                /*usersRef.child(commaEmail).child("profileImageUrl").observe(DataEventType.value) { Snapshot in
-                 let profileImageUrl = Snapshot.value as? String
-                 self.groupChatByUsersRef.child("\(commaEmail)/Chats/\(self.documentID)/profileImageUrl").setValue(profileImageUrl)
-                 }*/
+                if messageBody.contains("Venmo") && messageBodyHasNumbers {
+                    self.groupChatMessagesRef.child(documentID).child("Messages").child("Message,\(commaTimestamp)").setValue([
+                        "messageSender": userFullName,
+                        "messageSenderNickName": self.userNickName ?? self.userFullName,
+                        "messageBody": messageBody,
+                        "timeStamp": commaTimestamp,
+                        "venmoName": self.userVenmoName
+                    ])
+                } else {
+                    self.groupChatMessagesRef.child(documentID).child("Messages").child("Message,\(commaTimestamp)").setValue([
+                        "messageSender": userFullName,
+                        "messageSenderNickName": self.userNickName ?? self.userFullName,
+                        "messageBody": messageBody,
+                        "timeStamp": commaTimestamp,
+                        "likes": "0"
+                    ])
+                }
                 
-                /*db.collection("GroupChatsByUser").document(email).collection("Chats").document(documentID).setData([
-                 "title": groupChatTitle,
-                 "documentID": documentID,
-                 "lastMessage": messageBody,
-                 "timeStamp": timeStamp
-                 ]) { err in
-                 if let err = err {
-                 print("Error writing document: \(err)")
-                 } else {
-                 print("Document successfully written!")
-                 }
-                 }*/
+                for member in groupMembers {
+                    let email = member[1]
+                    let commaEmail = email.replacingOccurrences(of: ".", with: ",")
+                    
+                    self.groupChatByUsersRef.child("\(commaEmail)/Chats/\(documentID)/title").setValue(groupChatTitle)
+                    self.groupChatByUsersRef.child("\(commaEmail)/Chats/\(documentID)/documentID").setValue(documentID)
+                    self.groupChatByUsersRef.child("\(commaEmail)/Chats/\(documentID)/profileImageUrl").setValue(self.groupChatImageUrl)
+                    self.groupChatByUsersRef.child("\(commaEmail)/Chats/\(documentID)/notificationsEnabled").setValue(true)
+                    self.groupChatByUsersRef.child("\(commaEmail)/Chats/\(documentID)/lastMessage").setValue(messageBody)
+                    self.groupChatByUsersRef.child("\(commaEmail)/Chats/\(documentID)/timeStamp").setValue(commaTimestamp)
+                    self.groupChatByUsersRef.child("\(commaEmail)/Chats/\(documentID)/readNotification").setValue(false)
+                }
             }
         }
     }
     
-    
-    /*func loadMessages() {
-     db.collection("GroupChatMessages").document(documentID).collection("Messages").order(by: "timeStamp").addSnapshotListener { querySnapshot, err in
-     if let err = err {
-     print("Error getting documents: \(err)")
-     } else {
-     self.messages = []
-     if querySnapshot!.documents.isEmpty {
-     print ("No GroupChatMessage documents")
-     } else {
-     for document in querySnapshot!.documents {
-     print(document)
-     let messageSender = document.data()["messageSender"] as! String
-     let messageBody = document.data()["messageBody"] as! String
-     let timeStamp =  document.data()["timeStamp"] as? Double ?? 0.0
-     
-     let message = Message(messageSender: messageSender, messageBody: messageBody, timeStamp: timeStamp)
-     self.messages.append(message)
-     DispatchQueue.main.async {
-     self.chatTableView.reloadData()
-     let indexPath = IndexPath(row: self.messages.count - 1, section: 0)
-     self.chatTableView.scrollToRow(at: indexPath, at: .top, animated: false)
-     
-     }
-     }
-     }
-     }
-     }
-     }*/
-    
     func loadMessages() {
-        let MessagesRef = groupChatMessagesRef.child(documentID).child("Messages")
-        
         let userBadgeCountRef = usersRef.child(self.commaEmail).child("badgeCount")
+        
+        let MessagesRef: DatabaseReference
+        
+        if isEventChat {
+            let conversationBadgeCountRef = eventChatsByUserRef.child(self.commaEmail).child("Chats").child(self.documentID).child("badgeCount")
+            
+            conversationBadgeCountRef.observe(DataEventType.value, with: { (snapshot) in
+                self.eventChatsByUserRef.child("\(self.commaEmail)/Chats/\(self.documentID)/readNotification").setValue(true)
+            })
+            
+            MessagesRef = eventChatMessagesRef.child(documentID).child("Messages")
+        } else {
         
         let conversationBadgeCountRef = groupChatByUsersRef.child(self.commaEmail).child("Chats").child(self.documentID).child("badgeCount")
         
         conversationBadgeCountRef.observe(DataEventType.value, with: { (snapshot) in
             self.groupChatByUsersRef.child("\(self.commaEmail)/Chats/\(self.documentID)/readNotification").setValue(true)
         })
+        
+        MessagesRef = groupChatMessagesRef.child(documentID).child("Messages")
+            
+        }
         
         MessagesRef.observe(DataEventType.value, with: { (snapshot) in
             let postDict = snapshot.value as? [String : AnyObject] ?? [:]
@@ -1079,10 +1030,6 @@ class GroupChatViewController: UIViewController, UIImagePickerControllerDelegate
                         }
                         
                         self.chatTableView.reloadData()
-                        DispatchQueue.main.async() {
-                            /*let indexPath = IndexPath(row: self.messages[self.keyArray.last!]!.count - 1, section: self.keyArray.count - 1)
-                             self.chatTableView.scrollToRow(at: indexPath, at: .top, animated: true)*/
-                        }
                     } else if let imageURL = value.object(forKey: "imageURL") as? String {
                         
                         self.totalMessages += 1
@@ -1109,10 +1056,33 @@ class GroupChatViewController: UIViewController, UIImagePickerControllerDelegate
                         }
                         
                         self.chatTableView.reloadData()
-                        DispatchQueue.main.async() {
-                            let indexPath = IndexPath(row: self.messages[self.keyArray.last!]!.count - 1, section: self.keyArray.count - 1)
-                            //self.chatTableView.scrollToRow(at: indexPath, at: .top, animated: true)
+                    } else if let eventTitle = value.object(forKey: "eventTitle") as? String, let eventDescription =  value.object(forKey: "eventDescription") as? String, let eventTimeStamp = value.object(forKey: "eventTimeStamp") as? String {
+                        
+                        self.totalMessages += 1
+                        
+                        let timeStamp = Double(commaTimeStamp.replacingOccurrences(of: ",", with: "."))!
+                        
+                        self.dateFormatter.dateFormat = "MM/dd/yyyy"
+                        let messageDate = self.dateFormatter.string(from: Date(timeIntervalSince1970: timeStamp))
+                        
+                        let event = Event(title: eventTitle, description: eventDescription, timeStamp: eventTimeStamp)
+                        
+                        let message = Message(messageSender: messageSender, messageBody: nil, timeStamp: timeStamp, pushMessageUID: nil, messageSenderNickName: messageSenderNickName, event: event)
+                        
+                        
+                        
+                        if self.messages[messageDate] != nil {
+                            var messageArray = self.messages[messageDate]!
+                            messageArray.append(message)
+                            self.messages.updateValue(messageArray, forKey: messageDate)
+                        } else {
+                            self.messages[messageDate] = [message]
+                            self.keyArray.append(messageDate)
+                            self.keyArray = self.keyArray.sorted(by: { $0 < $1 })
                         }
+                        
+                        self.chatTableView.reloadData()
+                        
                     }
                 }
             }
@@ -1124,68 +1094,89 @@ class GroupChatViewController: UIViewController, UIImagePickerControllerDelegate
             UIApplication.shared.applicationIconBadgeNumber = postInt!
         })
         
-        let pushMessagesRef = groupChatMessagesRef.child(documentID).child("pushMessages")
-        
-        let commaEmail = self.user!.email!.replacingOccurrences(of: ".", with: ",")
-        
-        self.groupChatByUsersRef.child(commaEmail).child("Chats").child(self.documentID).child("unreadPushMessages").observeSingleEvent(of: DataEventType.value) { snapshot in
-            self.unreadPushMessages = snapshot.value as? [String] ?? []
+        if isEventChat {
+            let pushMessagesRef = eventChatMessagesRef.child(documentID).child("pushMessages")
             
-            pushMessagesRef.observeSingleEvent(of: DataEventType.value) { (snapshot) in
-                let postDict = snapshot.value as? [String : AnyObject] ?? [:]
-                self.pushMessages = []
-                var count = 0
-                for (key,value) in postDict {
-                    if self.unreadPushMessages.contains(key) {
-                        count += 1
-                        if let messageSender = value.object(forKey: "messageSender")! as? String, let messageBody = value.object(forKey: "messageBody") as? String, let commaTimeStamp = value.object(forKey: "timeStamp") as? String {
-                            let timeStamp = Double(commaTimeStamp.replacingOccurrences(of: ",", with: "."))!
-                            let message = Message(messageSender: messageSender, messageBody: messageBody, timeStamp: timeStamp, pushMessageUID: key)
-                            self.pushMessages.append(message)
-                            DispatchQueue.main.async {
-                                self.pushMessagesTableView.reloadData()
-                                /*let indexPath = IndexPath(row: self.pushMessages.count - 1, section: 0)
-                                 self.pushMessagesTableView.scrollToRow(at: indexPath, at: .top, animated: false)*/
+            let commaEmail = self.user!.email!.replacingOccurrences(of: ".", with: ",")
+            
+            self.eventChatMessagesRef.child(commaEmail).child("Chats").child(self.documentID).child("unreadPushMessages").observeSingleEvent(of: DataEventType.value) { snapshot in
+                self.unreadPushMessages = snapshot.value as? [String] ?? []
+                
+                pushMessagesRef.observeSingleEvent(of: DataEventType.value) { (snapshot) in
+                    let postDict = snapshot.value as? [String : AnyObject] ?? [:]
+                    self.pushMessages = []
+                    var count = 0
+                    for (key,value) in postDict {
+                        if self.unreadPushMessages.contains(key) {
+                            count += 1
+                            if let messageSender = value.object(forKey: "messageSender")! as? String, let messageBody = value.object(forKey: "messageBody") as? String, let commaTimeStamp = value.object(forKey: "timeStamp") as? String {
+                                let timeStamp = Double(commaTimeStamp.replacingOccurrences(of: ",", with: "."))!
+                                let message = Message(messageSender: messageSender, messageBody: messageBody, timeStamp: timeStamp, pushMessageUID: key)
+                                self.pushMessages.append(message)
+                                DispatchQueue.main.async {
+                                    self.pushMessagesTableView.reloadData()
+                                    /*let indexPath = IndexPath(row: self.pushMessages.count - 1, section: 0)
+                                     self.pushMessagesTableView.scrollToRow(at: indexPath, at: .top, animated: false)*/
+                                }
+                                
                             }
-                            
                         }
+                    }
+                    
+                    if count == 0 {
+                        self.pushMessagesTableView.backgroundColor = .clear
+                    } else {
+                        self.pushMessagesTableView.backgroundColor = .red
+                    }
+                }
+                DispatchQueue.main.async {
+                    self.setUpPushMessagesTable()
+                    self.pushMessagesTableView.reloadData()
+                }
+            }
+        } else {
+            let pushMessagesRef = groupChatMessagesRef.child(documentID).child("pushMessages")
+            
+            let commaEmail = self.user!.email!.replacingOccurrences(of: ".", with: ",")
+            
+            self.groupChatByUsersRef.child(commaEmail).child("Chats").child(self.documentID).child("unreadPushMessages").observeSingleEvent(of: DataEventType.value) { snapshot in
+                self.unreadPushMessages = snapshot.value as? [String] ?? []
+                
+                pushMessagesRef.observeSingleEvent(of: DataEventType.value) { (snapshot) in
+                    let postDict = snapshot.value as? [String : AnyObject] ?? [:]
+                    self.pushMessages = []
+                    var count = 0
+                    for (key,value) in postDict {
+                        if self.unreadPushMessages.contains(key) {
+                            count += 1
+                            if let messageSender = value.object(forKey: "messageSender")! as? String, let messageBody = value.object(forKey: "messageBody") as? String, let commaTimeStamp = value.object(forKey: "timeStamp") as? String {
+                                let timeStamp = Double(commaTimeStamp.replacingOccurrences(of: ",", with: "."))!
+                                let message = Message(messageSender: messageSender, messageBody: messageBody, timeStamp: timeStamp, pushMessageUID: key)
+                                self.pushMessages.append(message)
+                                DispatchQueue.main.async {
+                                    self.pushMessagesTableView.reloadData()
+                                    /*let indexPath = IndexPath(row: self.pushMessages.count - 1, section: 0)
+                                     self.pushMessagesTableView.scrollToRow(at: indexPath, at: .top, animated: false)*/
+                                }
+                                
+                            }
+                        }
+                    }
+                    
+                    if count == 0 {
+                        self.pushMessagesTableView.backgroundColor = .clear
+                    } else {
+                        self.pushMessagesTableView.backgroundColor = .red
                     }
                 }
                 
-                if count == 0 {
-                    self.pushMessagesTableView.backgroundColor = .clear
-                } else {
-                    self.pushMessagesTableView.backgroundColor = .red
+                DispatchQueue.main.async {
+                    self.setUpPushMessagesTable()
+                    self.pushMessagesTableView.reloadData()
                 }
-            }
-            
-            DispatchQueue.main.async {
-                self.setUpPushMessagesTable()
-                self.pushMessagesTableView.reloadData()
-                /*if self.pushMessages.count >= 1 {
-                 let indexPath = IndexPath(row: self.pushMessages.count - 1, section: 0)
-                 self.pushMessagesTableView.scrollToRow(at: indexPath, at: .top, animated: false)
-                 }*/
             }
         }
     }
-    
-    /*func cacheImage(imageURL: String, completion: () -> ()) {
-     Amplify.Storage.downloadData(key: imageURL) { result in
-     switch result {
-     case .success(let data):
-     print("Success downloading image XYZ", data)
-     if let image = UIImage(data: data) {
-     DispatchQueue.main.async {
-     let NSImageUrl = imageURL as NSString
-     self.imageCache.setObject(image, forKey: NSImageUrl)
-     }
-     }
-     case .failure(let error):
-     print("failure downloading image", error)
-     }
-     }
-     }*/
     
     override func viewDidDisappear(_ animated: Bool) {
         NotificationCenter.default.post(name: NSNotification.Name(rawValue: "enableSwipe"), object: nil)
@@ -1209,7 +1200,13 @@ class GroupChatViewController: UIViewController, UIImagePickerControllerDelegate
             
             let commaEmail = user.email!.replacingOccurrences(of: ".", with: ",")
             
-            let conversationBadgeCountRef = groupChatByUsersRef.child(commaEmail).child("Chats").child(documentID).child("badgeCount")
+            let conversationBadgeCountRef: DatabaseReference
+            
+            if isEventChat {
+                conversationBadgeCountRef = eventChatsByUserRef.child(commaEmail).child("Chats").child(documentID).child("badgeCount")
+            } else {
+            conversationBadgeCountRef = groupChatByUsersRef.child(commaEmail).child("Chats").child(documentID).child("badgeCount")
+            }
             
             conversationBadgeCountRef.removeAllObservers()
             
@@ -1217,12 +1214,6 @@ class GroupChatViewController: UIViewController, UIImagePickerControllerDelegate
         }
     }
 }
-
-
-
-
-
-
 
 extension GroupChatViewController: UITableViewDataSource, UITableViewDelegate {
     
@@ -1286,8 +1277,6 @@ extension GroupChatViewController: UITableViewDataSource, UITableViewDelegate {
                 if message2.imageURL != "" {
                     let imageURL = message2.imageURL!
                     let NSImageURL = message2.imageURL! as NSString
-                    //if let _ = self.imageCache.object(forKey: imageURL) {
-                    //} else {
                     if let _ = self.imageCache.object(forKey: NSImageURL) {
                         print("already contained")
                     } else {
@@ -1308,33 +1297,30 @@ extension GroupChatViewController: UITableViewDataSource, UITableViewDelegate {
                 }
                 
                 /*let message3 = sortedMessages[indexPath.row + 1]
-                if message3.imageURL != "" {
-                    let imageURL = message3.imageURL!
-                    let NSImageURL = message3.imageURL! as NSString
-                    //if let _ = self.imageCache.object(forKey: imageURL) {
-                    //} else {
-                    if let _ = self.imageCache.object(forKey: NSImageURL) {
-                        print("already contained")
-                    } else {
-                        Amplify.Storage.downloadData(key: message3.imageURL!) { result in
-                            switch result {
-                            case .success(let data):
-                                print("Success downloading image", data)
-                                if let image = UIImage(data: data) {
-                                    DispatchQueue.main.async {
-                                        self.imageCache.setObject(image, forKey: NSImageURL)
-                                    }
-                                }
-                            case .failure(let error):
-                                print("failure downloading image", error)
-                            }
-                        }
-                    }
-                }*/
+                 if message3.imageURL != "" {
+                 let imageURL = message3.imageURL!
+                 let NSImageURL = message3.imageURL! as NSString
+                 //if let _ = self.imageCache.object(forKey: imageURL) {
+                 //} else {
+                 if let _ = self.imageCache.object(forKey: NSImageURL) {
+                 print("already contained")
+                 } else {
+                 Amplify.Storage.downloadData(key: message3.imageURL!) { result in
+                 switch result {
+                 case .success(let data):
+                 print("Success downloading image", data)
+                 if let image = UIImage(data: data) {
+                 DispatchQueue.main.async {
+                 self.imageCache.setObject(image, forKey: NSImageURL)
+                 }
+                 }
+                 case .failure(let error):
+                 print("failure downloading image", error)
+                 }
+                 }
+                 }
+                 }*/
             }
-            
-            
-            
             
             if message.imageURL != "" {
                 let cell = chatTableView.dequeueReusableCell(withIdentifier: "pictureMessageCell", for: indexPath) as! PictureMessageTableViewCell
@@ -1355,9 +1341,9 @@ extension GroupChatViewController: UITableViewDataSource, UITableViewDelegate {
                 
                 if let cachedImage = self.imageCache.object(forKey: NSImageURL as NSString) {
                     cell.messageImageView.image = cachedImage as? UIImage
-                /*} else if let storedImage = self.photoDictionary[imageURL] {
-                    cell.messageImageView.image = storedImage
-                    self.imageCache.setObject(storedImage, forKey: NSImageURL)*/
+                    /*} else if let storedImage = self.photoDictionary[imageURL] {
+                     cell.messageImageView.image = storedImage
+                     self.imageCache.setObject(storedImage, forKey: NSImageURL)*/
                 } else {
                     Amplify.Storage.downloadData(key: imageURL) { result in
                         switch result {
@@ -1377,42 +1363,6 @@ extension GroupChatViewController: UITableViewDataSource, UITableViewDelegate {
                     }
                 }
                 
-                /*if let cachedImage = self.imageCache.object(forKey: imageURL) {
-                 cell.messageImageView.image = cachedImage as? UIImage
-                 } else {
-                 Amplify.Storage.downloadData(key: message.imageURL!) { result in
-                 switch result {
-                 case .success(let data):
-                 print("Success downloading image", data)
-                 if let image = UIImage(data: data) {
-                 let imageHeight = CGFloat(image.size.height/image.size.width * 300)
-                 DispatchQueue.main.async {
-                 self.imageCache.setObject(image, forKey: imageURL)
-                 cell.imageHeight = imageHeight
-                 cell.imageWidth = 300
-                 cell.messageImageView.image = image
-                 }
-                 }
-                 case .failure(let error):
-                 print("failure downloading image", error)
-                 }
-                 }
-                 /*DispatchQueue.global().async { [weak self] in
-                 let URL = URL(string: message.imageURL!)
-                 if let data = try? Data(contentsOf: URL!) {
-                 if let image = UIImage(data: data) {
-                 let imageHeight = CGFloat(image.size.height/image.size.width * 300)
-                 DispatchQueue.main.async {
-                 self!.imageCache.setObject(image, forKey: imageURL)
-                 cell.imageHeight = imageHeight
-                 cell.imageWidth = 300
-                 cell.messageImageView.image = image
-                 }
-                 }
-                 }
-                 }*/
-                 }*/
-                
                 cell.emailLabel.text = message.messageSenderNickName
                 
                 cell.isGroupMessage = true
@@ -1421,6 +1371,16 @@ extension GroupChatViewController: UITableViewDataSource, UITableViewDelegate {
                 return cell
                 
                 
+            } else if let event = message.event {
+                let cell = chatTableView.dequeueReusableCell(withIdentifier: "eventMessageCell", for: indexPath) as! EventTableViewCell
+                
+                cell.titleTextField.text = event.title
+                cell.timeTextField.text = event.timeStamp
+                cell.bodyTextField.text = event.description
+                
+                cell.transform = CGAffineTransform(scaleX: 1, y: -1)
+                
+                return cell
             } else {
                 let cell = chatTableView.dequeueReusableCell(withIdentifier: "regularMessageCell", for: indexPath) as! BubbleMessageBodyCell
                 
@@ -1538,39 +1498,8 @@ extension GroupChatViewController: UITableViewDataSource, UITableViewDelegate {
                 return "notOfGroup"
             }
         }
-        
         return "notOfGroup"
     }
-    
-    /*func ImageCell(cell: BubbleMessageBodyCell, message: Message) {
-     cell.imageURL = message.imageURL!
-     cell.isOfImage = true
-     
-     let imageURL = message.imageURL! as NSString
-     
-     if let cachedImage =
-     self.imageCache.object(forKey: imageURL) {
-     cell.messageImageView.image = cachedImage as? UIImage
-     } else {
-     let URL = URL(string: message.imageURL!)
-     
-     URLSession.shared.dataTask(with: URL!) { (data, response, error) in
-     
-     if error != nil {
-     print("ERROR")
-     print(error!)
-     return
-     }
-     
-     DispatchQueue.main.async {
-     if let downloadedImage = UIImage(data: data!) {
-     self.imageCache.setObject(downloadedImage, forKey: imageURL)
-     }
-     }
-     
-     }
-     }
-     }*/
     
     func numberOfSections(in tableView: UITableView) -> Int {
         if tableView == self.pushMessagesTableView {
@@ -1579,14 +1508,6 @@ extension GroupChatViewController: UITableViewDataSource, UITableViewDelegate {
             return keyArray.count
         }
     }
-    
-    /*func tableView(_ tableView: UITableView, heightForHeaderInSection section: Int) -> CGFloat {
-     if tableView == pushMessagesTableView {
-     return CGFloat(0)
-     } else {
-     return 20
-     }
-     }*/
     
     func tableView(_ tableView: UITableView, heightForFooterInSection section: Int) -> CGFloat {
         if tableView == pushMessagesTableView {
@@ -1643,65 +1564,6 @@ extension GroupChatViewController: UITableViewDataSource, UITableViewDelegate {
         }
         return nil
     }
-    
-    /*func tableView(_ tableView: UITableView, viewForHeaderInSection section: Int) -> UIView? {
-     if tableView == chatTableView {
-     let specificSection = self.keyArray[section]
-     
-     if let firstMessageInSection = self.messages[specificSection]?.first {
-     dateFormatter.dateFormat = "MM/dd/yyyy"
-     let date = Date(timeIntervalSince1970: firstMessageInSection.timeStamp)
-     let dateString = dateFormatter.string(from: date)
-     
-     let headerLabel = UILabel()
-     headerLabel.backgroundColor = .clear
-     headerLabel.text = dateString
-     headerLabel.textColor = .white
-     headerLabel.textAlignment = .center
-     headerLabel.translatesAutoresizingMaskIntoConstraints = false
-     headerLabel.font = UIFont.boldSystemFont(ofSize: 12)
-     
-     let containerView = UIView()
-     containerView.addSubview(headerLabel)
-     containerView.backgroundColor = .black
-     
-     let headerViewConstraints = [
-     //headerLabel.topAnchor.constraint(equalTo: containerView.topAnchor, constant: 10),
-     //headerLabel.bottomAnchor.constraint(equalTo: containerView.topAnchor),
-     headerLabel.centerXAnchor.constraint(equalTo: containerView.centerXAnchor),
-     headerLabel.centerYAnchor.constraint(equalTo: containerView.centerYAnchor)
-     ]
-     
-     NSLayoutConstraint.activate(headerViewConstraints)
-     
-     /*let containerViewConstraints = [
-     containerView.topAnchor.constraint(equalTo: headerLabel.topAnchor, constant: -10)
-     ]*/
-     
-     containerView.transform = CGAffineTransform(scaleX: 1, y: -1)
-     return containerView
-     }
-     return nil
-     }
-     return nil
-     }*/
-    
-    /*func tableView(_ tableView: UITableView, willDisplay cell: UITableViewCell, forRowAt indexPath: IndexPath) {
-     if tableView == self.pushMessagesTableView {
-     if let lastVisibleIndexPath = tableView.indexPathsForVisibleRows?.last {
-     if indexPath == lastVisibleIndexPath {
-     let height = self.pushMessagesTableView.contentSize.height
-     NSLayoutConstraint.deactivate(pushMessagesContainerViewConstraintsFitted)
-     self.pushMessagesContainerViewConstraintsFitted = [
-     pushMessagesContainerView.topAnchor.constraint(equalTo: self.view.safeAreaLayoutGuide.topAnchor, constant: 0),
-     pushMessagesContainerView.heightAnchor.constraint(equalToConstant: height + CGFloat(12.3333)),
-     pushMessagesContainerView.leadingAnchor.constraint(equalTo: self.view.leadingAnchor, constant: 5),
-     pushMessagesContainerView.trailingAnchor.constraint(equalTo: self.view.trailingAnchor, constant: -5)
-     ]
-     }
-     }
-     }
-     }*/
 }
 
 extension String {

@@ -876,67 +876,8 @@
                     <view key="view" contentMode="scaleToFill" id="elV-So-Zj7">
                         <rect key="frame" x="0.0" y="0.0" width="414" height="896"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
-                        <subviews>
-                            <collectionView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" dataMode="prototypes" translatesAutoresizingMaskIntoConstraints="NO" id="bul-Tg-tiz">
-                                <rect key="frame" x="0.0" y="88" width="414" height="813"/>
-                                <color key="backgroundColor" white="0.0" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
-                                <collectionViewFlowLayout key="collectionViewLayout" minimumLineSpacing="10" minimumInteritemSpacing="10" id="Ma1-fS-yXB">
-                                    <size key="itemSize" width="191" height="219"/>
-                                    <size key="headerReferenceSize" width="0.0" height="0.0"/>
-                                    <size key="footerReferenceSize" width="0.0" height="0.0"/>
-                                    <inset key="sectionInset" minX="0.0" minY="0.0" maxX="0.0" maxY="0.0"/>
-                                </collectionViewFlowLayout>
-                                <cells>
-                                    <collectionViewCell opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" reuseIdentifier="contactCollectionViewCell" id="bSZ-fa-y3r" customClass="ContactCollectionViewCell" customModule="Manor" customModuleProvider="target">
-                                        <rect key="frame" x="0.0" y="0.0" width="191" height="224"/>
-                                        <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
-                                        <collectionViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" insetsLayoutMarginsFromSafeArea="NO" id="gfJ-CT-bxy">
-                                            <rect key="frame" x="0.0" y="0.0" width="191" height="224"/>
-                                            <autoresizingMask key="autoresizingMask"/>
-                                            <subviews>
-                                                <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" spacing="5" translatesAutoresizingMaskIntoConstraints="NO" id="L0T-ju-Z5O">
-                                                    <rect key="frame" x="5" y="5" width="181" height="214"/>
-                                                    <subviews>
-                                                        <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="DefaultContactIcon" translatesAutoresizingMaskIntoConstraints="NO" id="ZV4-oP-jSO">
-                                                            <rect key="frame" x="0.0" y="0.0" width="181" height="179"/>
-                                                        </imageView>
-                                                        <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="George Lawrence" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" minimumFontSize="12" adjustsLetterSpacingToFitWidth="YES" adjustsFontForContentSizeCategory="YES" translatesAutoresizingMaskIntoConstraints="NO" id="i7C-5t-5hu">
-                                                            <rect key="frame" x="0.0" y="184" width="181" height="30"/>
-                                                            <constraints>
-                                                                <constraint firstAttribute="height" constant="30" id="F2q-UI-eT6"/>
-                                                            </constraints>
-                                                            <fontDescription key="fontDescription" type="boldSystem" pointSize="21"/>
-                                                            <color key="textColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
-                                                            <nil key="highlightedColor"/>
-                                                        </label>
-                                                    </subviews>
-                                                </stackView>
-                                            </subviews>
-                                            <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
-                                            <constraints>
-                                                <constraint firstItem="L0T-ju-Z5O" firstAttribute="leading" secondItem="gfJ-CT-bxy" secondAttribute="leading" constant="5" id="BEL-8P-qfu"/>
-                                                <constraint firstAttribute="bottom" secondItem="L0T-ju-Z5O" secondAttribute="bottom" constant="5" id="QCR-08-QT3"/>
-                                                <constraint firstAttribute="trailing" secondItem="L0T-ju-Z5O" secondAttribute="trailing" constant="5" id="bCU-bd-wcU"/>
-                                                <constraint firstItem="L0T-ju-Z5O" firstAttribute="top" secondItem="gfJ-CT-bxy" secondAttribute="top" constant="5" id="l4b-da-5BM"/>
-                                            </constraints>
-                                        </collectionViewCellContentView>
-                                        <size key="customSize" width="191" height="224"/>
-                                        <connections>
-                                            <outlet property="defaultContactIcon" destination="ZV4-oP-jSO" id="6du-Wn-aMT"/>
-                                            <outlet property="nameLabel" destination="i7C-5t-5hu" id="CYm-aA-RxG"/>
-                                        </connections>
-                                    </collectionViewCell>
-                                </cells>
-                            </collectionView>
-                        </subviews>
                         <viewLayoutGuide key="safeArea" id="an2-tm-owk"/>
                         <color key="backgroundColor" white="0.0" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
-                        <constraints>
-                            <constraint firstAttribute="bottom" secondItem="bul-Tg-tiz" secondAttribute="bottom" constant="-5" id="93d-oP-Wag"/>
-                            <constraint firstItem="bul-Tg-tiz" firstAttribute="top" secondItem="an2-tm-owk" secondAttribute="top" id="OS3-6g-VEC"/>
-                            <constraint firstItem="an2-tm-owk" firstAttribute="trailing" secondItem="bul-Tg-tiz" secondAttribute="trailing" id="isL-yr-bes"/>
-                            <constraint firstItem="bul-Tg-tiz" firstAttribute="leading" secondItem="an2-tm-owk" secondAttribute="leading" id="yNg-3o-aae"/>
-                        </constraints>
                     </view>
                     <navigationItem key="navigationItem" id="WOL-54-dvT">
                         <barButtonItem key="leftBarButtonItem" image="person.circle" catalog="system" id="Yes-U5-OIc">
@@ -951,7 +892,6 @@
                         </barButtonItem>
                     </navigationItem>
                     <connections>
-                        <outlet property="contactCollectionView" destination="bul-Tg-tiz" id="N4g-Tx-5aO"/>
                         <outlet property="createConversationButton" destination="UqF-cd-Ccg" id="H6K-xL-0n8"/>
                         <outlet property="profileBarButton" destination="Yes-U5-OIc" id="euQ-K7-hNr"/>
                         <segue destination="Ir0-ic-lsG" kind="show" identifier="toGroupChatView" id="iwR-df-2n9"/>
@@ -2035,10 +1975,10 @@
                         <rect key="frame" x="0.0" y="0.0" width="414" height="896"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
-                            <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="6sY-fW-L44">
+                            <view contentMode="scaleToFill" ambiguous="YES" translatesAutoresizingMaskIntoConstraints="NO" id="6sY-fW-L44">
                                 <rect key="frame" x="0.0" y="794" width="414" height="60"/>
                                 <subviews>
-                                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="MbB-UA-9nw">
+                                    <button opaque="NO" contentMode="scaleToFill" ambiguous="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="MbB-UA-9nw">
                                         <rect key="frame" x="349" y="7" width="45" height="44.5"/>
                                         <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                         <constraints>
@@ -2056,10 +1996,10 @@
                                             <action selector="sendButtonPressed:" destination="NfL-SG-GTD" eventType="touchUpInside" id="Pbd-va-NoJ"/>
                                         </connections>
                                     </button>
-                                    <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="mGy-G8-9Hd">
+                                    <view contentMode="scaleToFill" ambiguous="YES" translatesAutoresizingMaskIntoConstraints="NO" id="mGy-G8-9Hd">
                                         <rect key="frame" x="14" y="8" width="315" height="45"/>
                                         <subviews>
-                                            <textView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" textAlignment="natural" translatesAutoresizingMaskIntoConstraints="NO" id="coq-x1-AFg" customClass="GrowingTextView" customModule="GrowingTextView">
+                                            <textView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" ambiguous="YES" textAlignment="natural" translatesAutoresizingMaskIntoConstraints="NO" id="coq-x1-AFg" customClass="GrowingTextView" customModule="GrowingTextView">
                                                 <rect key="frame" x="15" y="2" width="285" height="43"/>
                                                 <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                                 <color key="textColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
@@ -2093,7 +2033,7 @@
                                     <constraint firstAttribute="bottom" secondItem="MbB-UA-9nw" secondAttribute="bottom" constant="8" id="gV8-20-dn7"/>
                                 </constraints>
                             </view>
-                            <tableView clipsSubviews="YES" contentMode="scaleToFill" alwaysBounceVertical="YES" dataMode="prototypes" style="plain" separatorStyle="none" rowHeight="-1" estimatedRowHeight="-1" sectionHeaderHeight="28" sectionFooterHeight="28" translatesAutoresizingMaskIntoConstraints="NO" id="S6T-wG-H9M">
+                            <tableView clipsSubviews="YES" contentMode="scaleToFill" ambiguous="YES" alwaysBounceVertical="YES" dataMode="prototypes" style="plain" separatorStyle="none" rowHeight="-1" estimatedRowHeight="-1" sectionHeaderHeight="28" sectionFooterHeight="28" translatesAutoresizingMaskIntoConstraints="NO" id="S6T-wG-H9M">
                                 <rect key="frame" x="0.0" y="24" width="414" height="770"/>
                                 <color key="backgroundColor" white="0.0" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                             </tableView>
@@ -2131,7 +2071,7 @@
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="YyD-RP-Ia5" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="11867" y="1092"/>
+            <point key="canvasLocation" x="12126" y="1329"/>
         </scene>
         <!--Navigation Controller-->
         <scene sceneID="Uhb-74-lZO">
@@ -2175,11 +2115,11 @@
             <objects>
                 <viewController id="zsh-ZK-apK" customClass="ChatViewController" customModule="Manor" customModuleProvider="target" sceneMemberID="viewController">
                     <view key="view" contentMode="scaleToFill" id="sT8-MS-7Dn">
-                        <rect key="frame" x="0.0" y="0.0" width="414" height="842"/>
+                        <rect key="frame" x="0.0" y="0.0" width="414" height="896"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
                             <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="aqA-nP-rlN">
-                                <rect key="frame" x="5" y="747" width="404" height="37.5"/>
+                                <rect key="frame" x="5" y="801" width="404" height="37.5"/>
                                 <subviews>
                                     <textView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" textAlignment="natural" translatesAutoresizingMaskIntoConstraints="NO" id="lth-dx-rR5" customClass="GrowingTextView" customModule="GrowingTextView">
                                         <rect key="frame" x="15" y="0.0" width="374" height="37.5"/>
@@ -2207,7 +2147,7 @@
                                 </constraints>
                             </view>
                             <tableView clipsSubviews="YES" contentMode="scaleToFill" alwaysBounceVertical="YES" dataMode="prototypes" style="plain" separatorStyle="none" rowHeight="-1" estimatedRowHeight="-1" sectionHeaderHeight="28" sectionFooterHeight="28" translatesAutoresizingMaskIntoConstraints="NO" id="zib-KN-9qB">
-                                <rect key="frame" x="0.0" y="-20" width="414" height="767"/>
+                                <rect key="frame" x="0.0" y="68" width="414" height="733"/>
                                 <color key="backgroundColor" white="0.0" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                             </tableView>
                         </subviews>
@@ -2249,20 +2189,11 @@
     </scenes>
     <designables>
         <designable name="NaG-pu-Rij">
-            <size key="intrinsicContentSize" width="-1" height="30"/>
-        </designable>
-        <designable name="Sgf-h4-B8e">
-            <size key="intrinsicContentSize" width="-1" height="30"/>
-        </designable>
-        <designable name="coq-x1-AFg">
-            <size key="intrinsicContentSize" width="-1" height="30"/>
-        </designable>
-        <designable name="lth-dx-rR5">
-            <size key="intrinsicContentSize" width="-1" height="30"/>
+            <size key="intrinsicContentSize" width="10" height="37.5"/>
         </designable>
     </designables>
     <inferredMetricsTieBreakers>
-        <segue reference="I3a-0y-BNf"/>
+        <segue reference="qAs-88-ClA"/>
         <segue reference="sK6-Wz-DpL"/>
         <segue reference="iwR-df-2n9"/>
     </inferredMetricsTieBreakers>
