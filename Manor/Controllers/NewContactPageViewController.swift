@@ -10,6 +10,7 @@ import Firebase
 import DropDown
 import Amplify
 import AmplifyPlugins
+import SwiftKeychainWrapper
 
 class NewContactPageViewController: UIViewController, UIScrollViewDelegate {
     
@@ -58,15 +59,41 @@ class NewContactPageViewController: UIViewController, UIScrollViewDelegate {
     let littleGroupChatCollectionView = UICollectionView(frame: CGRect.zero, collectionViewLayout: UICollectionViewFlowLayout.init())
     let EventChatCollectionView = UICollectionView(frame: CGRect.zero, collectionViewLayout: UICollectionViewFlowLayout.init())
     var littleCollectionViewHeightConstraint = NSLayoutConstraint()
+    var bigCollectionViewHeightConstraint = NSLayoutConstraint()
+    var eventChatCollectionViewHeightConstraint = NSLayoutConstraint()
     var contentViewHeightConstraints = NSLayoutConstraint()
     
     var isEventChat: Bool?
     
+    var eventLabel: UILabel = {
+        let eventLabel = UILabel()
+        eventLabel.translatesAutoresizingMaskIntoConstraints = false
+        eventLabel.font = UIFont.systemFont(ofSize: 18, weight: .bold)
+        eventLabel.textColor = .white
+        eventLabel.text = "My Events:"
+        return eventLabel
+    }()
+    
+    var separatorLine: UIView = {
+        let separatorLine = UIView()
+        separatorLine.translatesAutoresizingMaskIntoConstraints = false
+        separatorLine.backgroundColor = UIColor(named: K.BrandColors.purple)
+        return separatorLine
+    }()
+    
+    var eventDescription: String = ""
+    var eventDate: String = ""
+    var eventTime: String = ""
     
     //--//
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
+        
+        if let email = defaults.string(forKey: "savedEmail"), let password =
+            KeychainWrapper.standard.string(forKey: "savedPassword") {
+            self.checkSignInStatus(email: email, password: password)
+        }
         
         NotificationCenter.default.post(name: NSNotification.Name(rawValue: "makeGroupChatTitleBold"), object: nil)
         self.navigationController?.setNavigationBarHidden(true, animated: false)
@@ -75,18 +102,96 @@ class NewContactPageViewController: UIViewController, UIScrollViewDelegate {
     override func viewDidLayoutSubviews() {
         super.viewDidLayoutSubviews()
         
-        let height = littleGroupChatCollectionView.collectionViewLayout.collectionViewContentSize.height + 5
+        let littleHeight = littleGroupChatCollectionView.collectionViewLayout.collectionViewContentSize.height + 5
+        littleCollectionViewHeightConstraint.constant = littleHeight
         
-        littleCollectionViewHeightConstraint.constant = height
+        let bigHeight = bigGroupChatCollectionView.collectionViewLayout.collectionViewContentSize.height + 5
+        bigCollectionViewHeightConstraint.constant = bigHeight
+        
+        //var eventHeight = EventChatCollectionView.collectionViewLayout.collectionViewContentSize.height + 5
+        //eventChatCollectionViewHeightConstraint.constant = eventHeight
+        
+        
+        let eventCellWidth = UIScreen.main.bounds.width/3 - 10
+        let eventCellHeight = eventCellWidth/0.875 + 5
+        
+        if self.eventContacts.count == 0  {
+            eventChatCollectionViewHeightConstraint.constant = 10
+            self.EventChatCollectionView.isHidden = true
+            self.eventLabel.isHidden = true
+            if self.contacts.count != 0 {
+                self.separatorLine.isHidden = false
+            } else {
+                self.separatorLine.isHidden = true
+            }
+        } else {
+            eventChatCollectionViewHeightConstraint.constant = eventCellHeight + 20
+            self.EventChatCollectionView.isHidden = false
+            self.eventLabel.isHidden = false
+            self.separatorLine.isHidden = true
+        }
+        
+        /*if eventHeight == 10 || eventHeight == 15 {
+         eventHeight = 10
+         self.EventChatCollectionView.isHidden = true
+         self.eventLabel.isHidden = true
+         } else {
+         self.EventChatCollectionView.isHidden = false
+         self.eventLabel.isHidden = false
+         }
+         eventChatCollectionViewHeightConstraint.constant = eventHeight*/
         
         contentViewHeightConstraints.constant = littleGroupChatCollectionView.collectionViewLayout.collectionViewContentSize.height + bigGroupChatCollectionView.collectionViewLayout.collectionViewContentSize.height + EventChatCollectionView.collectionViewLayout.collectionViewContentSize.height + 15
         
         
     }
     
+    func updateLayout() {
+        let littleHeight = littleGroupChatCollectionView.collectionViewLayout.collectionViewContentSize.height + 5
+        littleCollectionViewHeightConstraint.constant = littleHeight
+        
+        let bigHeight = bigGroupChatCollectionView.collectionViewLayout.collectionViewContentSize.height + 5
+        bigCollectionViewHeightConstraint.constant = bigHeight
+        
+        //var eventHeight = EventChatCollectionView.collectionViewLayout.collectionViewContentSize.height + 5
+        //eventChatCollectionViewHeightConstraint.constant = eventHeight
+        
+        
+        let eventCellWidth = UIScreen.main.bounds.width/3 - 10
+        let eventCellHeight = eventCellWidth/0.875 + 5
+        
+        if self.eventContacts.count == 0  {
+            eventChatCollectionViewHeightConstraint.constant = 10
+            self.EventChatCollectionView.isHidden = true
+            self.eventLabel.isHidden = true
+            if self.contacts.count != 0 {
+                self.separatorLine.isHidden = false
+            } else {
+                self.separatorLine.isHidden = true
+            }
+            
+        } else {
+            eventChatCollectionViewHeightConstraint.constant = eventCellHeight + 20
+            self.EventChatCollectionView.isHidden = false
+            self.eventLabel.isHidden = false
+            self.separatorLine.isHidden = true
+        }
+        
+        /*if eventHeight == 10 || eventHeight == 15 {
+         eventHeight = 10
+         self.EventChatCollectionView.isHidden = true
+         self.eventLabel.isHidden = true
+         } else {
+         self.EventChatCollectionView.isHidden = false
+         self.eventLabel.isHidden = false
+         }
+         eventChatCollectionViewHeightConstraint.constant = eventHeight*/
+        
+        contentViewHeightConstraints.constant = littleGroupChatCollectionView.collectionViewLayout.collectionViewContentSize.height + bigGroupChatCollectionView.collectionViewLayout.collectionViewContentSize.height + EventChatCollectionView.collectionViewLayout.collectionViewContentSize.height + 15
+    }
+    
     override func viewDidLoad() {
         super.viewDidLoad()
-        
         
         self.view.addSubview(groupChatScrollView)
         groupChatScrollView.translatesAutoresizingMaskIntoConstraints = false
@@ -121,9 +226,6 @@ class NewContactPageViewController: UIViewController, UIScrollViewDelegate {
         
         NSLayoutConstraint.activate(contentViewConstraints)
         
-        let cellWidth = UIScreen.main.bounds.width/2 - 10
-        let cellHeight = (cellWidth/0.8244) + 5
-        
         self.contentView.addSubview(bigGroupChatCollectionView)
         bigGroupChatCollectionView.translatesAutoresizingMaskIntoConstraints = false
         bigGroupChatCollectionView.backgroundColor = .clear
@@ -133,10 +235,24 @@ class NewContactPageViewController: UIViewController, UIScrollViewDelegate {
             bigGroupChatCollectionView.topAnchor.constraint(equalTo: contentView.topAnchor, constant: 0),
             bigGroupChatCollectionView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 0),
             bigGroupChatCollectionView.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: 0),
-            bigGroupChatCollectionView.heightAnchor.constraint(equalToConstant: cellHeight * 2)
+            //bigGroupChatCollectionView.heightAnchor.constraint(equalToConstant: cellHeight * 2)
         ]
         
+        bigCollectionViewHeightConstraint = bigGroupChatCollectionView.heightAnchor.constraint(greaterThanOrEqualToConstant: 0)
+        
+        bigCollectionViewHeightConstraint.isActive = true
+        
         NSLayoutConstraint.activate(bigGroupCollectionViewConstraints)
+        
+        self.view.addSubview(separatorLine)
+        
+        let separatorLineConstraints = [
+            separatorLine.topAnchor.constraint(equalTo: bigGroupChatCollectionView.bottomAnchor, constant: 5),
+            separatorLine.widthAnchor.constraint(equalToConstant: UIScreen.main.bounds.width),
+            separatorLine.heightAnchor.constraint(equalToConstant: 2)
+        ]
+        
+        NSLayoutConstraint.activate(separatorLineConstraints)
         
         self.contentView.addSubview(EventChatCollectionView)
         EventChatCollectionView.translatesAutoresizingMaskIntoConstraints = false
@@ -151,10 +267,23 @@ class NewContactPageViewController: UIViewController, UIScrollViewDelegate {
             EventChatCollectionView.topAnchor.constraint(equalTo: self.bigGroupChatCollectionView.bottomAnchor, constant: 0),
             EventChatCollectionView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 5),
             EventChatCollectionView.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -5),
-            EventChatCollectionView.heightAnchor.constraint(equalToConstant: eventCellHeight + 5)
+            //EventChatCollectionView.heightAnchor.constraint(equalToConstant: eventCellHeight + 20)
         ]
         
+        eventChatCollectionViewHeightConstraint = EventChatCollectionView.heightAnchor.constraint(greaterThanOrEqualToConstant: 0)
+        
+        eventChatCollectionViewHeightConstraint.isActive = true
+        
         NSLayoutConstraint.activate(eventChatCollectionViewConstraints)
+        
+        self.contentView.addSubview(eventLabel)
+        
+        let eventLabelConstraints = [
+            eventLabel.topAnchor.constraint(equalTo: EventChatCollectionView.topAnchor, constant: 5),
+            eventLabel.leadingAnchor.constraint(equalTo: EventChatCollectionView.leadingAnchor, constant: 10)
+        ]
+        
+        NSLayoutConstraint.activate(eventLabelConstraints)
         
         self.contentView.addSubview(littleGroupChatCollectionView)
         littleGroupChatCollectionView.translatesAutoresizingMaskIntoConstraints = false
@@ -165,7 +294,7 @@ class NewContactPageViewController: UIViewController, UIScrollViewDelegate {
             littleGroupChatCollectionView.topAnchor.constraint(equalTo: self.EventChatCollectionView.bottomAnchor, constant: 0),
             littleGroupChatCollectionView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 0),
             littleGroupChatCollectionView.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: 0),
-            littleGroupChatCollectionView.heightAnchor.constraint(equalToConstant: 5000)
+            //littleGroupChatCollectionView.heightAnchor.constraint(equalToConstant: 5000)
         ]
         
         littleCollectionViewHeightConstraint = littleGroupChatCollectionView.heightAnchor.constraint(greaterThanOrEqualToConstant: 0)
@@ -232,6 +361,7 @@ class NewContactPageViewController: UIViewController, UIScrollViewDelegate {
         EventChatCollectionView.dataSource = self
         
         //sets size, scroll direction, etc. of contacts in collection view
+        let cellWidth = UIScreen.main.bounds.width/2 - 10
         let bigCellWidth = UIScreen.main.bounds.width/2 - 10
         let bigCellHeight = cellWidth/0.8244
         bigFlowLayout.itemSize = CGSize(width: bigCellWidth, height: bigCellHeight) //235
@@ -250,7 +380,7 @@ class NewContactPageViewController: UIViewController, UIScrollViewDelegate {
         littleGroupChatCollectionView.collectionViewLayout = littleFlowLayout
         
         eventFlowLayout.itemSize = CGSize(width: littleCellWidth, height: littleCellHeight) //235
-        eventFlowLayout.sectionInset = UIEdgeInsets(top: -15, left: 5, bottom: 0, right: 5)
+        eventFlowLayout.sectionInset = UIEdgeInsets(top: 0, left: 5, bottom: -10, right: 5)
         eventFlowLayout.scrollDirection = .horizontal
         eventFlowLayout.minimumInteritemSpacing = 5.0
         EventChatCollectionView.collectionViewLayout = eventFlowLayout
@@ -280,7 +410,92 @@ class NewContactPageViewController: UIViewController, UIScrollViewDelegate {
         }
         
         loadContacts()
+        
     }
+    
+    func checkSignInStatus(email: String, password: String) {
+        let commaUserName = email.replacingOccurrences(of: ".", with: ",")
+        /*Auth.auth().addStateDidChangeListener { (auth, user) in
+         print("complete")
+         print(user)
+         if user == nil {
+         print("no user")
+         } else {
+         print("Firebase User Exists")
+         }
+         }*/
+        
+        Amplify.Auth.fetchAuthSession { result in
+            switch result {
+            case .success(let session):
+                print("Is user signed in - \(session.isSignedIn)")
+                if !session.isSignedIn {
+                    self.signIn(username: commaUserName, password: password, isFirstTry: true)
+                }
+            case .failure(let error):
+                print("Fetch session failed with error \(error)")
+            }
+        }
+    }
+    
+    func signIn(username: String, password: String, isFirstTry: Bool) {
+        Amplify.Auth.signIn(username: username, password: password) { result in
+            switch result {
+            case .success:
+                print("Sign in succeeded")
+                DispatchQueue.main.async {
+                    self.bigGroupChatCollectionView.reloadData()
+                    self.littleGroupChatCollectionView.reloadData()
+                    self.EventChatCollectionView.reloadData()
+                }
+            case .failure(let error):
+                print("Sign in failed \(error)")
+                if isFirstTry {
+                    Amplify.Auth.signOut { result in
+                        switch result {
+                        case .success:
+                            print("success signing out")
+                            DispatchQueue.main.async {
+                                self.signIn(username: username, password: password, isFirstTry: false)
+                            }
+                        case .failure(let error):
+                            print("Sign out failed \(error)")
+                        }
+                    }
+                } else {
+                    print(error)
+                    let email = username.replacingOccurrences(of: ",", with: ".")
+                    self.signUp(username: username, password: password, email: email)
+                    /*DispatchQueue.main.async {
+                     let alert = UIAlertController(title: "Login Failed", message: "\(error)", preferredStyle: .alert)
+                     alert.addAction(UIAlertAction(title: "OK", style: .default, handler: { UIAlertAction in
+                     alert.dismiss(animated: true)
+                     }))
+                     self.present(alert, animated: true)
+                     }*/
+                }
+            }
+        }
+    }
+    
+    func signUp(username: String, password: String, email: String) {
+        let userAttributes = [AuthUserAttribute(.email, value: email)]
+        let options = AuthSignUpRequest.Options(userAttributes: userAttributes)
+        Amplify.Auth.signUp(username: username, password: password, options: options) { result in
+            switch result {
+            case .success(let key):
+                print("Success!", key)
+                self.signIn(username: username, password: password, isFirstTry: true)
+            case .failure(let error):
+                print("Sign up failed", error)
+            /*let alert = UIAlertController(title: "Error", message: "\(error)", preferredStyle: .alert)
+             alert.addAction(UIAlertAction(title: "ok", style: .default, handler: { UIAlertAction in
+             alert.dismiss(animated: true)
+             }))*/
+            }
+        }
+    }
+    
     
     //passes documentID and groupChatTitle to groupChatView
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
@@ -292,6 +507,11 @@ class NewContactPageViewController: UIViewController, UIScrollViewDelegate {
             vc.groupMembers = self.groupMembers
             vc.groupChatImageUrl = self.groupChatImageUrl
             vc.isEventChat = self.isEventChat
+            /*if self.isEventChat ?? false {
+                vc.eventDescription = self.eventDescription
+                vc.eventDate = self.eventDate
+                vc.eventTime = self.eventTime
+            }*/
         }
     }
     
@@ -329,12 +549,14 @@ class NewContactPageViewController: UIViewController, UIScrollViewDelegate {
             let postDict = snapshot.value as? [String : AnyObject] ?? [:]
             self.contacts = []
             for value in postDict.values {
-                if let groupChatTitle = value.object(forKey: "title") as? String, let groupChatDocumentID = value.object(forKey: "documentID") as? String, let commaTimeStamp = value.object(forKey: "timeStamp") as? String, let lastMessage = value.object(forKey: "lastMessage") as? String{
+                if let groupChatTitle = value.object(forKey: "title") as? String, let groupChatDocumentID = value.object(forKey: "documentID") as? String, let commaTimeStamp = value.object(forKey: "timeStamp") as? String {
                     
                     let timeStamp = commaTimeStamp.replacingOccurrences(of: ",", with: ".")
                     
                     let stringBadgeCount = value.object(forKey: "badgeCount") as? String ?? "0"
                     let badgeCount = Int(stringBadgeCount)
+                    
+                    let lastMessage = value.object(forKey: "lastMessage") as? String ?? ""
                     
                     let profileImageUrl = value.object(forKey: "profileImageUrl") as? String ?? "default"
                     
@@ -370,13 +592,19 @@ class NewContactPageViewController: UIViewController, UIScrollViewDelegate {
                     
                     self.groupChatImageUrl = profileImageUrl
                     
+                    let eventDescription = value.object(forKey: "eventDescription") as? String ?? "Error"
+                    let eventDate = value.object(forKey: "eventDate") as? String ?? "Error"
+                    let eventTime = value.object(forKey: "eventTime") as? String ?? "Error"
                     
-                    let groupChatContact = Contact(email: groupChatDocumentID , fullName: groupChatTitle , timeStamp: Double(timeStamp)!, lastMessage: "", badgeCount: badgeCount!, profileImageUrl: profileImageUrl)
+                    let event = Event(title: groupChatTitle, description: eventDescription, date: eventDate, time: eventTime, documentID: nil)
+                    
+                    let groupChatContact = Contact(email: groupChatDocumentID , fullName: groupChatTitle , timeStamp: Double(timeStamp)!, lastMessage: "", badgeCount: badgeCount!, profileImageUrl: profileImageUrl, event: event)
                     
                     self.eventContacts.append(groupChatContact)
                 }
             }
             DispatchQueue.main.async {
+                self.updateLayout()
                 self.EventChatCollectionView.reloadData()
             }
         })
@@ -551,6 +779,9 @@ extension NewContactPageViewController: UICollectionViewDataSource {
             cell.documentID = contact.email
             cell.members = contact.members
             cell.lastMessageLabel.text = contact.lastMessage
+            cell.eventDescription = contact.event?.description ?? ""
+            cell.eventDate = contact.event?.date ?? ""
+            cell.eventTime = contact.event?.time ?? ""
             
             let profileImageUrl = contact.profileImageUrl
             
@@ -636,6 +867,9 @@ extension NewContactPageViewController: UICollectionViewDelegate, UICollectionVi
             self.documentID = cell.documentID
             self.groupChatTitle = cell.contactName.text ?? ""
             self.groupChatImageUrl = cell.profileImageUrl ?? "default"
+            //self.eventDescription =  cell.eventDescription
+            //self.eventTime = cell.eventTime
+            //self.eventDate = cell.eventDate
             
             let MembersRef = eventChatMessagesRef.child(documentID).child("Members")
             

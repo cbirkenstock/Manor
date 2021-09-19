@@ -9,6 +9,10 @@ import UIKit
 
 class TestCollectionViewCell: UICollectionViewCell {
     
+    var eventDescription: String = ""
+    var eventDate: String = ""
+    var eventTime: String = ""
+    
     var documentID: String = ""
     var members: [String] = []
     var contactImageViewConstraints: [NSLayoutConstraint]!

@@ -13,8 +13,9 @@ class PageViewController: UIPageViewController, UIPageViewControllerDelegate, UI
     //creates two story boards
     lazy var myControllers: [UIViewController] = {
         let sb = UIStoryboard(name: "Main", bundle: nil)
-        let vc1 = sb.instantiateViewController(withIdentifier: "DMContactView")
-        let vc2 = sb.instantiateViewController(withIdentifier: "GroupChatContactView")
+        let vc1 = sb.instantiateViewController(withIdentifier: "GroupChatContactView")
+        let vc2 = sb.instantiateViewController(withIdentifier: "DMContactView")
+        
         return [vc1, vc2]
     }()
     
@@ -22,46 +23,47 @@ class PageViewController: UIPageViewController, UIPageViewControllerDelegate, UI
     let usersRef = Database.database().reference().child("users")
     
     var pushNotificationManager = PushNotificationManager()
-
+    
     
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        let commaEmail = self.user.email!.replacingOccurrences(of: ".", with: ",")
-        
-        usersRef.child(commaEmail).observeSingleEvent(of: DataEventType.value) { snapshot in
-            if let value = snapshot.value as? [String: Any] {
-                guard value["venmoName"] != nil else {
-                    let alert = UIAlertController(title: "Venmo Username", message: "please provide your venmo username. Make sure to capitalize each character appropriately", preferredStyle: .alert)
-                    alert.addTextField()
-                    alert.addAction(UIAlertAction(title: "Submit", style: .default, handler: { UIAlertAction in
-                        print(UIAlertAction)
-                        let answer = alert.textFields![0].text
-                        self.usersRef.child("\(commaEmail)/venmoName").setValue(answer ?? "")
-                    }))
-                    self.present(alert, animated: true)
-                    return
+        if let commaEmail = self.user?.email!.replacingOccurrences(of: ".", with: ",") {
+            
+            /*usersRef.child(commaEmail).observeSingleEvent(of: DataEventType.value) { snapshot in
+                if let value = snapshot.value as? [String: Any] {
+                    guard value["venmoName"] != nil else {
+                        let alert = UIAlertController(title: "Venmo Username", message: "please provide your venmo username. Make sure to capitalize each character appropriately", preferredStyle: .alert)
+                        alert.addTextField()
+                        alert.addAction(UIAlertAction(title: "Submit", style: .default, handler: { UIAlertAction in
+                            print(UIAlertAction)
+                            let answer = alert.textFields![0].text
+                            self.usersRef.child("\(commaEmail)/venmoName").setValue(answer ?? "")
+                        }))
+                        self.present(alert, animated: true)
+                        return
+                    }
                 }
+            }*/
+            
+            
+            
+            NotificationCenter.default.addObserver(self, selector: #selector(self.enableSwipe), name: NSNotification.Name("enableSwipe"), object: nil)
+            NotificationCenter.default.addObserver(self, selector: #selector(self.disableSwipe), name: NSNotification.Name("disableSwipe"), object: nil)
+            
+            
+            
+            self.dataSource = self
+            Messaging.messaging().delegate = self
+            
+            //updates the FCM token if it has changed so user properly receives notifications
+            updateFirestorePushTokenIfNeeded()
+            
+            
+            //sets the fire view controller for page views
+            if let first = myControllers.first {
+                self.setViewControllers([first], direction: .forward, animated: true, completion: nil)
             }
-        }
-        
-        
-        
-        NotificationCenter.default.addObserver(self, selector: #selector(self.enableSwipe), name: NSNotification.Name("enableSwipe"), object: nil)
-        NotificationCenter.default.addObserver(self, selector: #selector(self.disableSwipe), name: NSNotification.Name("disableSwipe"), object: nil)
-        
-        
-        
-        self.dataSource = self
-        Messaging.messaging().delegate = self
-        
-        //updates the FCM token if it has changed so user properly receives notifications
-        updateFirestorePushTokenIfNeeded()
-        
-        
-        //sets the fire view controller for page views
-        if let first = myControllers.first {
-            self.setViewControllers([first], direction: .forward, animated: true, completion: nil)
         }
         
     }
@@ -94,7 +96,7 @@ class PageViewController: UIPageViewController, UIPageViewControllerDelegate, UI
         
         let after = index + 1
         
-       
+        
         
         return myControllers[after]
     }

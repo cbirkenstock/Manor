@@ -293,9 +293,9 @@
                                 </connections>
                             </containerView>
                             <stackView opaque="NO" contentMode="scaleToFill" spacing="36" translatesAutoresizingMaskIntoConstraints="NO" id="gS0-8J-qtw">
-                                <rect key="frame" x="50" y="88" width="314" height="25.5"/>
+                                <rect key="frame" x="30" y="88" width="354.5" height="25.5"/>
                                 <subviews>
-                                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" verticalHuggingPriority="251" text="Direct Message" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="FGM-4Y-i65">
+                                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" verticalHuggingPriority="251" text="Group Messages" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="FGM-4Y-i65">
                                         <rect key="frame" x="0.0" y="0.0" width="165.5" height="25.5"/>
                                         <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                         <constraints>
@@ -305,8 +305,8 @@
                                         <color key="textColor" name="BrandPurpleColor"/>
                                         <nil key="highlightedColor"/>
                                     </label>
-                                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Group Chat" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="vKU-DH-CSi">
-                                        <rect key="frame" x="201.5" y="0.0" width="112.5" height="25.5"/>
+                                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Direct Messages" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="vKU-DH-CSi">
+                                        <rect key="frame" x="201.5" y="0.0" width="153" height="25.5"/>
                                         <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                         <constraints>
                                             <constraint firstAttribute="width" relation="greaterThanOrEqual" constant="112.5" id="h5q-Hj-vmM"/>
@@ -325,12 +325,11 @@
                         <viewLayoutGuide key="safeArea" id="3JB-69-Jgw"/>
                         <color key="backgroundColor" white="0.0" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                         <constraints>
-                            <constraint firstItem="gS0-8J-qtw" firstAttribute="leading" secondItem="3JB-69-Jgw" secondAttribute="leading" constant="50" id="1K7-c8-4sM"/>
+                            <constraint firstItem="gS0-8J-qtw" firstAttribute="centerX" secondItem="OZb-Fe-IvX" secondAttribute="centerX" id="7FC-G9-Hv5"/>
                             <constraint firstItem="5V7-PF-cLS" firstAttribute="top" secondItem="gS0-8J-qtw" secondAttribute="bottom" id="C0V-Bt-MHG"/>
                             <constraint firstItem="3JB-69-Jgw" firstAttribute="trailing" secondItem="5V7-PF-cLS" secondAttribute="trailing" id="HAx-2w-evG"/>
                             <constraint firstAttribute="bottom" secondItem="5V7-PF-cLS" secondAttribute="bottom" id="dsG-mS-CAR"/>
                             <constraint firstItem="gS0-8J-qtw" firstAttribute="top" secondItem="3JB-69-Jgw" secondAttribute="top" id="ggs-89-h6d"/>
-                            <constraint firstItem="3JB-69-Jgw" firstAttribute="trailing" secondItem="gS0-8J-qtw" secondAttribute="trailing" constant="50" id="ulp-xJ-DLM"/>
                             <constraint firstItem="5V7-PF-cLS" firstAttribute="leading" secondItem="3JB-69-Jgw" secondAttribute="leading" id="ycH-VU-Dq6"/>
                         </constraints>
                     </view>
@@ -451,7 +450,7 @@
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="Ryk-ex-UHp" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="8778.2608695652179" y="371.65178571428572"/>
+            <point key="canvasLocation" x="8932" y="372"/>
         </scene>
         <!--New Conversation View Controller-->
         <scene sceneID="YVg-t9-EwC">
@@ -501,8 +500,10 @@
                     </view>
                     <navigationItem key="navigationItem" id="Oxo-8j-UVf"/>
                     <connections>
+                        <outlet property="bottomConstraint" destination="YVF-up-b7Y" id="j6Z-mo-Ufo"/>
                         <outlet property="contactTextField" destination="sh3-dk-DOA" id="L3S-IK-e2E"/>
                         <outlet property="searchNamesCollectionView" destination="Ag5-Nc-Uby" id="fDd-X1-Iwu"/>
+                        <segue destination="zsh-ZK-apK" kind="show" identifier="toChatView" id="QEw-sZ-jvC"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="XSs-oN-6gF" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
@@ -542,6 +543,7 @@
                                                                 <fontDescription key="fontDescription" type="system" pointSize="25"/>
                                                                 <textInputTraits key="textInputTraits"/>
                                                                 <connections>
+                                                                    <action selector="firstNameEditingBegan:" destination="9rr-ec-gRF" eventType="editingDidBegin" id="EaH-0Y-Kdd"/>
                                                                     <action selector="firstNameEditingEnded:" destination="9rr-ec-gRF" eventType="editingDidEnd" id="glM-rf-ilS"/>
                                                                 </connections>
                                                             </textField>
@@ -585,6 +587,9 @@
                                                                 <color key="textColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                                                 <fontDescription key="fontDescription" type="system" pointSize="25"/>
                                                                 <textInputTraits key="textInputTraits" keyboardType="emailAddress"/>
+                                                                <connections>
+                                                                    <action selector="emailEditingEnded:" destination="9rr-ec-gRF" eventType="editingDidEnd" id="XDS-vD-N9c"/>
+                                                                </connections>
                                                             </textField>
                                                         </subviews>
                                                         <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
@@ -671,7 +676,7 @@
                         <outlet property="manorLogo" destination="tS7-LF-kcN" id="5M1-nD-UHv"/>
                         <outlet property="passwordInput" destination="A7M-os-eCc" id="JwJ-ps-CcN"/>
                         <outlet property="passwordView" destination="mwk-Ug-Puk" id="xYe-33-YfD"/>
-                        <segue destination="Jan-f9-HWF" kind="showDetail" identifier="toContactPageView" id="sK6-Wz-DpL"/>
+                        <segue destination="Jan-f9-HWF" kind="presentation" identifier="toContactPageView" modalPresentationStyle="fullScreen" id="sK6-Wz-DpL"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="WWm-e2-vuf" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
@@ -860,6 +865,7 @@
                         <outlet property="chosenNamesContainerHeight" destination="XtD-JV-o0Q" id="L5e-Nu-iJ2"/>
                         <outlet property="contactTextField" destination="lIp-ne-5RL" id="dNh-ly-jld"/>
                         <outlet property="createBarButton" destination="MBF-oR-hGg" id="ruh-xl-4xJ"/>
+                        <outlet property="searchNamesBottomConstraint" destination="jHT-Aq-hYb" id="gje-bY-q7R"/>
                         <outlet property="searchNamesCollectionView" destination="m4G-sI-f97" id="Pkz-El-ms8"/>
                         <outlet property="titleTextField" destination="kOh-rW-STc" id="Ofr-aL-GPs"/>
                         <segue destination="Ir0-ic-lsG" kind="show" identifier="toGroupChatView" id="FKq-NV-TKW"/>
@@ -1479,33 +1485,13 @@
                                     </stackView>
                                 </subviews>
                             </stackView>
-                            <tableView clipsSubviews="YES" contentMode="scaleToFill" alwaysBounceVertical="YES" dataMode="prototypes" style="plain" separatorStyle="default" rowHeight="-1" estimatedRowHeight="-1" sectionHeaderHeight="28" sectionFooterHeight="28" translatesAutoresizingMaskIntoConstraints="NO" id="11B-dz-g1Q">
-                                <rect key="frame" x="10" y="294" width="394" height="500"/>
-                                <color key="backgroundColor" systemColor="systemBackgroundColor"/>
-                                <constraints>
-                                    <constraint firstAttribute="height" constant="500" id="mFZ-57-5OF"/>
-                                </constraints>
-                                <prototypes>
-                                    <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" preservesSuperviewLayoutMargins="YES" selectionStyle="default" indentationWidth="10" id="Zdn-Vt-Fw7">
-                                        <rect key="frame" x="0.0" y="24.5" width="394" height="43.5"/>
-                                        <autoresizingMask key="autoresizingMask"/>
-                                        <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" preservesSuperviewLayoutMargins="YES" insetsLayoutMarginsFromSafeArea="NO" tableViewCell="Zdn-Vt-Fw7" id="OF2-iz-ik4">
-                                            <rect key="frame" x="0.0" y="0.0" width="394" height="43.5"/>
-                                            <autoresizingMask key="autoresizingMask"/>
-                                        </tableViewCellContentView>
-                                    </tableViewCell>
-                                </prototypes>
-                            </tableView>
                         </subviews>
                         <viewLayoutGuide key="safeArea" id="adw-nR-03g"/>
                         <color key="backgroundColor" white="0.0" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                         <constraints>
-                            <constraint firstItem="11B-dz-g1Q" firstAttribute="leading" secondItem="adw-nR-03g" secondAttribute="leading" constant="10" id="CTX-d9-TCS"/>
-                            <constraint firstItem="11B-dz-g1Q" firstAttribute="top" secondItem="1YY-8p-i4I" secondAttribute="bottom" constant="50" id="Ikr-zo-1q6"/>
                             <constraint firstItem="adw-nR-03g" firstAttribute="trailing" secondItem="1YY-8p-i4I" secondAttribute="trailing" constant="20" id="KE5-bQ-8z5"/>
                             <constraint firstItem="1YY-8p-i4I" firstAttribute="top" secondItem="adw-nR-03g" secondAttribute="top" constant="30" id="MWI-wx-UcG"/>
                             <constraint firstItem="1YY-8p-i4I" firstAttribute="leading" secondItem="adw-nR-03g" secondAttribute="leading" constant="20" id="oCL-vT-Ta0"/>
-                            <constraint firstItem="adw-nR-03g" firstAttribute="trailing" secondItem="11B-dz-g1Q" secondAttribute="trailing" constant="10" id="uI8-Zj-5aV"/>
                         </constraints>
                     </view>
                     <navigationItem key="navigationItem" id="fc2-1S-WSK"/>
@@ -1783,6 +1769,7 @@
                                 <fontDescription key="fontDescription" type="system" pointSize="20"/>
                                 <textInputTraits key="textInputTraits"/>
                                 <connections>
+                                    <action selector="membersEditingBegan:" destination="GzR-zR-oXl" eventType="editingDidBegin" id="w4A-EN-tck"/>
                                     <action selector="membersEditingChanged:" destination="GzR-zR-oXl" eventType="editingChanged" id="q4Z-Hx-eCf"/>
                                 </connections>
                             </textField>
@@ -1883,6 +1870,7 @@
                         <outlet property="chosenNamesContainer" destination="uhC-bt-9aC" id="UZn-Pw-6f2"/>
                         <outlet property="chosenNamesContainerHeight" destination="2dk-tl-L2h" id="FAm-mu-Kuq"/>
                         <outlet property="contactTextField" destination="gZw-f0-uDx" id="5NC-Qm-6Yr"/>
+                        <outlet property="searchNamesBottomConstraint" destination="Kd7-uz-xnO" id="mHP-XG-EUb"/>
                         <outlet property="searchNamesCollectionView" destination="Udh-w8-5nZ" id="7S4-1j-GBJ"/>
                     </connections>
                 </viewController>
@@ -1914,6 +1902,7 @@
                                         <color key="textColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                         <fontDescription key="fontDescription" type="system" pointSize="18"/>
                                         <textInputTraits key="textInputTraits" autocapitalizationType="sentences"/>
+                                        <dataDetectorType key="dataDetectorTypes" phoneNumber="YES" link="YES" address="YES"/>
                                         <userDefinedRuntimeAttributes>
                                             <userDefinedRuntimeAttribute type="color" keyPath="placeholderColor">
                                                 <color key="value" systemColor="systemGray6Color"/>
@@ -2193,7 +2182,7 @@
         </designable>
     </designables>
     <inferredMetricsTieBreakers>
-        <segue reference="qAs-88-ClA"/>
+        <segue reference="QEw-sZ-jvC"/>
         <segue reference="sK6-Wz-DpL"/>
         <segue reference="iwR-df-2n9"/>
     </inferredMetricsTieBreakers>

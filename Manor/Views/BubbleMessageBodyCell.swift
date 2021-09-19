@@ -16,7 +16,8 @@ class BubbleMessageBodyCell: UITableViewCell {
     let bubbleView = UIView()
     let messageBody = UILabel()
     let venmoButton = UIButton()
-    var incomingMessageConstraints: [NSLayoutConstraint]!
+    var dmIncomingMessageConstraints: [NSLayoutConstraint]!
+    var groupIncomingMessageConstraints: [NSLayoutConstraint]!
     var OutgoingMessageConstraints: [NSLayoutConstraint]!
     var groupStartConstraints: [NSLayoutConstraint]!
     var groupMiddleConstraints: [NSLayoutConstraint]!
@@ -30,15 +31,36 @@ class BubbleMessageBodyCell: UITableViewCell {
     var incomingHeartIconButtonConstraints: [NSLayoutConstraint]!
     var outgoingHeartCountLabelConstraints: [NSLayoutConstraint]!
     var outgoingHeartIconButtonConstraints: [NSLayoutConstraint]!
+    var profileImageConstraints: [NSLayoutConstraint]!
+    var confirmationViewConstraints: [NSLayoutConstraint]!
     let emailLabel = UILabel()
     var venmoAmount: String = "0"
     var note: String = "Note"
     var venmoName: String = ""
     var isVenmoRequest: Bool = false
+    var isGroupChat: Bool = false
     var doubleTapGestureRecognizer: UITapGestureRecognizer!
+    var holdGesture: UILongPressGestureRecognizer!
     let groupChatMessagesRef = Database.database().reference().child("GroupChatMessages")
+    var ChatImageUrl: String = ""
+    
+    /*var messageBody: UITextView {
+        let messageBody = UITextView()
+        messageBody.isUserInteractionEnabled = false
+        messageBody.dataDetectorTypes = .all
+        return messageBody
+    }*/
 
 
+    var profileImageView: UIImageView = {
+        let profileImageView = UIImageView()
+        profileImageView.translatesAutoresizingMaskIntoConstraints = false
+        profileImageView.clipsToBounds = true
+        profileImageView.image = #imageLiteral(resourceName: "NewContactIcon")
+        profileImageView.layer.cornerRadius = 35/2
+        profileImageView.backgroundColor = .red
+        return profileImageView
+    }()
     
     
     var isIncoming: Bool! {
@@ -46,8 +68,15 @@ class BubbleMessageBodyCell: UITableViewCell {
             bubbleView.layer.borderColor = isIncoming ? UIColor.systemGray.cgColor : UIColor(named: K.BrandColors.purple)!.cgColor
             
             if isIncoming {
-                NSLayoutConstraint.deactivate(OutgoingMessageConstraints)
-                NSLayoutConstraint.activate(incomingMessageConstraints)
+                if isGroupChat {
+                    NSLayoutConstraint.deactivate(OutgoingMessageConstraints)
+                    NSLayoutConstraint.deactivate(dmIncomingMessageConstraints)
+                    NSLayoutConstraint.activate(groupIncomingMessageConstraints)
+                } else {
+                    NSLayoutConstraint.deactivate(OutgoingMessageConstraints)
+                    NSLayoutConstraint.deactivate(groupIncomingMessageConstraints)
+                    NSLayoutConstraint.activate(dmIncomingMessageConstraints)
+                }
                 
                 let stringTimeStamp = self.timeStamp?.description
                 let commaTimeStamp = stringTimeStamp?.replacingOccurrences(of: ".", with: ",")
@@ -72,7 +101,8 @@ class BubbleMessageBodyCell: UITableViewCell {
                 NSLayoutConstraint.activate(incomingHeartIconButtonConstraints)
             
             } else {
-                NSLayoutConstraint.deactivate(incomingMessageConstraints)
+                NSLayoutConstraint.deactivate(dmIncomingMessageConstraints)
+                NSLayoutConstraint.deactivate(groupIncomingMessageConstraints)
                 NSLayoutConstraint.activate(OutgoingMessageConstraints)
                 
                 let stringTimeStamp = self.timeStamp?.description
@@ -99,7 +129,6 @@ class BubbleMessageBodyCell: UITableViewCell {
             }
             
             if isVenmoRequest {
-                
                 contentView.addSubview(venmoButton)
                 venmoButton.translatesAutoresizingMaskIntoConstraints = false
                 venmoButton.backgroundColor = .clear
@@ -115,12 +144,17 @@ class BubbleMessageBodyCell: UITableViewCell {
                 NSLayoutConstraint.activate(venmoButtonConstraints)
                 
                 bubbleView.layer.borderColor = UIColor(named: "BrightBlue")?.cgColor
-                bubbleView.removeGestureRecognizer(doubleTapGestureRecognizer)
+                //bubbleView.removeGestureRecognizer(doubleTapGestureRecognizer)
+                bubbleView.removeGestureRecognizer(holdGesture)
             } else {
-                bubbleView.addGestureRecognizer(doubleTapGestureRecognizer)
+                //bubbleView.addGestureRecognizer(doubleTapGestureRecognizer)
                 //doubleTapGestureRecognizer.delegate = self
                 //bubbleView.isUserInteractionEnabled = true
                 //bubbleView.addGestureRecognizer(doubleTapGestureRecognizer)
+                bubbleView.addGestureRecognizer(holdGesture)
+                holdGesture.delegate = self
+                bubbleView.isUserInteractionEnabled = true
+                bubbleView.addGestureRecognizer(holdGesture)
             }
         }
     }
@@ -179,13 +213,20 @@ class BubbleMessageBodyCell: UITableViewCell {
                     emailLabel.font = UIFont.systemFont(ofSize: 12, weight: .light)
                     emailLabel.textColor = .white
                     NSLayoutConstraint.activate(emailLabelConstraints)
+                    
+                    addSubview(profileImageView)
+                    NSLayoutConstraint.activate(profileImageConstraints)
                 } else {
                     emailLabel.removeFromSuperview()
                     NSLayoutConstraint.deactivate(emailLabelConstraints)
+                    profileImageView.removeFromSuperview()
+                    NSLayoutConstraint.deactivate(profileImageConstraints)
                 }
             } else {
                 emailLabel.removeFromSuperview()
                 NSLayoutConstraint.deactivate(emailLabelConstraints)
+                profileImageView.removeFromSuperview()
+                NSLayoutConstraint.deactivate(profileImageConstraints)
             }
         }
     }
@@ -210,8 +251,31 @@ class BubbleMessageBodyCell: UITableViewCell {
         return heartCountLabel
     }()
     
-
+    var messageTextView: UITextView = {
+        let messageTextView = UITextView()
+        messageTextView.translatesAutoresizingMaskIntoConstraints = false
+        messageTextView.font = UIFont.systemFont(ofSize: 17)
+        messageTextView.textColor = .white
+        messageTextView.backgroundColor = .clear
+        messageTextView.textContainerInset = UIEdgeInsets(top: 0, left: -5, bottom: 0, right: -5)
+        messageTextView.isUserInteractionEnabled = false
+        messageTextView.dataDetectorTypes = .all
+        return messageTextView
+    }()
     
+
+    @objc func copyMessage() {
+        /*let confirmationView: UITextView = {
+            let confirmationView = UITextView()
+            confirmationView.translatesAutoresizingMaskIntoConstraints = false
+            confirmationView.backgroundColor = .green
+            confirmationView.text = "Copied"
+            confirmationView.alpha = 0
+            return confirmationView
+        }()
+        
+        self.*/
+    }
     
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
@@ -219,10 +283,14 @@ class BubbleMessageBodyCell: UITableViewCell {
         self.backgroundColor = .clear//UIColor(named: K.BrandColors.backgroundBlack)
         self.isUserInteractionEnabled = true
         
-        doubleTapGestureRecognizer = UITapGestureRecognizer(target: self, action: #selector(messageDoubleTapped))
+        //doubleTapGestureRecognizer = UITapGestureRecognizer(target: self, action: #selector(messageDoubleTapped))
         
-        doubleTapGestureRecognizer.numberOfTapsRequired = 2
-        doubleTapGestureRecognizer.delegate = self
+        //doubleTapGestureRecognizer.numberOfTapsRequired = 2
+        //doubleTapGestureRecognizer.delegate = self
+        
+        self.holdGesture = UILongPressGestureRecognizer(target: self, action: #selector(copyMessage))
+        self.holdGesture.minimumPressDuration = 1
+        self.holdGesture.delegate = self
         
         self.heartCountLabel.isHidden = true
         self.heartIconButton.isHidden = true
@@ -258,8 +326,21 @@ class BubbleMessageBodyCell: UITableViewCell {
         
         contentView.addSubview(messageBody)
         messageBody.translatesAutoresizingMaskIntoConstraints = false
-        messageBody.textColor = .white
+        messageBody.textColor = .clear
+
         messageBody.numberOfLines = 0
+        
+        contentView.addSubview(messageTextView)
+        
+        
+        let messageTextViewConstraints = [
+            messageTextView.topAnchor.constraint(equalTo: messageBody.topAnchor, constant: 0),
+            messageTextView.bottomAnchor.constraint(equalTo: messageBody.bottomAnchor, constant: 0),
+            messageTextView.leadingAnchor.constraint(equalTo: messageBody.leadingAnchor, constant: 0),
+            messageTextView.trailingAnchor.constraint(equalTo: messageBody.trailingAnchor, constant: 0),
+        ]
+        
+        NSLayoutConstraint.activate(messageTextViewConstraints)
         
         contentView.addSubview(heartIconButton)
         
@@ -322,8 +403,13 @@ class BubbleMessageBodyCell: UITableViewCell {
             messageBody.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: -20)
         ]
         
-        incomingMessageConstraints = [
+        dmIncomingMessageConstraints = [
             messageBody.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 20),
+            messageBody.trailingAnchor.constraint(lessThanOrEqualTo: trailingAnchor, constant: -100)
+        ]
+        
+        groupIncomingMessageConstraints = [
+            messageBody.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 70),
             messageBody.trailingAnchor.constraint(lessThanOrEqualTo: trailingAnchor, constant: -100)
         ]
         
@@ -360,6 +446,13 @@ class BubbleMessageBodyCell: UITableViewCell {
             heartCountLabel.topAnchor.constraint(equalTo: heartIconButton.topAnchor, constant: 0),
             heartCountLabel.bottomAnchor.constraint(equalTo: heartIconButton.bottomAnchor, constant: 0),
             heartCountLabel.trailingAnchor.constraint(equalTo: heartIconButton.leadingAnchor, constant: 5)
+        ]
+        
+        profileImageConstraints = [
+            profileImageView.topAnchor.constraint(equalTo: bubbleView.topAnchor, constant: 3),
+            profileImageView.heightAnchor.constraint(equalToConstant: 35),
+            profileImageView.widthAnchor.constraint(equalToConstant: 35),
+            profileImageView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 20),
         ]
 
         

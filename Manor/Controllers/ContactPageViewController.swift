@@ -21,6 +21,7 @@ class ContactPageViewController: UIViewController {
     
     let db = Firestore.firestore()
     let chatsByUserRef = Database.database().reference().child("ChatsByUser")
+    let usersRef = Database.database().reference().child("users")
     let chatViewcontroller = ChatViewController()
     var ref: DocumentReference? = nil
     var user: User! = Firebase.Auth.auth().currentUser
@@ -33,6 +34,7 @@ class ContactPageViewController: UIViewController {
     let flowLayout = UICollectionViewFlowLayout()
     
     let imageCache = NSCache<NSString, AnyObject>()
+    let defaults = UserDefaults.standard
     
     //--//
     
@@ -98,7 +100,7 @@ class ContactPageViewController: UIViewController {
         
         self.navigationItem.setHidesBackButton(true, animated: false)
         
-        title = "Messages"
+        //title = "Messages"
         
         contactCollectionView.delegate = self
         contactCollectionView.dataSource = self
@@ -116,13 +118,9 @@ class ContactPageViewController: UIViewController {
             if(user.email! < otherUserEmail ) {
                 let chatTitle = "\(self.user!.email!) + \(otherUserEmail)"
                 vc.documentID = chatTitle.replacingOccurrences(of: ".", with: ",")
-                print("vc")
-                print("\(self.user!.email!) + \(otherUserEmail)")
             } else {
-                let chatTitle = "\(self.user!.email!) + \(otherUserEmail)"
+                let chatTitle = "\(otherUserEmail) + \(self.user!.email!)"
                 vc.documentID = chatTitle.replacingOccurrences(of: ".", with: ",")
-                print("vc")
-                print("\(self.user!.email!) + \(otherUserEmail)")
             }
         }
     }
@@ -145,22 +143,36 @@ class ContactPageViewController: UIViewController {
             var otherUserEmail: String = ""
             self.contacts = []
             for (key,value) in postDict {
-                if let otherUserFullName = value.object(forKey: "title") as? String, let timeStamp = value.object(forKey: "timeStamp") as? Double, let lastMessage = value.object(forKey: "lastMessage") as? String, let stringBadgeCount = value.object(forKey: "badgeCount") as? String {
-                    
-                    let userEmails = key.components(separatedBy: " + ")
-                    if (userEmails[0] != commaEmail) {
-                        otherUserEmail = userEmails[0].replacingOccurrences(of: ",", with: ".")
-                    } else {
-                        otherUserEmail = userEmails[1].replacingOccurrences(of: ",", with: ".")
+                let userEmails = key.components(separatedBy: " + ")
+                if (userEmails[0] != commaEmail) {
+                    otherUserEmail = userEmails[0].replacingOccurrences(of: ",", with: ".")
+                } else {
+                    otherUserEmail = userEmails[1].replacingOccurrences(of: ",", with: ".")
+                }
+
+                if otherUserEmail != "" {
+                    let commaOtherUserEmail = otherUserEmail.replacingOccurrences(of: ".", with: ",")
+                    self.usersRef.child(commaOtherUserEmail).child("profileImageUrl").observeSingleEvent(of: DataEventType.value) { DataSnapshot in
+                        let profileImageUrl = DataSnapshot.value as? String
+                        userChatsRef.child("\(key)/profileImageUrl").setValue(profileImageUrl)
                     }
+                }
+                
+                
+                if let otherUserFullName = value.object(forKey: "title") as? String, let timeStamp = value.object(forKey: "timeStamp") as? Double, let lastMessage = value.object(forKey: "lastMessage") as? String {
+                    
+                    let stringBadgeCount = value.object(forKey: "badgeCount") as? String ?? "0"
+
+                    let profileImageUrl = value.object(forKey: "profileImageUrl") as? String ?? "default"
                     
                     let badgeCount = Int(stringBadgeCount)
                     
-                    let profileImageUrl = value.object(forKey: "profileImageUrl") as? String ?? "default"
+                    
                     
                     let userContact = Contact(email: otherUserEmail, fullName: otherUserFullName, timeStamp: timeStamp, lastMessage: lastMessage, badgeCount: badgeCount!, profileImageUrl: profileImageUrl)
                     
                     self.contacts.append(userContact)
+                    
                 }
                 
                 DispatchQueue.main.async {
@@ -198,6 +210,7 @@ class ContactPageViewController: UIViewController {
          }*/
     }
     
+    
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         
@@ -215,9 +228,6 @@ extension ContactPageViewController: UICollectionViewDataSource {
     //creates each cell as ContactCollectionViewCell, sorts the contacts array by timestamp, and then sets the nameLabel of the cell to fullName and the documentID of cell to email
     //documentID is set to email just to have the cell hold that info for when it is selected so this view controller can pass the otherUserEmail to the chatviewcontroller
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
-        
-        //let cell = contactCollectionView.dequeueReusableCell(withReuseIdentifier: "contactCollectionViewCell", for: indexPath) as! ContactCollectionViewCell
-        
         let cell = contactCollectionView.dequeueReusableCell(withReuseIdentifier: "testCell", for: indexPath) as! TestCollectionViewCell
         
         cell.isMainFour = true
@@ -232,6 +242,9 @@ extension ContactPageViewController: UICollectionViewDataSource {
             cell.hasUnreadMessages = true
         }
         
+        print("indexpath")
+        print(sortedContacts[indexPath.row].fullName)
+        
         cell.lastMessageLabel.text = sortedContacts[indexPath.row].lastMessage
         cell.contactName.text = sortedContacts[indexPath.row].fullName
         cell.documentID = sortedContacts[indexPath.row].email
@@ -242,34 +255,44 @@ extension ContactPageViewController: UICollectionViewDataSource {
         cell.profileImageUrl = profileImageUrl
         cell.contactImageView.image = #imageLiteral(resourceName: "AbstractPainting")
         
-        if profileImageUrl == "default" {
+        if profileImageUrl == "default" || profileImageUrl == "" {
             return cell
-        }  else if let cachedImage = self.imageCache.object(forKey: profileImageUrl as NSString) {
-            cell.contactImageView.image = cachedImage as? UIImage
         } else {
-            DispatchQueue.global().async { [weak self] in
-                let URL = URL(string: profileImageUrl)
-                if let data = try? Data(contentsOf: URL!) {
-                    if let image = UIImage(data: data) {
-                        DispatchQueue.main.async {
-                            self!.imageCache.setObject(image, forKey: profileImageUrl as NSString)
-                            cell.contactImageView.image = image
-                            /*if cell.hasUnreadMessages == true {
-                             self?.indicatorCircle.backgroundColor = UIColor(named: "LightBlue")
-                             }*/
+            if let cachedImage = self.imageCache.object(forKey: profileImageUrl as NSString) {
+                print("there is cached image")
+                cell.contactImageView.image = cachedImage as? UIImage
+            } else if var imageDictionary = defaults.dictionary(forKey: "dmContactPictures") {
+                if let storedImageData = imageDictionary[profileImageUrl] {
+                    let image = UIImage(data: storedImageData as! Data)
+                    cell.contactImageView.image = image
+                    let NSProfileImageUrl = profileImageUrl as NSString
+                    self.imageCache.setObject(image!, forKey: NSProfileImageUrl)
+                } else {
+                    Amplify.Storage.downloadData(key: profileImageUrl) { result in
+                        switch result {
+                        case .success(let data):
+                            print("Success downloading image", data)
+                            if let image = UIImage(data: data) {
+                                //let imageHeight = CGFloat(image.size.height/image.size.width * 300)
+                                DispatchQueue.main.async {
+                                    cell.contactImageView.image = image
+                                    self.imageCache.setObject(image, forKey: profileImageUrl as NSString)
+                                    imageDictionary[profileImageUrl] = data
+                                    self.defaults.setValue(imageDictionary, forKey: "dmContactPictures")
+                                }
+                            }
+                        case .failure(let error):
+                            print("failure downloading image", error)
                         }
                     }
                 }
-                
             }
         }
-        
-        
         return cell
     }
 }
 
-//once the ContactCollectionViewCell is selected, its nameLabel and documentID properties are used to assign to otherUserFullName and otherUserEmail to be passed on to other VC 
+//once the ContactCollectionViewCell is selected, its nameLabel and documentID properties are used to assign to otherUserFullName and otherUserEmail to be passed on to other VC
 extension ContactPageViewController: UICollectionViewDelegate {
     
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {

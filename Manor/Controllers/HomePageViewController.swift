@@ -80,13 +80,15 @@ class HomePageViewController: UIViewController {
     }
     
     @objc func makeDMTitleBold() {
-        self.directMessagesLabel.font = UIFont.systemFont(ofSize: 21, weight: .bold)
-        self.groupChatLabel.font = UIFont.systemFont(ofSize: 21, weight: .regular)
+        //had to switch quickly before rush so that's why this is confusing
+        self.groupChatLabel.font = UIFont.systemFont(ofSize: 21, weight: .bold)
+        self.directMessagesLabel.font = UIFont.systemFont(ofSize: 21, weight: .regular)
     }
     
     @objc func makeGroupChatTitleBold() {
-        self.groupChatLabel.font = UIFont.systemFont(ofSize: 21, weight: .bold)
-        self.directMessagesLabel.font = UIFont.systemFont(ofSize: 21, weight: .regular)
+        //had to switch quickly before rush so that's why this is confusing 
+        self.directMessagesLabel.font = UIFont.systemFont(ofSize: 21, weight: .bold)
+        self.groupChatLabel.font = UIFont.systemFont(ofSize: 21, weight: .regular)
     }
     
 

@@ -13,10 +13,10 @@ import SwiftKeychainWrapper
 
 
 class LogInViewController: UIViewController {
-
+    
     @IBOutlet weak var rememberMeStackView: UIStackView!
     @IBOutlet weak var rememberMeButton: UIButton!
-
+    
     
     @IBOutlet weak var emailInput: UITextField!
     @IBOutlet weak var emailView: UIView!
@@ -25,7 +25,7 @@ class LogInViewController: UIViewController {
     @IBOutlet weak var passwordInput: UITextField!
     @IBOutlet weak var passwordView: UIView!
     
-
+    
     @IBOutlet weak var ManorLogo: UIImageView!
     @IBOutlet weak var infoStackView: UIStackView!
     @IBOutlet weak var logoStack: UIStackView!
@@ -90,7 +90,7 @@ class LogInViewController: UIViewController {
     
     //moves view up when keyboard is called
     @objc func keyboardWillShow(notification: NSNotification) {
-
+        
         guard let userInfo = notification.userInfo else {return}
         guard let duration: TimeInterval = (userInfo[UIResponder.keyboardAnimationDurationUserInfoKey] as? NSNumber)?.doubleValue else {return}
         guard let keyboardSize = userInfo[UIResponder.keyboardFrameEndUserInfoKey] as? NSValue else {return}
@@ -159,28 +159,27 @@ class LogInViewController: UIViewController {
         if let email = emailInput.text, let password = passwordInput.text {
             
             /*let usernameArray = email.split(separator: " ")
-            let username = "\(usernameArray[0])\(usernameArray[1])"*/
+             let username = "\(usernameArray[0])\(usernameArray[1])"*/
             
             let username = email.replacingOccurrences(of: ".", with: ",")
             
-            /*Auth.auth().signIn(withEmail: email, password: password) { authResult, error in
+            Auth.auth().signIn(withEmail: email, password: password) { authResult, error in
                 if let e = error {
-                    let alert = UIAlertController(title: "Oops...", message: "\(e.localizedDescription)", preferredStyle: .alert)
-                    alert.addAction(UIAlertAction(title: "ok", style: .cancel, handler: nil))
-                    self.present(alert, animated: true)
+                    print(e)
+                    /*let alert = UIAlertController(title: "Oops...", message: "\(e.localizedDescription)", preferredStyle: .alert)
+                     alert.addAction(UIAlertAction(title: "ok", style: .cancel, handler: nil))
+                     self.present(alert, animated: true)*/
                 } else {
                     //self.performSegue(withIdentifier: K.Segues.ContactPageViewSegue, sender: self)
                     print("success")
                 }
-            }*/
-        
-            signIn(username: username, password: password)
+            }
+            
+            signIn(username: username, password: password, isFirstTry: true)
         }
     }
     
-    func signIn(username: String, password: String) {
-        print("PASSWORD")
-        print(password)
+    func signIn(username: String, password: String, isFirstTry: Bool) {
         Amplify.Auth.signIn(username: username, password: password) { result in
             switch result {
             case .success:
@@ -190,15 +189,38 @@ class LogInViewController: UIViewController {
                 }
             case .failure(let error):
                 print("Sign in failed \(error)")
+                if isFirstTry {
+                    Amplify.Auth.signOut { result in
+                        switch result {
+                        case .success:
+                            print("success signing out")
+                            DispatchQueue.main.async {
+                                self.signIn(username: username, password: password, isFirstTry: false)
+                            }
+                        case .failure(let error):
+                            print("Sign out failed \(error)")
+                        }
+                    }
+                } else {
+                    DispatchQueue.main.async {
+                        let alert = UIAlertController(title: "Login Failed", message: "\(error)", preferredStyle: .alert)
+                        alert.addAction(UIAlertAction(title: "OK", style: .default, handler: { UIAlertAction in
+                            alert.dismiss(animated: true)
+                        }))
+                        self.present(alert, animated: true)
+                    }
+                }
             }
+            return
         }
     }
+    
     
     //shows navigation bar on next view controller
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         self.navigationController?.setNavigationBarHidden(false, animated: animated)
-
+        
     }
     
     //shows navigation bar

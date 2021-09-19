@@ -7,6 +7,8 @@
 
 import UIKit
 import Firebase
+import Amplify
+import AmplifyPlugins
 
 class MemberTableViewCell: UITableViewCell {
     
@@ -102,7 +104,8 @@ class MemberTableViewCell: UITableViewCell {
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
         
-        self.backgroundColor = .black
+        self.selectionStyle = .none
+        self.backgroundColor = .clear
         
         addSubview(background)
         background.translatesAutoresizingMaskIntoConstraints = false
@@ -154,14 +157,17 @@ class MemberTableViewCell: UITableViewCell {
     }
     
     func downloadImage(UrlString: String, completion: @escaping (UIImage) -> ()) {
-        DispatchQueue.global().async { [weak self] in
-            let URL = URL(string: UrlString)
-            if let data = try? Data(contentsOf: URL!) {
+        Amplify.Storage.downloadData(key: UrlString) { result in
+            switch result {
+            case .success(let data):
+                print("Success downloading image", data)
                 if let image = UIImage(data: data) {
                     DispatchQueue.main.async {
                         completion(image)
                     }
                 }
+            case .failure(let error):
+                print("failure downloading image", error)
             }
         }
     }

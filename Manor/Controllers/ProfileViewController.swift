@@ -8,6 +8,8 @@
 import UIKit
 import PhotosUI
 import Firebase
+import Amplify
+import AmplifyPlugins
 
 class ProfileViewController: UIViewController, UIImagePickerControllerDelegate & UINavigationControllerDelegate, UITextFieldDelegate {
     
@@ -18,6 +20,7 @@ class ProfileViewController: UIViewController, UIImagePickerControllerDelegate &
     let usersRef = Database.database().reference().child("users")
     var user: User! = Firebase.Auth.auth().currentUser
     var commaUserEmail: String = ""
+    let photoManager = PhotoManagerViewController()
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -25,7 +28,11 @@ class ProfileViewController: UIViewController, UIImagePickerControllerDelegate &
         firstName.delegate = self
         lastName.delegate = self
         
-        self.commaUserEmail = self.user.email!.replacingOccurrences(of: ".", with: ",")
+        if let commaUserEmail = self.user.email?.replacingOccurrences(of: ".", with: ",") {
+            self.commaUserEmail = commaUserEmail
+        }
+        
+        self.profilePictureButton.backgroundColor = .systemRed
         
         self.loadInfo()
         
@@ -40,7 +47,7 @@ class ProfileViewController: UIViewController, UIImagePickerControllerDelegate &
         self.firstName.text = ""
     }
     
- 
+    
     @IBAction func lastNameEditingBegan(_ sender: Any) {
         self.lastName.text = ""
     }
@@ -53,7 +60,7 @@ class ProfileViewController: UIViewController, UIImagePickerControllerDelegate &
         } else {
             self.usersRef.child("\(self.commaUserEmail)/lastName").setValue(lastName.text)
         }
-
+        
         return true
     }
     
@@ -66,57 +73,63 @@ class ProfileViewController: UIViewController, UIImagePickerControllerDelegate &
     }
     
     func imagePickerController(_ picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [UIImagePickerController.InfoKey : Any]) {
-        
-        picker.dismiss(animated: true, completion: nil)
-        
-        var selectedImageFromPicker: UIImage?
-        
-        if let editedImage = info[UIImagePickerController.InfoKey(rawValue: "UIImagePickerControllerEditedImage")] as? UIImage {
-            selectedImageFromPicker = editedImage
-        } else if let originalImage = info[UIImagePickerController.InfoKey(rawValue: "UIImagePickerControllerOriginalImage")] as? UIImage {
-            selectedImageFromPicker = originalImage
-        }
-        
-        if let selectedImage = selectedImageFromPicker {
-            let imageName = NSUUID().uuidString
-            let storage = Storage.storage()
-            let ref = storage.reference().child("Contact_images").child(imageName)
-            
-            if let uploadData = selectedImage.jpegData(compressionQuality: 0.2) {
-                ref.putData(uploadData, metadata: nil) { metaData, err in
-                    
-                    if err != nil {
-                        print("failed to upload image:", err!)
-                        return
-                    }
-                    
-                    ref.downloadURL { url, err in
-                        if err != nil {
-                            print("failed to download URL", err!)
-                        } else if let imageURl = url?.absoluteString {
-                            self.usersRef.child("\(self.commaUserEmail)/profileImageUrl").setValue(imageURl)
-                        }
-                    }
-                }
-            }
-        }
+        self.photoManager.processPickerResultOld(imagePicker: picker, info: info, isTextMessage: false, isGroupMessage: false, isEventChat: false)
+        /*picker.dismiss(animated: true, completion: nil)
+         
+         var selectedImageFromPicker: UIImage?
+         
+         if let editedImage = info[UIImagePickerController.InfoKey(rawValue: "UIImagePickerControllerEditedImage")] as? UIImage {
+         selectedImageFromPicker = editedImage
+         } else if let originalImage = info[UIImagePickerController.InfoKey(rawValue: "UIImagePickerControllerOriginalImage")] as? UIImage {
+         selectedImageFromPicker = originalImage
+         }
+         
+         if let selectedImage = selectedImageFromPicker {
+         let imageName = NSUUID().uuidString
+         let storage = Storage.storage()
+         let ref = storage.reference().child("Contact_images").child(imageName)
+         
+         if let uploadData = selectedImage.jpegData(compressionQuality: 0.2) {
+         ref.putData(uploadData, metadata: nil) { metaData, err in
+         if err != nil {
+         print("failed to upload image:", err!)
+         return
+         }
+         ref.downloadURL { url, err in
+         if err != nil {
+         print("failed to download URL", err!)
+         } else if let imageURl = url?.absoluteString {
+         
+         }
+         }
+         }
+         }
+         }*/
     }
     
     func loadInfo() {
         usersRef.child(self.commaUserEmail).observe(DataEventType.value, with: { (snapshot) in
             let postDict = snapshot.value as? [String : AnyObject] ?? [:]
             
-            if let firstName = postDict["firstName"] as? String, let lastName = postDict["lastName"] as? String, let profileImageUrl = postDict["profileImageUrl"] as? String {
+            if let firstName = postDict["firstName"] as? String, let lastName = postDict["lastName"] as? String {
                 
-                DispatchQueue.global().async { [weak self] in
-                    let URL = URL(string: profileImageUrl)
-                    if let data = try? Data(contentsOf: URL!) {
-                        if let image = UIImage(data: data) {
-                            DispatchQueue.main.async {
-                                self?.profilePictureButton.setBackgroundImage(image, for: .normal)
-                                self!.firstName.text = firstName
-                                self!.lastName.text = lastName
+                self.firstName.text = firstName
+                self.lastName.text = lastName
+                
+                if let profileImageUrl = postDict["profileImageUrl"] as? String {
+                    
+                    Amplify.Storage.downloadData(key: profileImageUrl) { result in
+                        switch result {
+                        case .success(let data):
+                            print("Success downloading image", data)
+                            if let image = UIImage(data: data) {
+                                DispatchQueue.main.async {
+                                    //self.imageCache.setObject(image, forKey: NSImageURL)
+                                    self.profilePictureButton.setBackgroundImage(image, for: .normal)
+                                }
                             }
+                        case .failure(let error):
+                            print("failure downloading image", error)
                         }
                     }
                 }

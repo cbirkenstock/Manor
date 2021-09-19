@@ -7,11 +7,14 @@
 
 import UIKit
 import Firebase
+import Amplify
+import AmplifyPlugins
 
 
 
 class AddMembersViewController: UIViewController {
     
+    @IBOutlet weak var searchNamesBottomConstraint: NSLayoutConstraint!
     @IBOutlet weak var chosenNamesContainer: UIView!
     @IBOutlet weak var chosenNamesContainerHeight: NSLayoutConstraint!
     
@@ -31,6 +34,9 @@ class AddMembersViewController: UIViewController {
     let userRef = Database.database().reference().child("users")
     var groupChatMessagesRef = Database.database().reference().child("GroupChatMessages")
     let groupChatsByUserRef = Database.database().reference().child("GroupChatsByUser")
+    let eventChatsByUserRef =
+        Database.database().reference().child("EventChatsByUser")
+    let eventChatMessagesRef = Database.database().reference().child("EventChatMessages")
     var user: User! = Firebase.Auth.auth().currentUser
     var ref: DocumentReference? = nil
     
@@ -43,15 +49,33 @@ class AddMembersViewController: UIViewController {
     var documentID: String = ""
     var groupChatTitle: String = ""
     var lastMessage: String = ""
+    var isEventChat: Bool! = false
     
     let searchNamesflowLayout = UICollectionViewFlowLayout()
     let chosenflowLayout = UICollectionViewFlowLayout()
+    
+    let underline: UIView = {
+        let underline = UIView()
+        underline.translatesAutoresizingMaskIntoConstraints = false
+        underline.backgroundColor = UIColor(named: K.BrandColors.purple)
+        return underline
+    }()
+    
     
     
     //--//
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        self.view.addSubview(underline)
+        let underlineConstraints = [
+            underline.topAnchor.constraint(equalTo: contactTextField.bottomAnchor, constant: 0),
+            underline.heightAnchor.constraint(equalToConstant: 2),
+            underline.leadingAnchor.constraint(equalTo: self.contactTextField.leadingAnchor, constant: 0),
+            underline.trailingAnchor.constraint(equalTo: self.contactTextField.trailingAnchor, constant: 0),
+        ]
+        
+        NSLayoutConstraint.activate(underlineConstraints)
 
         let lastMessageRef = groupChatMessagesRef.child(documentID).child("lastMessage")
         
@@ -60,8 +84,13 @@ class AddMembersViewController: UIViewController {
             self.lastMessage = lastMessage
         })
             
+        self.searchNamesCollectionView.register(TestTwoCollectionViewCell.self, forCellWithReuseIdentifier: "contactCollectionViewCell")
+        self.chosenNamesCollectionView.register(TestTwoCollectionViewCell.self, forCellWithReuseIdentifier: "contactCollectionViewCell")
             
-
+        NotificationCenter.default.addObserver(self, selector: #selector(ChatViewController.keyboardWillShow), name: UIResponder.keyboardWillShowNotification, object: nil)
+        
+        NotificationCenter.default.addObserver(self, selector: #selector(ChatViewController.keyboardWillHide), name: UIResponder.keyboardWillHideNotification, object: nil)
+        
         navigationController?.navigationBar.barTintColor = .black//UIColor(named: K.BrandColors.backgroundBlack)
         navigationController?.navigationBar.shadowImage = UIImage()
         //navigationItem.backBarButtonItem?.tintColor = UIColor(named: K.BrandColors.purple)
@@ -91,8 +120,10 @@ class AddMembersViewController: UIViewController {
         
         
         //collection view layout for searched names
-        let cellWidth = UIScreen.main.bounds.width/3 - 15
-        let cellHeight = cellWidth/0.8244
+        //set up collection view for contact cells
+        let cellWidth = UIScreen.main.bounds.width/3 - 10
+        let cellHeight = cellWidth/0.7
+        
         searchNamesflowLayout.itemSize = CGSize(width: cellWidth, height: cellHeight) //235
         searchNamesflowLayout.sectionInset = UIEdgeInsets(top: 0, left: 5, bottom: 0, right: 5)
         searchNamesflowLayout.scrollDirection = .vertical
@@ -109,9 +140,35 @@ class AddMembersViewController: UIViewController {
     }
     
     //everytime a letter is entered into the search bar it reloads the search names
-
     @IBAction func membersEditingChanged(_ sender: Any) {
         loadSearchNames()
+    }
+    
+    @IBAction func membersEditingBegan(_ sender: Any) {
+        self.contactTextField.text = ""
+    }
+    
+    @objc func keyboardWillShow(notification: NSNotification) {
+        //pushMessageButton.isEnabled = true
+        //pushMessageButton.tintColor = UIColor(named: K.BrandColors.red)
+        guard let userInfo = notification.userInfo else {return}
+        guard let duration: TimeInterval = (userInfo[UIResponder.keyboardAnimationDurationUserInfoKey] as? NSNumber)?.doubleValue else {return}
+        guard let keyboardSize = userInfo[UIResponder.keyboardFrameEndUserInfoKey] as? NSValue else {return}
+        let keyboardFrame = keyboardSize.cgRectValue.height
+        
+        self.searchNamesBottomConstraint.constant = keyboardFrame
+        
+        UIView.animate(withDuration: duration) { self.view.layoutIfNeeded() }
+    }
+    
+    
+    @objc func keyboardWillHide(notification: NSNotification) {
+        guard let userInfo = notification.userInfo else {return}
+        guard let duration: TimeInterval = (userInfo[UIResponder.keyboardAnimationDurationUserInfoKey] as? NSNumber)?.doubleValue else {return}
+        
+        self.searchNamesBottomConstraint.constant = 0
+        
+        UIView.animate(withDuration: duration) { self.view.layoutIfNeeded() }
     }
     
     
@@ -125,51 +182,47 @@ class AddMembersViewController: UIViewController {
             self.searchNames = []
             for value in postDict.values {
                 //creates contact icon for all the users
-                let userFirstName = value.object(forKey: "firstName")! as! String
-                let userLastName = value.object(forKey: "lastName")! as! String
-                let userFullName = "\(userFirstName) \(userLastName)"
-                let userEmail = value.object(forKey: "email") as! String
-                let userContact: Contact = Contact(email: userEmail, fullName: userFullName)
-                //this loop just checks to see if all the letters of someone's name matches the searched name
-                if let i = searchName?.count {
-                    var letterPos = 0
-                    while letterPos < i {
-                        // checks if name is already in chosenNames
-                        if (self.chosenNames.contains(userContact)) {
-                            break
-                        }
-                        //removes names that are too short (letters typed into search already longer than the name)
-                        if (userFirstName.count == letterPos ) {
-                            self.searchNames = self.searchNames.filter({
-                                return $0 != userContact
-                            })
-                            break
-                        }
-                        //gets index of letter based on letterPos in both searched name and first name of current contact
-                        let searchNameLetterIndex = searchName!.index(searchName!.startIndex, offsetBy: letterPos)
-                        let firstNameLetterIndex = userFirstName.index(userFirstName.startIndex, offsetBy: letterPos)
-                        //if the two letters are the same, then adds name to searchNames (unless already there)
-                        if (letterPos == 0) {
-                            if (searchName![searchNameLetterIndex].lowercased() == userFirstName[firstNameLetterIndex].lowercased()) {
-                                if (!self.searchNames.contains(userContact)) {
-                                    self.searchNames.append(userContact)
-                                    DispatchQueue.main.async {
-                                        self.searchNamesCollectionView.reloadData()
-                                    }
-                                }
-                            }
-                            //since after the first letter, the possible names will only decrease, this checks to see if the next letters are the same, if they aren't the name is removed from the array
-                        } else {
-                            if (userFirstName.count == letterPos || searchName![searchNameLetterIndex].lowercased() != userFirstName[firstNameLetterIndex].lowercased()) {
+                if let userFirstName = value.object(forKey: "firstName") as? String, let userLastName = value.object(forKey: "lastName") as? String, let userEmail = value.object(forKey: "email") as? String {
+                    let userFullName = "\(userFirstName) \(userLastName)"
+                    let userProfileImageUrl = (value.object(forKey: "profileImageUrl") as? String) ?? "default"
+                    let userContact: Contact = Contact(email: userEmail, fullName: userFullName, profileImageUrl: userProfileImageUrl)
+                    //this loop just checks to see if all the letters of someone's name matches the searched name
+                    if let i = searchName?.count {
+                        var letterPos = 0
+                        while letterPos < i {
+                            //removes names that are too short (letters typed into search already longer than the name)
+                            if (userFirstName.count == letterPos ) {
                                 self.searchNames = self.searchNames.filter({
                                     return $0 != userContact
                                 })
+                                break
                             }
+                            //gets index of letter based on letterPos in both searched name and first name of current contact
+                            let searchNameLetterIndex = searchName!.index(searchName!.startIndex, offsetBy: letterPos)
+                            let firstNameLetterIndex = userFirstName.index(userFirstName.startIndex, offsetBy: letterPos)
+                            //if the two letters are the same, then adds name to searchNames (unless already there)
+                            if (letterPos == 0) {
+                                if (searchName![searchNameLetterIndex].lowercased() == userFirstName[firstNameLetterIndex].lowercased()) {
+                                    if (!self.chosenNames.contains(userContact) && !self.groupMembers.contains([userContact.fullName, userContact.email])) {
+                                        self.searchNames.append(userContact)
+                                        DispatchQueue.main.async {
+                                            self.searchNamesCollectionView.reloadData()
+                                        }
+                                    }
+                                }
+                                //since after the first letter, the possible names will only decrease, this checks to see if the next letters are the same, if they aren't the name is removed from the array
+                            } else {
+                                if (userFirstName.count == letterPos || searchName![searchNameLetterIndex].lowercased() != userFirstName[firstNameLetterIndex].lowercased()) {
+                                    self.searchNames = self.searchNames.filter({
+                                        return $0 != userContact
+                                    })
+                                }
+                            }
+                            letterPos += 1
                         }
-                        letterPos += 1
-                    }
-                    DispatchQueue.main.async {
-                        self.searchNamesCollectionView.reloadData()
+                        DispatchQueue.main.async {
+                            self.searchNamesCollectionView.reloadData()
+                        }
                     }
                 }
             }
@@ -182,26 +235,33 @@ class AddMembersViewController: UIViewController {
         let commaTimestamp = stringTimestamp.replacingOccurrences(of: ".", with: ",")
         
         let membersRef = groupChatMessagesRef.child(documentID).child("Members")
-        var newMembers: [String] = []
         
-        for contact in chosenNames {
-            let commaEmail = contact.email.replacingOccurrences(of: ".", with: ",")
-            self.groupChatsByUserRef.child(commaEmail).child("Chats").child(self.documentID).setValue([
-                "title": groupChatTitle,
-                "documentID": documentID,
-                "lastMessage": self.lastMessage,
-                "timeStamp": commaTimestamp
-            ])
+        if self.isEventChat {
+            let membersRef = eventChatMessagesRef.child(documentID).child("Members")
+            for contact in chosenNames {
+                let commaEmail = contact.email.replacingOccurrences(of: ".", with: ",")
+                self.eventChatsByUserRef.child(commaEmail).child("Chats").child(self.documentID).setValue([
+                    "title": groupChatTitle,
+                    "documentID": documentID,
+                    "lastMessage": self.lastMessage,
+                    "timeStamp": commaTimestamp
+                ])
+            }
             
-            /*let contactCommaEmail = contact.email.replacingOccurrences(of: ".", with: ",")
-            newMembers.append(contactCommaEmail)*/
+            membersRef.setValue(self.groupMembers)
+        } else {
+            let membersRef = groupChatMessagesRef.child(documentID).child("Members")
+            for contact in chosenNames {
+                let commaEmail = contact.email.replacingOccurrences(of: ".", with: ",")
+                self.groupChatsByUserRef.child(commaEmail).child("Chats").child(self.documentID).setValue([
+                    "title": groupChatTitle,
+                    "documentID": documentID,
+                    "lastMessage": self.lastMessage,
+                    "timeStamp": commaTimestamp
+                ])
+            }
+            membersRef.setValue(self.groupMembers)
         }
-        
-        //self.groupMembers.append(contentsOf: newMembers)
-        
-        membersRef.setValue(self.groupMembers)
-   
-        //self.performSegue(withIdentifier: K.Segues.GroupChatSegue, sender: self)
     }
 }
 
@@ -217,9 +277,9 @@ extension AddMembersViewController: UICollectionViewDataSource {
     }
     
     //sets cell's nameLabel to name of contact and the document ID to their email, if it's the chosen collection view then only does names
-    func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
+    /*func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         if collectionView == self.searchNamesCollectionView {
-            let cell = searchNamesCollectionView.dequeueReusableCell(withReuseIdentifier: "contactCollectionViewCell", for: indexPath) as! ContactCollectionViewCell
+            let cell = searchNamesCollectionView.dequeueReusableCell(withReuseIdentifier: "contactCollectionViewCell", for: indexPath) as! TestTwoCollectionViewCell
             
             cell.nameLabel.text = searchNames[indexPath.row].fullName
             cell.documentID = searchNames[indexPath.row].email
@@ -237,6 +297,97 @@ extension AddMembersViewController: UICollectionViewDataSource {
             return cell
             
         }
+    }*/
+    
+    func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
+        if collectionView == self.searchNamesCollectionView {
+            let cell = searchNamesCollectionView.dequeueReusableCell(withReuseIdentifier: "contactCollectionViewCell", for: indexPath) as! TestTwoCollectionViewCell
+            
+            let fullName = searchNames[indexPath.row].fullName
+            
+            let fullNameArray = fullName.split(separator: " ")
+            
+            let firstName = fullNameArray[0]
+            let lastName = fullNameArray[1]
+            
+            cell.isBig = true
+            cell.contactFirstName.text = String(firstName)
+            cell.contactLastName.text = String(lastName)
+            cell.documentID = searchNames[indexPath.row].email
+            
+            //cell.isSearchName = true
+            
+            let profileImageUrl = searchNames[indexPath.row].profileImageUrl
+            
+            //cell = profileImageUrl
+            cell.contactImageView.image = #imageLiteral(resourceName: "AbstractPainting")
+            
+            if profileImageUrl == "default" {
+                return cell
+            /*}  else if let cachedImage = self.imageCache.object(forKey: profileImageUrl as NSString) {
+                cell.contactImageView.image = cachedImage as? UIImage*/
+            } else {
+                Amplify.Storage.downloadData(key: profileImageUrl) { result in
+                    switch result {
+                    case .success(let data):
+                        print("Success downloading image", data)
+                        if let image = UIImage(data: data) {
+                            DispatchQueue.main.async {
+                                cell.contactImageView.image = image
+                            }
+                        }
+                    case .failure(let error):
+                        print("failure downloading image", error)
+                    }
+                }
+            }
+            return cell
+        } else {
+            let cell = chosenNamesCollectionView.dequeueReusableCell(withReuseIdentifier: "contactCollectionViewCell", for: indexPath) as! TestTwoCollectionViewCell
+            
+            let fullName = chosenNames[indexPath.row].fullName
+            
+            let fullNameArray = fullName.split(separator: " ")
+            
+            let firstName = fullNameArray[0]
+            //let lastName = fullNameArray[1]
+            
+            cell.isBig = false
+            cell.contactFirstName.text = String(firstName)
+            //cell.contactLastName.text = String(lastName)
+            cell.documentID = chosenNames[indexPath.row].email
+            
+            //cell.isSearchName = true
+            let profileImageUrl = chosenNames[indexPath.row].profileImageUrl
+            
+            //cell.profileImageUrl = profileImageUrl
+            cell.contactImageView.image = #imageLiteral(resourceName: "AbstractPainting")
+            
+            if let image = chosenNames[indexPath.row].image {
+                cell.contactImageView.image = image
+            } else if profileImageUrl == "default" {
+                return cell
+            /*}  else if let cachedImage = self.imageCache.object(forKey: profileImageUrl as NSString) {
+                cell.contactImageView.image = cachedImage as? UIImage*/
+            } else {
+                Amplify.Storage.downloadData(key: profileImageUrl) { result in
+                    switch result {
+                    case .success(let data):
+                        print("Success downloading image", data)
+                        if let image = UIImage(data: data) {
+                            DispatchQueue.main.async {
+                                cell.contactImageView.image = image
+                            }
+                        }
+                    case .failure(let error):
+                        print("failure downloading image", error)
+                    }
+                }
+            }
+            return cell
+        }
+        
+
     }
 }
 
@@ -246,20 +397,25 @@ extension AddMembersViewController: UICollectionViewDelegate {
     //also resets height of view showing chosen contacts so that is is exposed when there is at least one contact
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
         if collectionView == self.searchNamesCollectionView {
-            let cell = searchNamesCollectionView.cellForItem(at: indexPath) as! ContactCollectionViewCell
+            let cell = searchNamesCollectionView.cellForItem(at: indexPath) as! TestTwoCollectionViewCell
             
-            let userFullName = cell.nameLabel.text?.components(separatedBy: " ")
-            let userFirstName = userFullName![0]
+            let userFullName = "\(cell.contactFirstName.text ?? "error") \(cell.contactLastName.text ?? "error")"
+            let userFirstName = cell.contactFirstName.text ?? ""
             let userEmail = cell.documentID
-            let userContact = Contact(email: userEmail, fullName: userFirstName)
+            let profileImage = cell.contactImageView.image
+            
+            let userContact = Contact(email: userEmail, fullName: userFirstName, image: profileImage)
             if (!chosenNames.contains(userContact)) {
                 chosenNames.append(userContact)
-                if (!groupMembers.contains([cell.nameLabel.text!, userContact.email])) {
-                    groupMembers.append([cell.nameLabel.text!, userContact.email])
+                if (!groupMembers.contains([userFullName, userContact.email])) {
+                    groupMembers.append([userFullName, userContact.email])
                 }
                 addBarButton.tintColor = UIColor(named: K.BrandColors.purple)
                 DispatchQueue.main.async {
                     self.chosenNamesCollectionView.reloadData()
+                    self.loadSearchNames()
+                    let indexPath = IndexPath(row: self.chosenNames.count - 1, section: 0)
+                    self.chosenNamesCollectionView.scrollToItem(at: indexPath, at: .right, animated: false)
                 }
             }
         } else {
@@ -267,9 +423,9 @@ extension AddMembersViewController: UICollectionViewDelegate {
             groupMembers.remove(at: indexPath.row)
             DispatchQueue.main.async {
                 self.chosenNamesCollectionView.reloadData()
+                self.loadSearchNames()
             }
         }
-        
         if chosenNames.count == 0 {
             chosenCollectionViewHeight.constant = 0
             chosenNamesContainerHeight.constant = 0

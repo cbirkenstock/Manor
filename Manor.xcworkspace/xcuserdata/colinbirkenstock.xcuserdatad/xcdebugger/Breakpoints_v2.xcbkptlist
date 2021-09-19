@@ -23,48 +23,48 @@
       <BreakpointProxy
          BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
          <BreakpointContent
-            uuid = "9562E10C-B5AD-4BA5-B1D6-0AA598584DA1"
-            shouldBeEnabled = "Yes"
+            uuid = "EC2BC3C2-1BDC-4516-B946-610579663FDD"
+            shouldBeEnabled = "No"
             ignoreCount = "0"
             continueAfterRunningActions = "No"
-            filePath = "Manor/Controllers/ChatViewController.swift"
+            filePath = "Manor/Controllers/GroupChatInfoViewController.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "484"
-            endingLineNumber = "484"
-            landmarkName = "loadMessages()"
+            startingLineNumber = "300"
+            endingLineNumber = "300"
+            landmarkName = "tableView(_:cellForRowAt:)"
             landmarkType = "7">
          </BreakpointContent>
       </BreakpointProxy>
       <BreakpointProxy
          BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
          <BreakpointContent
-            uuid = "2B4ADB80-C712-4796-B923-F4C5A1365EB8"
+            uuid = "AAA80FEA-3F95-47E1-BC13-DBF4FFEEC563"
             shouldBeEnabled = "Yes"
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "Manor/Controllers/GroupChatViewController.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "995"
-            endingLineNumber = "995"
-            landmarkName = "loadMessages()"
+            startingLineNumber = "299"
+            endingLineNumber = "299"
+            landmarkName = "createEventButtonPressed()"
             landmarkType = "7">
          </BreakpointContent>
       </BreakpointProxy>
       <BreakpointProxy
          BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
          <BreakpointContent
-            uuid = "F527FDA2-40DF-47E9-A76C-F394B6609630"
+            uuid = "34E3B085-4410-4133-99CA-33081124805E"
             shouldBeEnabled = "Yes"
             ignoreCount = "0"
             continueAfterRunningActions = "No"
-            filePath = "Manor/Controllers/GroupChatViewController.swift"
+            filePath = "Manor/Controllers/NewContactPageViewController.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "991"
-            endingLineNumber = "991"
-            landmarkName = "loadMessages()"
+            startingLineNumber = "831"
+            endingLineNumber = "831"
+            landmarkName = "collectionView(_:didSelectItemAt:)"
             landmarkType = "7">
          </BreakpointContent>
       </BreakpointProxy>

@@ -125,24 +125,6 @@ exports.updateBadgeCountGroup = functions.database
       }
     });
 
-
-/* const payload = {
-    notification: {
-      title: "It worked",
-      body: "It worked",
-      badge: "50", // newBadgeCountSnapshot.val(),
-    },
-  };
-
-  return admin.messaging()
-      .sendToDevice(tokenSnapshot.val(), payload)
-      .then(function(response) {
-        console.log("Successfully sent message: ", response);
-      })
-      .catch(function(error) {
-        console.log("Error sending message: ", error);
-      });*/
-
 exports.sendRecipientNotification = functions.database
     .ref("/ChatsByUser/{userEmail}/Chats/{specificChat}/timeStamp")
     .onWrite(async (change, context) => {
@@ -336,4 +318,164 @@ exports.sendGroupMembersNotification = functions.database
       }
       return null;
     });
+
+exports.sendEventGroupMembersNotification = functions.database
+    .ref("/EventChatMessages/{Chat}/timeStamp")
+    .onUpdate(async (change, context) => {
+      // const body = change.after.val();
+      const chat = context.params.Chat;
+
+      const BodyPromise = admin.database()
+          .ref(`/EventChatMessages/${chat}/lastMessage`)
+          .once("value");
+
+      const membersPromise = admin.database()
+          .ref(`/EventChatMessages/${chat}/Members`)
+          .once("value");
+
+      const titlePromise = admin.database()
+          .ref(`/EventChatMessages/${chat}/title`)
+          .once("value");
+
+      const senderEmailPromise = admin.database()
+          .ref(`/EventChatMessages/${chat}/senderEmail`)
+          .once("value");
+
+      const result = await Promise
+          .all([membersPromise, titlePromise, senderEmailPromise, BodyPromise]);
+      const members = result[0].val();
+      const title = result[1].val();
+      const senderEmail = result[2].val();
+      const body = result[3].val();
+
+      for (let i = 0; i < members.length; i++) {
+        const member = members[i];
+
+
+        if (member[1] !== senderEmail) {
+          const commaMember = String(member[1]).split(".").join(",");
+
+          const userBadgeCountPromise = admin.database()
+              .ref(`/users/${commaMember}/badgeCount`)
+              .once("value");
+
+          const conversationBadgeCountPromise = admin.database()
+              .ref(`/EventChatsByUser/${commaMember}/Chats/${chat}/badgeCount`)
+              .once("value");
+
+          const result = await Promise
+              .all([userBadgeCountPromise, conversationBadgeCountPromise]);
+          const userBadgeCount = Number(result[0].val());
+          const conversationBadgeCount = Number(result[1].val());
+
+          console.log("CONVERSATION BADGE COUNT");
+          console.log(conversationBadgeCount);
+
+
+          const userTokenPromise = admin.database()
+              .ref(`/users/${commaMember}/fcmToken`)
+              .once("value");
+
+          const updateBCProm = admin.database()
+              .ref(`/users/${commaMember}`)
+              .update({
+                "badgeCount": String(userBadgeCount + 1),
+              });
+
+          const updateConversationBCProm = admin.database()
+              .ref(`/EventChatsByUser/${commaMember}/Chats/${chat}`)
+              .update({
+                "badgeCount": String(conversationBadgeCount + 1),
+              });
+
+          const results = await Promise
+              .all([userTokenPromise, updateBCProm, updateConversationBCProm]);
+          const memberToken = results[0].val();
+
+
+          const newUserBadgeCountPromise = admin.database()
+              .ref(`/users/${commaMember}/badgeCount`)
+              .once("value");
+
+          const results2 = await Promise
+              .all([newUserBadgeCountPromise]);
+          const newBadgeCount = results2[0].val();
+
+          const payload = {
+            notification: {
+              title: String(title),
+              body: String(body),
+              badge: newBadgeCount,
+            },
+          };
+
+          admin.messaging()
+              .sendToDevice(memberToken, payload)
+              .then(function(response) {
+                console.log("Successfully sent message: ", response);
+              })
+              .catch(function(error) {
+                console.log("Error sending message: ", error);
+              });
+        }
+      }
+      return null;
+    });
+
+exports.updateBadgeCountEvent= functions.database
+    .ref("/EventChatsByUser/{userEmail}/Chats/{specificChat}/readNotification")
+    .onUpdate(async (change, context) => {
+      console.log("FUNCTIONING");
+      const chat = context.params.specificChat;
+      const userEmail = context.params.userEmail;
+
+      const afterReadNotification = change.after.val();
+
+
+      if (afterReadNotification === true) {
+        const conversationBadgeCountPromise = admin.database()
+            .ref(`/EventChatsByUser/${userEmail}/Chats/${chat}/badgeCount`)
+            .once("value");
+
+        const userBadgeCountPromise = admin.database()
+            .ref(`/users/${userEmail}/badgeCount`)
+            .once("value");
+
+        const results1 = await Promise
+            .all([conversationBadgeCountPromise, userBadgeCountPromise]);
+
+        const conversationBadgeCount = Number(results1[0].val());
+        const userBadgeCount = Number(results1[1].val());
+
+        const updateConversationBadgeCountPromise = admin.database()
+            .ref(`/EventChatsByUser/${userEmail}/Chats/${chat}`)
+            .update({
+              "badgeCount": "0",
+            });
+
+        const updateBadgeCountPromise = admin.database()
+            .ref(`/users/${userEmail}`)
+            .update({
+              "badgeCount": String(userBadgeCount - conversationBadgeCount),
+            });
+
+        const updateReadNotificationPromise = admin.database()
+            .ref(`/EventChatsByUser/${userEmail}/Chats/${chat}`)
+            .update({
+              "readNotification": false,
+            });
+
+        return Promise.all([updateConversationBadgeCountPromise,
+          updateBadgeCountPromise, updateReadNotificationPromise])
+            .then((promises) => {
+              console.log(promises);
+            })
+            .catch((error) => {
+              console.log(error);
+            });
+      } else {
+        return null;
+      }
+    });
+
 

@@ -10,6 +10,7 @@ import Firebase
 import Amplify
 import AmplifyPlugins
 import Combine
+import SwiftKeychainWrapper
 
 
 class SignUpViewController: UIViewController {
@@ -38,6 +39,7 @@ class SignUpViewController: UIViewController {
     let db = Firestore.firestore()
     var ref: DocumentReference?
     let usersRef = Database.database().reference().child("users")
+    let defaults = UserDefaults.standard
     
     //--//
     
@@ -93,6 +95,9 @@ class SignUpViewController: UIViewController {
         }
     }
     
+    @IBAction func firstNameEditingBegan(_ sender: Any) {
+        
+    }
     //checks to see if name has any symbols or numbers that is shouldn't, turns red if it does and turns green otherwise
     @IBAction func lastNameEditingEnded(_ sender: UITextField) {
         let decimalRange = lastNameInput.text?.rangeOfCharacter(from: CharacterSet.decimalDigits)
@@ -170,64 +175,82 @@ class SignUpViewController: UIViewController {
             self.passwordView.layer.borderColor = UIColor.red.cgColor
         }
         
-        if let email: String = emailInput.text, let password = passwordInput.text, let firstName = firstNameInput.text, let LastName = lastNameInput.text {
-            
-            let username = email.replacingOccurrences(of: ".", with: ",")//"\(firstName)\(LastName)"
-            
-            signUp(username: username, password: password, email: email)
-            
-            Auth.auth().createUser(withEmail: email, password: password) { authResult, error in
-                if let e = error {
-                    print(e.localizedDescription)
-                } else {
-                    let commaEmail = email.replacingOccurrences(of: ".", with: ",")
-                    
-                    self.usersRef.child(commaEmail).setValue([
-                        "firstName": firstName,
-                        "lastName": LastName,
-                        "email": email,
-                        "fcmToken": "",
-                        "badgeCount": "0"
-                    ]) 
-                    
-                    self.performSegue(withIdentifier: K.Segues.ContactPageViewSegue, sender: self)
+        if emailInput.text != "", passwordInput.text != "", firstNameInput.text != "", lastNameInput.text != "" {
+            if let email: String = emailInput.text, let password = passwordInput.text, let firstName = firstNameInput.text, let LastName = lastNameInput.text {
+                
+                let username = email.replacingOccurrences(of: ".", with: ",")//"\(firstName)\(LastName)"
+                
+                signUp(username: username, password: password, email: email)
+                
+                Auth.auth().createUser(withEmail: email, password: password) { authResult, error in
+                    if let e = error {
+                        print(e.localizedDescription)
+                    } else {
+                        let commaEmail = email.replacingOccurrences(of: ".", with: ",")
+                        
+                        self.usersRef.child(commaEmail).setValue([
+                            "firstName": firstName,
+                            "lastName": LastName,
+                            "email": email,
+                            "fcmToken": "",
+                            "badgeCount": "0"
+                        ])
+                    }
                 }
             }
+        } else {
+            let alert = UIAlertController(title: "Oops...", message: "Please make sure all bubbles are filled in.", preferredStyle: .alert)
+            alert.addAction(UIAlertAction(title: "OK", style: .default, handler: { UIAlertAction in
+                self.dismiss(animated: true)
+            }))
+            self.present(alert, animated: true)
         }
     }
     
     func signUp(username: String, password: String, email: String) {
-        print(username)
         let userAttributes = [AuthUserAttribute(.email, value: email)]
         let options = AuthSignUpRequest.Options(userAttributes: userAttributes)
-       
-        Amplify.Auth.signUp(username: username, password: password, options: options) { result in
-            
-            switch result {
-            case .success(let key):
-                print("Success!", key)
-            case .failure(let error):
-                print("error", error)
-            }
-        }
         
-        
-        /*let sink = Amplify.Auth.signUp(username: username, password: password, options: options)
-            .resultPublisher
-            .sink {
-                if case let .failure(authError) = $0 {
-                    print("An error occurred while registering a user \(authError)")
+        let alert = UIAlertController(title: "Remember Password?", message: "If you choose remember, you won't be asked to sign in again", preferredStyle: .alert)
+        alert.addAction(UIAlertAction(title: "Yes", style: .default, handler: { UIAlertAction in
+            self.defaults.setValue(true, forKey: "rememberUser")
+            self.defaults.setValue(self.emailInput.text, forKey: "savedEmail")
+            KeychainWrapper.standard.set(self.passwordInput.text ?? "", forKey: "savedPassword")
+            Amplify.Auth.signUp(username: username, password: password, options: options) { result in
+                switch result {
+                case .success(let key):
+                    print("Success!", key)
+                    DispatchQueue.main.async {
+                        self.performSegue(withIdentifier: K.Segues.ContactPageViewSegue, sender: self)
+                    }
+                case .failure(let error):
+                    print("error", error)
+                    DispatchQueue.main.async {
+                        self.performSegue(withIdentifier: K.Segues.ContactPageViewSegue, sender: self)
+                    }
                 }
             }
-            receiveValue: { signUpResult in
-                if case let .confirmUser(deliveryDetails, _) = signUpResult.nextStep {
-                    print("Delivery details \(String(describing: deliveryDetails))")
-                } else {
-                    print("SignUp Complete")
+        }))
+        
+        alert.addAction(UIAlertAction(title: "No", style: .cancel, handler: { UIAlertAction in
+            self.dismiss(animated: true)
+            Amplify.Auth.signUp(username: username, password: password, options: options) { result in
+                switch result {
+                case .success(let key):
+                    print("Success!", key)
+                    DispatchQueue.main.async {
+                        self.performSegue(withIdentifier: K.Segues.ContactPageViewSegue, sender: self)
+                    }
+                case .failure(let error):
+                    print("error", error)
+                    DispatchQueue.main.async {
+                        self.performSegue(withIdentifier: K.Segues.ContactPageViewSegue, sender: self)
+                    }
                 }
-
             }
-        return sink*/
+        }))
+        
+        self.present(alert, animated: true)
     }
     
     func confirmSignUp(for username: String, with confirmationCode: String) -> AnyCancellable {
@@ -252,6 +275,6 @@ class SignUpViewController: UIViewController {
     //shows navigation bar when view closing
     override func viewWillDisappear(_ animated: Bool) {
         super.viewWillDisappear(animated)
-        //self.navigationController?.setNavigationBarHidden(false, animated: animated)
+        self.navigationController?.setNavigationBarHidden(false, animated: animated)
     }
 }

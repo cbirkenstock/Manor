@@ -38,6 +38,7 @@
 		F9A6D693264A751F00C444FD /* BackgroundVideo.mp4 in Resources */ = {isa = PBXBuildFile; fileRef = F9A6D692264A751F00C444FD /* BackgroundVideo.mp4 */; };
 		F9A6D695264B3BF500C444FD /* LogInViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = F9A6D694264B3BF500C444FD /* LogInViewController.swift */; };
 		F9A6D697264B44AF00C444FD /* BackgroundVideoPlayer.swift in Sources */ = {isa = PBXBuildFile; fileRef = F9A6D696264B44AF00C444FD /* BackgroundVideoPlayer.swift */; };
+		F9ACAEDD26EAB8A3000AB815 /* EventInfoTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = F9ACAEDC26EAB8A3000AB815 /* EventInfoTableViewCell.swift */; };
 		F9C50E07265B479B00B179A6 /* NewGroupMessageViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = F9C50E06265B479B00B179A6 /* NewGroupMessageViewController.swift */; };
 		F9C50E33265C663500B179A6 /* ChosenNameCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = F9C50E32265C663500B179A6 /* ChosenNameCell.swift */; };
 		F9C50E57265CE22F00B179A6 /* GroupChatViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = F9C50E56265CE22F00B179A6 /* GroupChatViewController.swift */; };
@@ -90,6 +91,7 @@
 		F9A6D692264A751F00C444FD /* BackgroundVideo.mp4 */ = {isa = PBXFileReference; lastKnownFileType = file; path = BackgroundVideo.mp4; sourceTree = "<group>"; };
 		F9A6D694264B3BF500C444FD /* LogInViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LogInViewController.swift; sourceTree = "<group>"; };
 		F9A6D696264B44AF00C444FD /* BackgroundVideoPlayer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BackgroundVideoPlayer.swift; sourceTree = "<group>"; };
+		F9ACAEDC26EAB8A3000AB815 /* EventInfoTableViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EventInfoTableViewCell.swift; sourceTree = "<group>"; };
 		F9C50E06265B479B00B179A6 /* NewGroupMessageViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NewGroupMessageViewController.swift; sourceTree = "<group>"; };
 		F9C50E32265C663500B179A6 /* ChosenNameCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChosenNameCell.swift; sourceTree = "<group>"; };
 		F9C50E56265CE22F00B179A6 /* GroupChatViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GroupChatViewController.swift; sourceTree = "<group>"; };
@@ -193,6 +195,7 @@
 				F936098426B678BB00785888 /* TestCollectionViewCell.swift */,
 				F96CF0AA26BFA5A200592BFE /* PictureMessageTableViewCell.swift */,
 				F986FA2226CF58E400B1B6BA /* TestTwoCollectionViewCell.swift */,
+				F9ACAEDC26EAB8A3000AB815 /* EventInfoTableViewCell.swift */,
 			);
 			path = Views;
 			sourceTree = "<group>";
@@ -385,6 +388,7 @@
 				F99C706926E1AF4200D2B671 /* Event.swift in Sources */,
 				F9A6D697264B44AF00C444FD /* BackgroundVideoPlayer.swift in Sources */,
 				F98EA5802660CFC700B45D38 /* K.swift in Sources */,
+				F9ACAEDD26EAB8A3000AB815 /* EventInfoTableViewCell.swift in Sources */,
 				F9A6D695264B3BF500C444FD /* LogInViewController.swift in Sources */,
 				F986FA2526D35D2900B1B6BA /* HomePageViewController.swift in Sources */,
 				F95A0BF8264F7EB6002F8490 /* ChatViewController.swift in Sources */,
@@ -539,7 +543,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_ENTITLEMENTS = Manor/Manor.entitlements;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 15;
+				CURRENT_PROJECT_VERSION = 31;
 				DEVELOPMENT_TEAM = SV4GDKS298;
 				INFOPLIST_FILE = Manor/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 13.0;
@@ -563,7 +567,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_ENTITLEMENTS = Manor/Manor.entitlements;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 15;
+				CURRENT_PROJECT_VERSION = 31;
 				DEVELOPMENT_TEAM = SV4GDKS298;
 				INFOPLIST_FILE = Manor/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 13.0;

@@ -21,7 +21,11 @@ class GroupChatInfoViewController: UIViewController, UIImagePickerControllerDele
     
     let groupChatMessagesRef = Database.database().reference().child("GroupChatMessages")
     let groupChatByUsersRef = Database.database().reference().child("GroupChatsByUser")
+    let eventChatsByUserRef =
+        Database.database().reference().child("EventChatsByUser")
+    let eventChatMessagesRef = Database.database().reference().child("EventChatMessages")
     let usersRef = Database.database().reference().child("users")
+    var user: User! = Firebase.Auth.auth().currentUser
     var documentID: String?
     var pushMessages: [Message] = []
     var groupMembers: [[String]] = []
@@ -38,11 +42,11 @@ class GroupChatInfoViewController: UIViewController, UIImagePickerControllerDele
     var userEmail: String = ""
     var userNickName: String = ""
     let photoManager = PhotoManagerViewController()
+    var isEventChat: Bool! = false
     
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        
         NotificationCenter.default.post(name: NSNotification.Name(rawValue: "disableSwipe"), object: nil)
         
         let buttonsArray = ["Add Members", "Notifications:"]
@@ -71,28 +75,30 @@ class GroupChatInfoViewController: UIViewController, UIImagePickerControllerDele
         
         
         /*for email in groupMembers {
-            let currentUserEmail = email
-            var currentUserFullName = ""
-            let commaEmail = email.replacingOccurrences(of: ".", with: ",")
-            usersRef.child(commaEmail).observeSingleEvent(of: DataEventType.value) { (snapshot) in
-                let postDict = snapshot.value as? [String: AnyObject]
-                for key in postDict!.keys {
-                    if key == "firstName" {
-                        currentUserFullName = (self.value(forKey: "firstName") as? String) ?? ""
-                    }
-                    
-                    if key == "lastName" {
-                        currentUserFullName = "\(currentUserFullName) \(self.value(forKey: "lastName") as? String ?? "")"
-                        
-                        let user = Contact(email: currentUserEmail, fullName: currentUserFullName)
-                        
-                        self.groupContacts.append(user)
-                    }
-                }
-            }
-        }*/
+         let currentUserEmail = email
+         var currentUserFullName = ""
+         let commaEmail = email.replacingOccurrences(of: ".", with: ",")
+         usersRef.child(commaEmail).observeSingleEvent(of: DataEventType.value) { (snapshot) in
+         let postDict = snapshot.value as? [String: AnyObject]
+         for key in postDict!.keys {
+         if key == "firstName" {
+         currentUserFullName = (self.value(forKey: "firstName") as? String) ?? ""
+         }
+         
+         if key == "lastName" {
+         currentUserFullName = "\(currentUserFullName) \(self.value(forKey: "lastName") as? String ?? "")"
+         
+         let user = Contact(email: currentUserEmail, fullName: currentUserFullName)
+         
+         self.groupContacts.append(user)
+         }
+         }
+         }
+         }*/
         
+        print(self.userFullName)
         for member in groupMembers {
+            print(member)
             if member[0] == self.userFullName {
                 self.userEmail = member[1]
             }
@@ -104,7 +110,13 @@ class GroupChatInfoViewController: UIViewController, UIImagePickerControllerDele
         pushMessagesTableView.dataSource = self
         pushMessagesTableView.delegate = self
         
-        let pushMessagesRef = groupChatMessagesRef.child(documentID!).child("pushMessages")
+        let pushMessagesRef: DatabaseReference
+        
+        if isEventChat {
+            pushMessagesRef = eventChatMessagesRef.child(documentID!).child("pushMessages")
+        } else {
+            pushMessagesRef = groupChatMessagesRef.child(documentID!).child("pushMessages")
+        }
         
         pushMessagesRef.observe(DataEventType.value, with: { (snapshot) in
             let postDict = snapshot.value as? [String : AnyObject] ?? [:]
@@ -139,19 +151,19 @@ class GroupChatInfoViewController: UIViewController, UIImagePickerControllerDele
         })
         
         /*let commaEmail = self.userEmail.replacingOccurrences(of: ".", with: ",")
-        
-        self.groupChatByUsersRef.child(commaEmail).child("Chats").child(self.documentID!).child("notificationsEnabled").observeSingleEvent(of: DataEventType.value) { DataSnapshot in
-            if let notificationsEnabled = DataSnapshot.value as? Bool {
-                if notificationsEnabled {
-                    self.notificationsOn = true
-                } else {
-                    self.notificationsOn = false
-                }
-            } else {
-                self.notificationsOn = true
-            }
-            self.pushMessagesTableView.reloadData()
-        }*/
+         
+         self.groupChatByUsersRef.child(commaEmail).child("Chats").child(self.documentID!).child("notificationsEnabled").observeSingleEvent(of: DataEventType.value) { DataSnapshot in
+         if let notificationsEnabled = DataSnapshot.value as? Bool {
+         if notificationsEnabled {
+         self.notificationsOn = true
+         } else {
+         self.notificationsOn = false
+         }
+         } else {
+         self.notificationsOn = true
+         }
+         self.pushMessagesTableView.reloadData()
+         }*/
     }
     
     func setUpAddMemberButton() {
@@ -166,10 +178,10 @@ class GroupChatInfoViewController: UIViewController, UIImagePickerControllerDele
         self.photoManager.groupMembers = self.groupMembers
         self.photoManager.setUpCameraPicker(viewController: self, desiredPicker: "old")
         /*let imagePickerController = UIImagePickerController()
-        imagePickerController.delegate = self
-        imagePickerController.allowsEditing = true
-        
-        self.present(imagePickerController, animated: true)*/
+         imagePickerController.delegate = self
+         imagePickerController.allowsEditing = true
+         
+         self.present(imagePickerController, animated: true)*/
     }
     
     func downloadImage(completion: @escaping (UIImage) -> ()) {
@@ -191,16 +203,28 @@ class GroupChatInfoViewController: UIViewController, UIImagePickerControllerDele
                         print("failure downloading image", error)
                     }
                 }
+            } else {
+                let groupChatImageUrl = "default"
+                Amplify.Storage.downloadData(key: groupChatImageUrl) { result in
+                    switch result {
+                    case .success(let data):
+                        print("Success downloading image", data)
+                        if let image = UIImage(data: data) {
+                            DispatchQueue.main.async {
+                                completion(image)
+                            }
+                        }
+                    case .failure(let error):
+                        print("failure downloading image", error)
+                    }
+                }
             }
         }
     }
     
     func imagePickerController(_ picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [UIImagePickerController.InfoKey : Any]) {
-        photoManager.processPickerResultOld(imagePicker: picker, info: info, isTextMessage: false, isGroupMessage: true)
-        //self.groupChatImageButton.setBackgroundImage(image, for: .normal)
-        //self.groupChatTitleTextField.text = self.groupChatTitle
         
-        /*picker.dismiss(animated: true, completion: nil)
+        photoManager.processPickerResultOld(imagePicker: picker, info: info, isTextMessage: false, isGroupMessage: true, isEventChat: self.isEventChat)
         
         var selectedImageFromPicker: UIImage?
         
@@ -209,41 +233,7 @@ class GroupChatInfoViewController: UIViewController, UIImagePickerControllerDele
         } else if let originalImage = info[UIImagePickerController.InfoKey(rawValue: "UIImagePickerControllerOriginalImage")] as? UIImage {
             selectedImageFromPicker = originalImage
         }
-        
-        if let selectedImage = selectedImageFromPicker {
-            let imageName = NSUUID().uuidString
-            let storage = Storage.storage()
-            let ref = storage.reference().child("Contact_images").child(imageName)
-            
-            if let uploadData = selectedImage.jpegData(compressionQuality: 0.2) {
-                ref.putData(uploadData, metadata: nil) { metaData, err in
-                    
-                    if err != nil {
-                        print("failed to upload image:", err!)
-                        return
-                    }
-                    
-                    ref.downloadURL { url, err in
-                        if err != nil {
-                            print("failed to download URL", err!)
-                        } else if let imageURL = url?.absoluteString {
-                            self.groupChatMessagesRef.child("\(self.documentID!)/profileImageUrl").setValue(imageURL)
-                            self.groupChatImageUrl = imageURL
-                            self.downloadImage { image in
-                                self.groupChatImageButton.setBackgroundImage(image, for: .normal)
-                                self.groupChatTitleTextField.text = self.groupChatTitle
-                            }
-                            
-                            for member in self.groupMembers {
-                                let commaEmail = member[1].replacingOccurrences(of: ".", with: ",")
-                                
-                                self.groupChatByUsersRef.child("\(commaEmail)/Chats/\(self.documentID!)/profileImageUrl").setValue(imageURL)
-                            }
-                        }
-                    }
-                }
-            }
-        }*/
+        groupChatImageButton.setBackgroundImage(selectedImageFromPicker, for: .normal)
     }
     
     
@@ -253,6 +243,7 @@ class GroupChatInfoViewController: UIViewController, UIImagePickerControllerDele
             vc.documentID = self.documentID!
             vc.groupMembers = self.groupMembers
             vc.groupChatTitle = self.groupChatTitle
+            vc.isEventChat = self.isEventChat
         }
         
         if segue.destination is UnreachedMembersViewController {
@@ -268,6 +259,14 @@ class GroupChatInfoViewController: UIViewController, UIImagePickerControllerDele
             vc.otherUserFullName = self.otherUserFullName
             vc.otherUserEmail = self.otherUserEmail
             vc.userFullName = self.userFullName
+            
+            if(self.user.email! < otherUserEmail ) {
+                let chatTitle = "\(self.user!.email!) + \(otherUserEmail)"
+                vc.documentID = chatTitle.replacingOccurrences(of: ".", with: ",")
+            } else {
+                let chatTitle = "\(otherUserEmail) + \(self.user!.email!)"
+                vc.documentID = chatTitle.replacingOccurrences(of: ".", with: ",")
+            }
         }
     }
     
@@ -278,6 +277,10 @@ class GroupChatInfoViewController: UIViewController, UIImagePickerControllerDele
     
     override func viewDidDisappear(_ animated: Bool) {
         NotificationCenter.default.post(name: NSNotification.Name(rawValue: "enableSwipe"), object: nil)
+    }
+    
+    override func viewWillAppear(_ animated: Bool) {
+        NotificationCenter.default.post(name: NSNotification.Name(rawValue: "hideNavigationBar"), object: nil)
     }
 }
 
@@ -308,20 +311,36 @@ extension GroupChatInfoViewController: UITableViewDelegate, UITableViewDataSourc
                 cell.isSettingsButton = true
                 
                 let commaEmail = self.userEmail.replacingOccurrences(of: ".", with: ",")
-                
-                
-                self.groupChatByUsersRef.child(commaEmail).child("Chats").child(self.documentID!).child("notificationsEnabled").observeSingleEvent(of: DataEventType.value) { DataSnapshot in
-                    if let notificationsEnabled = DataSnapshot.value as? Bool {
-                        if notificationsEnabled {
+
+                if isEventChat {
+                    self.eventChatsByUserRef.child(commaEmail).child("Chats").child(self.documentID!).child("notificationsEnabled").observeSingleEvent(of: DataEventType.value) { DataSnapshot in
+                        if let notificationsEnabled = DataSnapshot.value as? Bool {
+                            if notificationsEnabled {
+                                cell.specificTextFieldText = "Enabled"
+                                cell.background.backgroundColor = .systemGreen
+                            } else {
+                                cell.specificTextFieldText = "Disabled"
+                                cell.background.backgroundColor = .systemRed
+                            }
+                        } else {
                             cell.specificTextFieldText = "Enabled"
                             cell.background.backgroundColor = .systemGreen
-                        } else {
-                            cell.specificTextFieldText = "Disabled"
-                            cell.background.backgroundColor = .systemRed
                         }
-                    } else {
-                        cell.specificTextFieldText = "Enabled"
-                        cell.background.backgroundColor = .systemGreen 
+                    }
+                } else {
+                    self.groupChatByUsersRef.child(commaEmail).child("Chats").child(self.documentID!).child("notificationsEnabled").observeSingleEvent(of: DataEventType.value) { DataSnapshot in
+                        if let notificationsEnabled = DataSnapshot.value as? Bool {
+                            if notificationsEnabled {
+                                cell.specificTextFieldText = "Enabled"
+                                cell.background.backgroundColor = .systemGreen
+                            } else {
+                                cell.specificTextFieldText = "Disabled"
+                                cell.background.backgroundColor = .systemRed
+                            }
+                        } else {
+                            cell.specificTextFieldText = "Enabled"
+                            cell.background.backgroundColor = .systemGreen
+                        }
                     }
                 }
             }
@@ -344,7 +363,7 @@ extension GroupChatInfoViewController: UITableViewDelegate, UITableViewDataSourc
             cell.background.backgroundColor = UIColor(named: K.BrandColors.navigationBarGray)
             cell.isContact = false
             cell.isSettingsButton = false
-
+            
             let message = tableViewContents[indexPath.section][indexPath.row] as? Message
             cell.contactName.text = message?.messageBody
             cell.pushMessageUID = message?.pushMessageUID ?? ""
@@ -478,29 +497,83 @@ extension GroupChatInfoViewController: UITableViewDelegate, UITableViewDataSourc
                     cell.background.backgroundColor = .systemRed
                     cell.specificTextField.text = "Disabled"
                     self.notificationsOn = false
-                    self.groupChatByUsersRef.child("\(commaEmail)/Chats/\(self.documentID!)/notificationsEnabled").setValue(false)
+                    if isEventChat {
+                        self.eventChatsByUserRef.child("\(commaEmail)/Chats/\(self.documentID!)/notificationsEnabled").setValue(false)
+                    } else {
+                        self.groupChatByUsersRef.child("\(commaEmail)/Chats/\(self.documentID!)/notificationsEnabled").setValue(false)
+                    }
                 } else {
                     cell.background.backgroundColor = .systemGreen
                     cell.specificTextField.text = "Enabled"
                     self.notificationsOn = true
-                    self.groupChatByUsersRef.child("\(commaEmail)/Chats/\(self.documentID!)/notificationsEnabled").setValue(true)
+                    if isEventChat {
+                        self.eventChatsByUserRef.child("\(commaEmail)/Chats/\(self.documentID!)/notificationsEnabled").setValue(true)
+                    } else {
+                        self.groupChatByUsersRef.child("\(commaEmail)/Chats/\(self.documentID!)/notificationsEnabled").setValue(true)
+                    }
                 }
             }
         case 1:
-            self.otherUserFullName = cell.contactName.text!
-            self.otherUserEmail = groupMembers[indexPath.row][1]
-            performSegue(withIdentifier: K.Segues.DirectMessageChatSegue, sender: self)
+            if let otherUserFullName = cell.contactName.text, groupMembers.count - 1 >= indexPath.row, groupMembers[indexPath.row].count == 2 {
+                let otherUserEmail = groupMembers[indexPath.row][1]
+                if otherUserFullName != "", otherUserEmail != "" {
+                    self.otherUserFullName = otherUserFullName
+                    self.otherUserEmail = otherUserEmail
+                    performSegue(withIdentifier: K.Segues.DirectMessageChatSegue, sender: self)
+                }
+            }
         case 2:
             cell.selectionStyle = .none
             self.pushMessageUID = cell.pushMessageUID
             performSegue(withIdentifier: "toUnreachedMembers", sender: self)
         case 3:
-            cell.selectionStyle = .none
-            cell.specificTextField.isUserInteractionEnabled = true
-            cell.specificTextField.delegate = self
-            cell.specificTextField.text = ""
-            cell.specificTextField.textAlignment = .center
-            cell.specificTextField.becomeFirstResponder()
+            if indexPath.row == 0 {
+                cell.selectionStyle = .none
+                cell.specificTextField.isUserInteractionEnabled = true
+                cell.specificTextField.delegate = self
+                cell.specificTextField.text = ""
+                cell.specificTextField.textAlignment = .center
+                cell.specificTextField.becomeFirstResponder()
+            } else {
+                let commaEmail = self.userEmail.replacingOccurrences(of: ".", with: ",")
+                if isEventChat {
+                    self.eventChatsByUserRef.child(commaEmail).child("Chats").child(self.documentID!).removeValue()
+                } else {
+                    self.groupChatByUsersRef.child(commaEmail).child("Chats").child(self.documentID!).removeValue()
+                }
+                
+                if isEventChat {
+                    if self.documentID != nil && self.documentID != nil {
+                        var count = 0
+                        while groupMembers[count][1] != self.user?.email! {
+                            count += 1
+                        }
+                        self.groupMembers.remove(at: count)
+                        eventChatMessagesRef.child("\(self.documentID!)/Members").setValue(self.groupMembers)
+                    }
+                    guard let navigationController = self.navigationController else { return }
+                    var navigationArray = navigationController.viewControllers
+                    navigationArray.remove(at: navigationArray.count - 1)
+                    navigationArray.remove(at: navigationArray.count - 1)
+                    NotificationCenter.default.post(name: NSNotification.Name(rawValue: "showNavigationBar"), object: nil)
+                    self.navigationController?.viewControllers = navigationArray
+                } else {
+                    if self.documentID != nil && self.documentID != nil {
+                        var count = 0
+                        while groupMembers[count][1] != self.user?.email! {
+                            count += 1
+                        }
+                        self.groupMembers.remove(at: count)
+                        groupChatMessagesRef.child("\(self.documentID!)/Members").setValue(self.groupMembers)
+                    }
+                    guard let navigationController = self.navigationController else { return }
+                    var navigationArray = navigationController.viewControllers
+                    navigationArray.remove(at: navigationArray.count - 1)
+                    navigationArray.remove(at: navigationArray.count - 1)
+                    NotificationCenter.default.post(name: NSNotification.Name(rawValue: "showNavigationBar"), object: nil)
+                    self.navigationController?.viewControllers = navigationArray
+                }
+            }
             
         default:
             cell.selectionStyle = .none
@@ -515,7 +588,11 @@ extension GroupChatInfoViewController: UITableViewDelegate, UITableViewDataSourc
         let commaEmail = self.userEmail.replacingOccurrences(of: ".", with: ",")
         
         if textField.text != "" {
-        groupChatByUsersRef.child("\(commaEmail)/Chats/\(self.documentID!)/nickName").setValue(textField.text)
+            if isEventChat {
+                eventChatsByUserRef.child("\(commaEmail)/Chats/\(self.documentID!)/nickName").setValue(textField.text)
+            } else {
+                groupChatByUsersRef.child("\(commaEmail)/Chats/\(self.documentID!)/nickName").setValue(textField.text)
+            }
         } else {
             textField.text = self.userFullName
         }

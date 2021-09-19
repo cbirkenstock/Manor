@@ -16,28 +16,40 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
     
     let defaults = UserDefaults.standard
     let imageCache = NSCache<NSString, AnyObject>()
-    let firebaseManager = FirebaseManagerViewController()
+
     
     
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
-        self.defaults.setValue(nil, forKey: "savedPassword")
         
         FirebaseApp.configure()
         
+        let userRef = Database.database().reference().child("users")
+        
+        userRef.observe(DataEventType.value, with: { (snapshot) in
+            let postDict = snapshot.value as? [String : AnyObject] ?? [:]
+            for value in postDict.values {
+                //creates contact icon for all the users
+                if let userFirstName = value.object(forKey: "firstName") as? String, let userLastName = value.object(forKey: "lastName") as? String, let userEmail = value.object(forKey: "email") as? String {
+                    }
+            }
+        })
+        
         //let user: User! = Firebase.Auth.auth().currentUser
+
         
         let pushNotificationManager = PushNotificationManager()
         
         pushNotificationManager.registerForPushNotifications()
         
         configureAmplify()
-        firebaseManager.downloadContactPhotos { contactPhotosDictionary in
-            print("photos1")
-            print(contactPhotosDictionary)
-            self.defaults.setValue(contactPhotosDictionary, forKey: "groupContactPictures")
-        }
         
-
+        let firebaseManager = FirebaseManagerViewController()
+        
+        firebaseManager.downloadContactPhotos { groupContactPhotosDictionary in
+            self.defaults.setValue(groupContactPhotosDictionary, forKey: "groupContactPictures")
+        } dmCompletion: { dmContactPhotosDictionary in
+            self.defaults.setValue(dmContactPhotosDictionary, forKey: "dmContactPictures")
+        }
         return true
     }
     

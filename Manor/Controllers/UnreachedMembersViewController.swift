@@ -61,8 +61,6 @@ class UnreachedMembersViewController: UIViewController, WKNavigationDelegate {
      }*/
     
     @IBAction func messageAllButtonPressed(_ sender: Any) {
-        /*self.unreachedMembersBottomConstraint.constant += UIScreen.main.bounds.height*/
-        
         let alert = UIAlertController(title: "Send Message", message: "Your message will be sent to everyone once you hit send", preferredStyle: .alert)
         alert.addTextField()
         alert.addAction(UIAlertAction(title: "Send", style: .default, handler: { UIAlertAction in
@@ -103,17 +101,12 @@ class UnreachedMembersViewController: UIViewController, WKNavigationDelegate {
                     
                     self.chatsByUserRef.child("\(commaUserEmail)/Chats/\(commaDocumentName)/timeStamp").setValue(timeStamp)
                     
-                    //self.chatsByUserRef.child("\(commaUserEmail)/Chats/\(commaDocumentName)/title").setValue(self.otherUserFullName)
-                    
-                    
                     self.chatsByUserRef.child("\(commaOtherUserEmail)/Chats/\(commaDocumentName)/senderEmail").setValue(commaUserEmail)
                     
                     self.chatsByUserRef.child("\(commaOtherUserEmail)/Chats/\(commaDocumentName)/lastMessage").setValue(messageBody)
                     
                     self.chatsByUserRef.child("\(commaOtherUserEmail)/Chats/\(commaDocumentName)/timeStamp").setValue(timeStamp)
-                    
-                    //self.chatsByUserRef.child("\(commaOtherUserEmail)/Chats/\(commaDocumentName)/title").setValue(self.userFullName)
-                    
+
                     self.chatsByUserRef.child("\(commaOtherUserEmail)/Chats/\(commaDocumentName)/readNotification").setValue(false)
                     
                 }

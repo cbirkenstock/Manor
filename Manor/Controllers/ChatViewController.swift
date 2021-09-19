@@ -58,6 +58,7 @@ class ChatViewController: UIViewController, PHPickerViewControllerDelegate, UIIm
     let cameraButton = UIButton()
     let photoManager = PhotoManagerViewController()
     let imageCache = NSCache<NSString, AnyObject>()
+    var isNewChat: Bool = false
     //var conversationBadgeCountHandler: UInt?
     
     
@@ -251,12 +252,12 @@ class ChatViewController: UIViewController, PHPickerViewControllerDelegate, UIIm
     
     func imagePickerController(_ picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [UIImagePickerController.InfoKey : Any]) {
         
-        photoManager.processPickerResultOld(imagePicker: picker, info: info, isTextMessage: true, isGroupMessage: false)
+        photoManager.processPickerResultOld(imagePicker: picker, info: info, isTextMessage: true, isGroupMessage: false, isEventChat: false)
     }
     
     @available(iOS 14, *)
     func picker(_ picker: PHPickerViewController, didFinishPicking results: [PHPickerResult]) {
-        photoManager.processPickerResultsPHP(imagePicker: picker, results: results, isGroupMessage: false)
+        photoManager.processPickerResultsPHP(imagePicker: picker, results: results, isGroupMessage: false, isEventChat: false)
     }
     
     override func viewWillAppear(_ animated: Bool) {
@@ -393,6 +394,8 @@ class ChatViewController: UIViewController, PHPickerViewControllerDelegate, UIIm
             
             self.chatsByUserRef.child("\(commaUserEmail)/Chats/\(commaDocumentName)/profileImageUrl").setValue(self.otherUserProfileImageUrl)
             
+            self.chatsByUserRef.child("\(commaUserEmail)/Chats/\(commaDocumentName)/readNotification").setValue(true)
+            
             /*db.collection("ChatsByUser").document("\(String(describing: self.user!.email!))").collection("Chats").document(documentName).setData([
              "title": self.otherUserFullName,
              "senderEmail": self.user!.email!,
@@ -435,7 +438,6 @@ class ChatViewController: UIViewController, PHPickerViewControllerDelegate, UIIm
     
     
     func loadMessages() {
-        
         self.chatTableView.isHidden = false
         
         let userMessagesRef = chatMessagesRef.child(commaDocumentName).child("Messages")
@@ -482,9 +484,12 @@ class ChatViewController: UIViewController, PHPickerViewControllerDelegate, UIIm
                         }
                     } else if let imageURL = value.object(forKey: "imageURL") as? String {
                         
+                        let imageHeight = value.object(forKey: "imageHeight") as? Double ?? 400
+                        let imageWidth = value.object(forKey: "imageWidth") as? Double ?? 300
+                        
                         self.totalMessages += 1
                         
-                        let message = Message(messageSender: messageSender, messageBody: nil, timeStamp: timeStamp, pushMessageUID: nil, imageURL: imageURL, messageSenderNickName: nil)
+                        let message = Message(messageSender: messageSender, messageBody: nil, timeStamp: timeStamp, pushMessageUID: nil, imageURL: imageURL, messageSenderNickName: nil, imageWidth: imageWidth, imageHeight: imageHeight)
                         
                         self.dateFormatter.dateFormat = "MM/dd/yyyy"
                         let messageDate = self.dateFormatter.string(from: Date(timeIntervalSince1970: timeStamp))
@@ -576,7 +581,6 @@ extension ChatViewController: UITableViewDataSource, UITableViewDelegate {
         if indexPath.row < sortedMessages.count - 2 {
             let message2 = sortedMessages[indexPath.row + 1]
             if message2.imageURL != "" {
-                let imageURL = message2.imageURL!
                 let NSImageURL = message2.imageURL! as NSString
                 //if let _ = self.imageCache.object(forKey: imageURL) {
                 //} else {
@@ -642,12 +646,17 @@ extension ChatViewController: UITableViewDataSource, UITableViewDelegate {
             
             let NSImageURL = message.imageURL! as NSString
             
-            if let cachedImage = self.imageCache.object(forKey: NSImageURL as NSString) {
-                cell.messageImageView.image = cachedImage as? UIImage
+            if let cachedImage = self.imageCache.object(forKey: NSImageURL as NSString) as? UIImage {
+                cell.messageImageView.image = cachedImage
+                let imageHeight = CGFloat(cachedImage.size.height/cachedImage.size.width * 300)
+                print("Cached", imageHeight)
+                cell.imageHeight = imageHeight 
                 /*} else if let storedImage = self.photoDictionary[imageURL] {
                  cell.messageImageView.image = storedImage
                  self.imageCache.setObject(storedImage, forKey: NSImageURL)*/
             } else {
+                let imageHeight = CGFloat(message.imageHeight/message.imageWidth * 300)
+                cell.imageHeight = imageHeight
                 Amplify.Storage.downloadData(key: imageURL) { result in
                     switch result {
                     case .success(let data):
@@ -657,7 +666,9 @@ extension ChatViewController: UITableViewDataSource, UITableViewDelegate {
                             DispatchQueue.main.async {
                                 cell.messageImageView.image = image
                                 self.imageCache.setObject(image, forKey: NSImageURL as NSString)
-                                //self.photoDictionary[imageURL] = image
+                                /*cell.messageImageView.image = image
+                                self.imageCache.setObject(image, forKey: NSImageURL as NSString)
+                                //self.photoDictionary[imageURL] = image*/
                             }
                         }
                     case .failure(let error):
@@ -741,9 +752,36 @@ extension ChatViewController: UITableViewDataSource, UITableViewDelegate {
             }
             cell.groupPosition = self.checkCellPosition(sortedMessages: sortedMessages, indexPathRow: indexPath.row)
             cell.messageBody.text = message.messageBody
+            cell.messageTextView.text = message.messageBody
             cell.transform = CGAffineTransform(scaleX: 1, y: -1)
             return cell
         }
+    }
+    
+    func ResizeImage(_ image: UIImage, targetSize: CGSize) -> UIImage? {
+        let size = image.size
+
+        let widthRatio  = targetSize.width  / image.size.width
+        let heightRatio = targetSize.height / image.size.height
+
+        // Figure out what our orientation is, and use that to form the rectangle
+        var newSize: CGSize
+        if(widthRatio > heightRatio) {
+            newSize = CGSize(width: size.width * heightRatio, height: size.height * heightRatio)
+        } else {
+            newSize = CGSize(width: size.width * widthRatio, height: size.height * widthRatio)
+        }
+
+        // This is the rect that we've calculated out and this is what is actually used below
+        let rect = CGRect(x: 0, y: 0, width: newSize.width, height: newSize.height)
+
+        // Actually do the resizing to the rect using the ImageContext stuff
+        UIGraphicsBeginImageContextWithOptions(newSize, false, 1.0)
+        image.draw(in: rect)
+        let newImage = UIGraphicsGetImageFromCurrentImageContext()
+        UIGraphicsEndImageContext()
+
+        return newImage
     }
     
     func checkCellPosition(sortedMessages: [Message], indexPathRow: Int) -> String {

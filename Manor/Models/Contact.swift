@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import UIKit
 
 struct Contact: Equatable {
     
@@ -16,6 +17,8 @@ struct Contact: Equatable {
     var lastMessage: String = ""
     var badgeCount: Int = 0
     var profileImageUrl: String = ""
+    var image: UIImage? = nil
+    var event: Event? = nil
     
     static func == (lhs: Contact, rhs: Contact) -> Bool {
         return

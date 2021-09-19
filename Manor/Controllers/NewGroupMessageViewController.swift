@@ -7,9 +7,13 @@
 
 import UIKit
 import Firebase
+import Amplify
+import AmplifyPlugins
 
 class NewGroupMessageViewController: UIViewController {
     
+    
+    @IBOutlet weak var searchNamesBottomConstraint: NSLayoutConstraint!
     
     @IBOutlet weak var chosenNamesContainerHeight: NSLayoutConstraint!
     @IBOutlet weak var chosenNamesContainer: UIView!
@@ -27,6 +31,7 @@ class NewGroupMessageViewController: UIViewController {
     let db = Firestore.firestore()
     let userRef = Database.database().reference().child("users")
     var groupChatMessagesRef = Database.database().reference().child("GroupChatMessages")
+    let groupChatByUsersRef = Database.database().reference().child("GroupChatsByUser")
     var user: User! = Firebase.Auth.auth().currentUser
     var ref: DocumentReference? = nil
     
@@ -43,10 +48,14 @@ class NewGroupMessageViewController: UIViewController {
     
     let usersRef = Database.database().reference().child("users")
     
+    let imageCache = NSCache<NSString, AnyObject>()
     //--//
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        
+        self.searchNamesCollectionView.register(TestTwoCollectionViewCell.self, forCellWithReuseIdentifier: "contactCollectionViewCell")
+        self.chosenCollectionView.register(TestTwoCollectionViewCell.self, forCellWithReuseIdentifier: "contactCollectionViewCell")
         
         let commaEmail = user.email!.replacingOccurrences(of: ".", with: ",")
         
@@ -115,8 +124,8 @@ class NewGroupMessageViewController: UIViewController {
         
         
         //collection view layout for searched names
-        let cellWidth = UIScreen.main.bounds.width/3 - 15
-        let cellHeight = cellWidth/0.8244
+        let cellWidth = UIScreen.main.bounds.width/3 - 10
+        let cellHeight = cellWidth/0.7
         searchNamesflowLayout.itemSize = CGSize(width: cellWidth, height: cellHeight) //235
         searchNamesflowLayout.sectionInset = UIEdgeInsets(top: 0, left: 5, bottom: 0, right: 5)
         searchNamesflowLayout.scrollDirection = .vertical
@@ -130,6 +139,10 @@ class NewGroupMessageViewController: UIViewController {
         chosenflowLayout.scrollDirection = .horizontal
         chosenflowLayout.minimumInteritemSpacing = 0.0
         chosenCollectionView.collectionViewLayout = chosenflowLayout
+        
+        NotificationCenter.default.addObserver(self, selector: #selector(ChatViewController.keyboardWillShow), name: UIResponder.keyboardWillShowNotification, object: nil)
+        
+        NotificationCenter.default.addObserver(self, selector: #selector(ChatViewController.keyboardWillHide), name: UIResponder.keyboardWillHideNotification, object: nil)
     }
     
     //send over appropriate information to groupchat view
@@ -142,6 +155,29 @@ class NewGroupMessageViewController: UIViewController {
             
             
         }
+    }
+    
+    @objc func keyboardWillShow(notification: NSNotification) {
+        //pushMessageButton.isEnabled = true
+        //pushMessageButton.tintColor = UIColor(named: K.BrandColors.red)
+        guard let userInfo = notification.userInfo else {return}
+        guard let duration: TimeInterval = (userInfo[UIResponder.keyboardAnimationDurationUserInfoKey] as? NSNumber)?.doubleValue else {return}
+        guard let keyboardSize = userInfo[UIResponder.keyboardFrameEndUserInfoKey] as? NSValue else {return}
+        let keyboardFrame = keyboardSize.cgRectValue.height
+        
+        self.searchNamesBottomConstraint.constant = keyboardFrame
+        
+        UIView.animate(withDuration: duration) { self.view.layoutIfNeeded() }
+    }
+    
+    
+    @objc func keyboardWillHide(notification: NSNotification) {
+        guard let userInfo = notification.userInfo else {return}
+        guard let duration: TimeInterval = (userInfo[UIResponder.keyboardAnimationDurationUserInfoKey] as? NSNumber)?.doubleValue else {return}
+        
+        self.searchNamesBottomConstraint.constant = 0
+        
+        UIView.animate(withDuration: duration) { self.view.layoutIfNeeded() }
     }
     
     
@@ -196,7 +232,8 @@ class NewGroupMessageViewController: UIViewController {
                 let userLastName = (value.object(forKey: "lastName") as? String) ?? ""
                 let userFullName = "\(userFirstName) \(userLastName)"
                 let userEmail = value.object(forKey: "email") as? String ?? ""
-                let userContact: Contact = Contact(email: userEmail, fullName: userFullName)
+                let profileImageUrl = value.object(forKey: "profileImageUrl") as? String ?? "default"
+                let userContact: Contact = Contact(email: userEmail, fullName: userFullName, profileImageUrl: profileImageUrl)
                 //this loop just checks to see if all the letters of someone's name matches the searched name
                 if let i = searchName?.count {
                     var letterPos = 0
@@ -309,7 +346,23 @@ class NewGroupMessageViewController: UIViewController {
             "timeStamp": commaTimestamp,
             "Members": self.groupMembers,
             "lastMessage": "",
+            "documentID": documentID
         ])
+        
+        for member in groupMembers {
+            let email = member[1]
+            print("Email")
+            let commaEmail = email.replacingOccurrences(of: ".", with: ",")
+            
+            self.groupChatByUsersRef.child(commaEmail).child("Chats").child(documentID).setValue([
+                "title": titleTextField?.text ?? "",
+                "documentID": documentID,
+                "timeStamp": commaTimestamp,
+                "notificationsEnabled": true,
+                "readNotification": true
+            ])
+        }
+        
         
         self.performSegue(withIdentifier: K.Segues.GroupChatSegue, sender: self)
         
@@ -360,23 +413,95 @@ extension NewGroupMessageViewController: UICollectionViewDataSource {
     //sets cell's nameLabel to name of contact and the document ID to their email, if it's the chosen collection view then only does names
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         if collectionView == self.searchNamesCollectionView {
-            let cell = searchNamesCollectionView.dequeueReusableCell(withReuseIdentifier: "contactCollectionViewCell", for: indexPath) as! ContactCollectionViewCell
+            let cell = searchNamesCollectionView.dequeueReusableCell(withReuseIdentifier: "contactCollectionViewCell", for: indexPath) as! TestTwoCollectionViewCell
             
-            cell.nameLabel.text = searchNames[indexPath.row].fullName
+            cell.isBig = true
+            cell.contactImageView.image = #imageLiteral(resourceName: "AbstractPainting")
+            
+            let fullName = searchNames[indexPath.row].fullName
+            
+            let fullNameArray = fullName.split(separator: " ")
+            
+            let firstName = fullNameArray[0]
+            let lastName = fullNameArray[1]
+            
+            cell.contactFirstName.text = String(firstName)
+            cell.contactLastName.text = String(lastName)
+            
             cell.documentID = searchNames[indexPath.row].email
             
+            let profileImageUrl = searchNames[indexPath.row].profileImageUrl
+            
+            //cell.profileImageUrl = profileImageUrl
+            cell.contactImageView.image = #imageLiteral(resourceName: "AbstractPainting")
+            
+            if profileImageUrl == "default" || profileImageUrl == "" {
+                return cell
+            /*}  else if let cachedImage = self.imageCache.object(forKey: profileImageUrl as NSString) {
+                cell.contactImageView.image = cachedImage as? UIImage*/
+            } else {
+                print("true true")
+                Amplify.Storage.downloadData(key: profileImageUrl) { result in
+                    switch result {
+                    case .success(let data):
+                        print("Success downloading image", data)
+                        if let image = UIImage(data: data) {
+                            DispatchQueue.main.async {
+                                cell.contactImageView.image = image
+                            }
+                        }
+                    case .failure(let error):
+                        print("failure downloading image", error)
+                    }
+                }
+            }
             return cell
             
         } else {
+            let cell = chosenCollectionView.dequeueReusableCell(withReuseIdentifier: "contactCollectionViewCell", for: indexPath) as! TestTwoCollectionViewCell
             
-            let cell = chosenCollectionView.dequeueReusableCell(withReuseIdentifier: "Cell", for: indexPath) as! ChosenNameCell
+            let fullName = chosenNames[indexPath.row].fullName
             
-            if (chosenNames.count >= 1) {
-                cell.nameLabel.text = chosenNames[indexPath.row].fullName
+            let fullNameArray = fullName.split(separator: " ")
+            
+            let firstName = fullNameArray[0]
+            //let lastName = fullNameArray[1]
+            
+            cell.isBig = false
+            cell.contactFirstName.text = String(firstName)
+            //cell.contactLastName.text = String(lastName)
+            cell.documentID = chosenNames[indexPath.row].email
+            
+            //cell.isSearchName = true
+            
+            let profileImageUrl = chosenNames[indexPath.row].profileImageUrl
+            
+            
+            //cell.profileImageUrl = profileImageUrl
+            cell.contactImageView.image = #imageLiteral(resourceName: "AbstractPainting")
+            
+            if let image = chosenNames[indexPath.row].image {
+                cell.contactImageView.image = image
+            } else if profileImageUrl == "default" {
+                return cell
+            /*}  else if let cachedImage = self.imageCache.object(forKey: profileImageUrl as NSString) {
+                cell.contactImageView.image = cachedImage as? UIImage*/
+            } else {
+                Amplify.Storage.downloadData(key: profileImageUrl) { result in
+                    switch result {
+                    case .success(let data):
+                        print("Success downloading image", data)
+                        if let image = UIImage(data: data) {
+                            DispatchQueue.main.async {
+                                cell.contactImageView.image = image
+                            }
+                        }
+                    case .failure(let error):
+                        print("failure downloading image", error)
+                    }
+                }
             }
-            
             return cell
-            
         }
     }
 }
@@ -387,16 +512,19 @@ extension NewGroupMessageViewController: UICollectionViewDelegate {
     //also resets height of view showing chosen contacts so that is is exposed when there is at least one contact
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
         if collectionView == self.searchNamesCollectionView {
-            let cell = searchNamesCollectionView.cellForItem(at: indexPath) as! ContactCollectionViewCell
+            let cell = searchNamesCollectionView.cellForItem(at: indexPath) as! TestTwoCollectionViewCell
             
-            let userFullName = cell.nameLabel.text?.components(separatedBy: " ")
-            let userFirstName = userFullName![0]
+            let userFirstName = cell.contactFirstName.text ?? "error"
+            let userLastName = cell.contactLastName.text ?? ""
+            let userFullName = "\(userFirstName) \(userLastName)"
+            let profileImage = cell.contactImageView.image
+            
             let userEmail = cell.documentID
-            let userContact = Contact(email: userEmail, fullName: userFirstName)
+            let userContact = Contact(email: userEmail, fullName: userFirstName, image: profileImage)
             if (!chosenNames.contains(userContact)) {
                 chosenNames.append(userContact)
-                if (!groupMembers.contains([cell.nameLabel.text!, userContact.email])) {
-                    groupMembers.append([cell.nameLabel.text!, userContact.email])
+                if (!groupMembers.contains([userFullName, userContact.email])) {
+                    groupMembers.append([userFullName, userContact.email])
                 }
                 createBarButton.tintColor = UIColor(named: K.BrandColors.purple)
                 self.contactTextField.text = ""

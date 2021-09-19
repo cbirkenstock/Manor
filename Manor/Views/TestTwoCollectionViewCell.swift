@@ -19,42 +19,10 @@ class TestTwoCollectionViewCell: UICollectionViewCell {
     var members: [String] = []
     var contactImageViewConstraints: [NSLayoutConstraint]!
     let imageCache = NSCache<NSString, AnyObject>()
-    var bigIndicatorCircleConstraints: [NSLayoutConstraint]!
-    var smallIndicatorCircleConstraints: [NSLayoutConstraint]!
-
-
-    var profileImageUrl: String! {
-        didSet {
-            /*if profileImageUrl == "default" {
-                contactImageView.image = #imageLiteral(resourceName: "AbstractPainting")
-            } else {
-                contactImageView.image = #imageLiteral(resourceName: "AbstractPainting")
-                contactImageView.backgroundColor = .gray
-                indicatorCircle.backgroundColor = .clear
-                
-                if let cachedImage = self.imageCache.object(forKey: self.profileImageUrl! as NSString) {
-                    self.contactImageView.image = cachedImage as? UIImage
-                } else {
-                    DispatchQueue.global().async { [weak self] in
-                        let URL = URL(string: self!.profileImageUrl)
-                        if let data = try? Data(contentsOf: URL!) {
-                            if let image = UIImage(data: data) {
-                                DispatchQueue.main.async {
-                                    self!.imageCache.setObject(image, forKey: self!.profileImageUrl as NSString)
-                                    self?.contactImageView.image = image
-                                    if self?.hasUnreadMessages == true {
-                                        self?.indicatorCircle.backgroundColor = UIColor(named: "LightBlue")
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-            }*/
-        }
-    }
+    var bigContactImageViewConstraints: [NSLayoutConstraint]!
+    var smallContactImageViewConstraints: [NSLayoutConstraint]!
     
-    var isSearchName: Bool! {
+    /*var isSearchName: Bool! {
         didSet {
             if isSearchName {
                 NSLayoutConstraint.deactivate(contactImageViewConstraints)
@@ -71,14 +39,14 @@ class TestTwoCollectionViewCell: UICollectionViewCell {
                 contactImageView.layer.cornerRadius = (self.frame.width - 20)/2
             }
         }
-    }
+    }*/
     
-    var indicatorCircle: UIView = {
+    /*var indicatorCircle: UIView = {
         let indicatorCircle = UIView()
         indicatorCircle.translatesAutoresizingMaskIntoConstraints = false
         indicatorCircle.backgroundColor = UIColor(named: "LightBlue")
         return indicatorCircle
-    }()
+    }()*/
     
     var contactImageView: UIImageView = {
         let contactImageView = UIImageView()
@@ -88,7 +56,7 @@ class TestTwoCollectionViewCell: UICollectionViewCell {
         return contactImageView
     }()
     
-    var contactName: UILabel = {
+    var contactFirstName: UILabel = {
         let contactLabel = UILabel()
         contactLabel.translatesAutoresizingMaskIntoConstraints = false
         contactLabel.textColor = .white
@@ -97,91 +65,114 @@ class TestTwoCollectionViewCell: UICollectionViewCell {
         return contactLabel
     }()
     
-    var lastMessageLabel: UILabel = {
+    var contactLastName: UILabel = {
+        let contactLabel = UILabel()
+        contactLabel.translatesAutoresizingMaskIntoConstraints = false
+        contactLabel.textColor = .white
+        contactLabel.font = UIFont.systemFont(ofSize: 21, weight: .bold)
+        contactLabel.textAlignment = .center
+        return contactLabel
+    }()
+    
+    /*var lastMessageLabel: UILabel = {
         let lastMessageLabel = UILabel()
         lastMessageLabel.translatesAutoresizingMaskIntoConstraints = false
         lastMessageLabel.textColor = .white
         lastMessageLabel.font = UIFont.systemFont(ofSize: 16, weight: .light)
         lastMessageLabel.textAlignment = .center
         return lastMessageLabel
-    }()
+    }()*/
     
-    var hasUnreadMessages: Bool! {
-        didSet {
-            contactImageView.image = nil
-            indicatorCircle.backgroundColor = .clear
-            indicatorCircle.backgroundColor = hasUnreadMessages ? UIColor(named: "LightBlue") : .clear
-        }
-    }
+    /*var isMainFour: Bool! {
+     didSet {
+     if isMainFour {
+     NSLayoutConstraint.deactivate(smallIndicatorCircleConstraints)
+     NSLayoutConstraint.activate(bigIndicatorCircleConstraints)
+     
+     indicatorCircle.layer.cornerRadius = (self.frame.width - 20)/2
+     contactImageView.layer.cornerRadius = (self.frame.width - 30)/2
+     
+     lastMessageLabel.isHidden = false
+     } else {
+     NSLayoutConstraint.deactivate(bigIndicatorCircleConstraints)
+     NSLayoutConstraint.activate(smallIndicatorCircleConstraints)
+     
+     indicatorCircle.layer.cornerRadius = (UIScreen.main.bounds.width/3 - 30)/2
+     contactImageView.layer.cornerRadius = (UIScreen.main.bounds.width/3 - 30)/2
+     
+     lastMessageLabel.isHidden = true
+     }
+     }
+     }*/
     
-    var isMainFour: Bool! {
+    var isBig: Bool! {
         didSet {
-            /*if isMainFour {
-                //NSLayoutConstraint.deactivate(smallIndicatorCircleConstraints)
-                //NSLayoutConstraint.activate(bigIndicatorCircleConstraints)
-                
-                indicatorCircle.layer.cornerRadius = (self.frame.width - 20)/2
-                contactImageView.layer.cornerRadius = (self.frame.width - 30)/2
-                
-                lastMessageLabel.isHidden = false
-            } else {
-                //NSLayoutConstraint.deactivate(bigIndicatorCircleConstraints)
-                //NSLayoutConstraint.activate(smallIndicatorCircleConstraints)
-                
-                indicatorCircle.layer.cornerRadius = (UIScreen.main.bounds.width/3 - 30)/2
+            if isBig {
+                NSLayoutConstraint.deactivate(smallContactImageViewConstraints)
+                NSLayoutConstraint.activate(bigContactImageViewConstraints)
+                self.contactFirstName.font = UIFont.systemFont(ofSize: 21, weight: .bold)
                 contactImageView.layer.cornerRadius = (UIScreen.main.bounds.width/3 - 30)/2
-                
-                lastMessageLabel.isHidden = true
-            }*/
+            } else {
+                NSLayoutConstraint.deactivate(bigContactImageViewConstraints)
+                NSLayoutConstraint.activate(smallContactImageViewConstraints)
+                self.contactFirstName.font = UIFont.systemFont(ofSize: 17, weight: .semibold)
+                contactImageView.layer.cornerRadius = (UIScreen.main.bounds.width/5 - 20)/2
+            }
         }
     }
     
     override init(frame: CGRect) {
         super.init(frame: frame)
         
-        self.addSubview(indicatorCircle)
-        indicatorCircle.addSubview(contactImageView)
-        self.addSubview(contactName)
-        self.addSubview(lastMessageLabel)
+        //self.backgroundColor = .green
         
-        contactImageViewConstraints = [
-            contactImageView.topAnchor.constraint(equalTo: indicatorCircle.topAnchor, constant: 5),
-            contactImageView.bottomAnchor.constraint(equalTo: indicatorCircle.bottomAnchor, constant: -5),
-            contactImageView.leadingAnchor.constraint(equalTo: indicatorCircle.leadingAnchor, constant: 5),
-            contactImageView.trailingAnchor.constraint(equalTo: indicatorCircle.trailingAnchor, constant: -5)
+        self.addSubview(contactImageView)
+        self.addSubview(contactFirstName)
+        self.addSubview(contactLastName)
+        
+        let bigCellWidth = UIScreen.main.bounds.width/3 - 10
+        let bigCellHeight = bigCellWidth/0.7
+        let bigIconWidth = bigCellWidth - 20
+        let bigBottomConstraint = ((bigCellHeight - bigIconWidth - 5) * -1)
+        
+        bigContactImageViewConstraints = [
+            contactImageView.leadingAnchor.constraint(equalTo: self.leadingAnchor, constant: 10),
+            contactImageView.trailingAnchor.constraint(equalTo: self.trailingAnchor, constant: -10),
+            contactImageView.bottomAnchor.constraint(equalTo: self.bottomAnchor, constant: bigBottomConstraint),
+            contactImageView.topAnchor.constraint(equalTo: self.topAnchor, constant: 5),
         ]
         
-        NSLayoutConstraint.activate(contactImageViewConstraints)
+        let smallCellWidth = UIScreen.main.bounds.width/5 - 10
+        let smallCellHeight = 90
+        let smallIconWidth = smallCellWidth - 10
+        let smallBottomConstraint = ((smallCellHeight - Int(smallIconWidth) - 5) * -1)
         
-        let contactNameConstraints = [
-            contactName.topAnchor.constraint(equalTo: indicatorCircle.bottomAnchor, constant: 5),
-            contactName.heightAnchor.constraint(equalToConstant: 25),
-            contactName.leadingAnchor.constraint(equalTo: self.leadingAnchor, constant: 0),
-            contactName.trailingAnchor.constraint(equalTo: self.trailingAnchor, constant: 0)
+        
+        smallContactImageViewConstraints = [
+            contactImageView.leadingAnchor.constraint(equalTo: self.leadingAnchor, constant: 5),
+            contactImageView.trailingAnchor.constraint(equalTo: self.trailingAnchor, constant: -5),
+            contactImageView.bottomAnchor.constraint(equalTo: self.bottomAnchor, constant: CGFloat(smallBottomConstraint) - 5),
+            contactImageView.topAnchor.constraint(equalTo: self.topAnchor, constant: 0),
         ]
         
-        NSLayoutConstraint.activate(contactNameConstraints)
         
-        let lastMessageConstraints = [
-            lastMessageLabel.topAnchor.constraint(equalTo: contactName.bottomAnchor, constant: 5),
-            lastMessageLabel.heightAnchor.constraint(equalToConstant: 20),
-            lastMessageLabel.leadingAnchor.constraint(equalTo: self.leadingAnchor, constant: 5),
-            lastMessageLabel.trailingAnchor.constraint(equalTo: self.trailingAnchor, constant: -5)
+        let contactFirstNameConstraints = [
+            contactFirstName.topAnchor.constraint(equalTo: contactImageView.bottomAnchor, constant: 5),
+            contactFirstName.heightAnchor.constraint(equalToConstant: 25),
+            contactFirstName.leadingAnchor.constraint(equalTo: self.leadingAnchor, constant: 0),
+            contactFirstName.trailingAnchor.constraint(equalTo: self.trailingAnchor, constant: 0)
         ]
         
-        NSLayoutConstraint.activate(lastMessageConstraints)
+        NSLayoutConstraint.activate(contactFirstNameConstraints)
         
-        indicatorCircle.layer.cornerRadius = (UIScreen.main.bounds.width/3 - 30)/2
-        contactImageView.layer.cornerRadius = (UIScreen.main.bounds.width/3 - 30)/2
-        
-        smallIndicatorCircleConstraints = [
-            indicatorCircle.widthAnchor.constraint(equalToConstant: UIScreen.main.bounds.width/3 - 20),
-            indicatorCircle.heightAnchor.constraint(equalToConstant: UIScreen.main.bounds.width/3 - 20),
-            indicatorCircle.topAnchor.constraint(equalTo: self.topAnchor, constant: 20),
-            indicatorCircle.centerXAnchor.constraint(equalTo: self.centerXAnchor)
+        let contactLastNameConstraints = [
+            contactLastName.topAnchor.constraint(equalTo: contactFirstName.bottomAnchor, constant: 0),
+            contactLastName.heightAnchor.constraint(equalToConstant: 25),
+            contactLastName.leadingAnchor.constraint(equalTo: self.leadingAnchor, constant: 0),
+            contactLastName.trailingAnchor.constraint(equalTo: self.trailingAnchor, constant: 0)
         ]
         
-        NSLayoutConstraint.activate(smallIndicatorCircleConstraints)
+        NSLayoutConstraint.activate(contactLastNameConstraints)
         
     }
     
