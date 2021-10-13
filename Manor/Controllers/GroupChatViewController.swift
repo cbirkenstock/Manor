@@ -110,10 +110,19 @@ class GroupChatViewController: UIViewController, UIImagePickerControllerDelegate
     var eventDate: String?
     var eventTime: String?
     var userChatImage: String?
+    var photoCount: Int = 0
+    var chatImagesArray: [String] = []
+    var currentChatImageDictionary: [String:Data] = [:]
     
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        
+        if let chatImageDictionary = self.defaults.dictionary(forKey: "\(self.documentID) photos") as? [String: Data] {
+            self.currentChatImageDictionary = chatImageDictionary
+        } else {
+            self.defaults.setValue([:], forKey: "\(self.documentID) photos")
+        }
         
         if self.isEventChat {
             print(self.documentID)
@@ -203,7 +212,7 @@ class GroupChatViewController: UIViewController, UIImagePickerControllerDelegate
         self.keyboardIsShowing = false
         
         navigationController?.navigationBar.isTranslucent = false
-        navigationController?.navigationBar.barTintColor = .black
+        navigationController?.navigationBar.barTintColor = UIColor(named: "WarmBlack")
         navigationController?.navigationBar.shadowImage = UIImage()
         navigationController?.navigationBar.tintColor = UIColor(named: K.BrandColors.purple)
         
@@ -1101,10 +1110,6 @@ class GroupChatViewController: UIViewController, UIImagePickerControllerDelegate
                     self.eventChatsByUserRef.child("\(commaEmail)/Chats/\(documentID)/readNotification").setValue(false)
                 }
             } else {
-                
-                print("Wrong")
-                print(self.documentID)
-                
                 self.groupChatMessagesRef.child("\(documentID)/lastMessage").setValue(messageBody)
                 self.groupChatMessagesRef.child("\(documentID)/senderEmail").setValue(self.user.email!)
                 self.groupChatMessagesRef.child("\(documentID)/timeStamp").setValue(commaTimestamp)
@@ -1246,6 +1251,10 @@ class GroupChatViewController: UIViewController, UIImagePickerControllerDelegate
                             self.keyArray = self.keyArray.sorted(by: { $0 < $1 })
                         }
                         
+                        if self.photoCount < 30 {
+                            self.chatImagesArray.append(imageURL)
+                            self.photoCount += 1
+                        }
                         self.chatTableView.reloadData()
                     } else if let eventTitle = value.object(forKey: "eventTitle") as? String, let eventDescription =  value.object(forKey: "eventDescription") as? String, let eventDate = value.object(forKey: "eventDate") as? String, let eventTime = value.object(forKey: "eventTime") as? String, let eventDocumentID = value.object(forKey: "documentID") as? String {
                         
@@ -1371,6 +1380,34 @@ class GroupChatViewController: UIViewController, UIImagePickerControllerDelegate
             }
         }
     }
+    
+    /*func downloadImages() {
+        for imageUrl in self.chatImagesArray {
+            if let _ = self.defaults.dictionary(forKey: "\(self.documentID) photos") {
+                if !currentChatImageDictionary.keys.contains(imageUrl) {
+                    Amplify.Storage.downloadData(key: imageUrl) { result in
+                        switch result {
+                        case .success(let data):
+                            print("Success downloading image downloadImages", data)
+                            if let image = UIImage(data: data) {
+                                DispatchQueue.main.async {
+                                    self.imageCache.setObject(image, forKey: imageUrl as NSString)
+                                    if self.chatImagesArray.contains(imageUrl) && !self.currentChatImageDictionary.keys.contains(imageUrl) {
+                                            self.currentChatImageDictionary[imageUrl] = data
+                                            self.defaults.setValue(self.currentChatImageDictionary, forKey: "\(self.documentID) photos")
+                                    }
+                                }
+                            }
+                        case .failure(let error):
+                            print("failure downloading image", error)
+                        }
+                    }
+                } else {
+                    print("already contained downloadImages")
+                }
+            }
+        }
+    }*/
     
     override func viewDidDisappear(_ animated: Bool) {
         NotificationCenter.default.post(name: NSNotification.Name(rawValue: "enableSwipe"), object: nil)
@@ -1500,7 +1537,13 @@ extension GroupChatViewController: UITableViewDataSource, UITableViewDelegate {
                     let NSImageURL = message2.imageURL! as NSString
                     if let _ = self.imageCache.object(forKey: NSImageURL) {
                         print("already contained")
-                    } else {
+                    } else if let chatImageDictionary = self.defaults.dictionary(forKey: "\(self.documentID) photos") {
+                        if let storedImageData = chatImageDictionary[message2.imageURL!] as? Data {
+                            print("already contained")
+                            self.imageCache.setObject(UIImage(data: storedImageData)!, forKey: NSImageURL as NSString)
+                        }
+                    }
+                    else {
                         Amplify.Storage.downloadData(key: message2.imageURL!) { result in
                             switch result {
                             case .success(let data):
@@ -1508,6 +1551,10 @@ extension GroupChatViewController: UITableViewDataSource, UITableViewDelegate {
                                 if let image = UIImage(data: data) {
                                     DispatchQueue.main.async {
                                         self.imageCache.setObject(image, forKey: NSImageURL)
+                                        if self.chatImagesArray.contains(message2.imageURL!) {
+                                            self.currentChatImageDictionary[message2.imageURL!] = data
+                                            self.defaults.setValue(self.currentChatImageDictionary, forKey: "\(self.documentID) photos")
+                                        }
                                     }
                                 }
                             case .failure(let error):
@@ -1546,7 +1593,11 @@ extension GroupChatViewController: UITableViewDataSource, UITableViewDelegate {
             if message.imageURL != "" {
                 let cell = chatTableView.dequeueReusableCell(withIdentifier: "pictureMessageCell", for: indexPath) as! PictureMessageTableViewCell
                 
+                self.photoCount += 1
+                
                 cell.isGroupMessage = true
+                
+                cell.messageImageView.image = nil
                 
                 if isEventChat {
                     cell.groupPosition = checkCellPosition(sortedMessages: sortedMessages, indexPathRow: indexPath.row - 1)
@@ -1561,6 +1612,12 @@ extension GroupChatViewController: UITableViewDataSource, UITableViewDelegate {
                     cell.isIncoming = true
                 }
                 
+                //self.defaults.setValue(, forKey: "\(self.documentID) photos")
+                
+                
+                
+                
+                
                 cell.imageURL = message.imageURL!
                 
                 let imageURL = message.imageURL!
@@ -1568,31 +1625,78 @@ extension GroupChatViewController: UITableViewDataSource, UITableViewDelegate {
                 let NSImageURL = message.imageURL! as NSString
                 
                 if let cachedImage = self.imageCache.object(forKey: NSImageURL as NSString) as? UIImage{
+                    print("cell for row cache")
                     cell.messageImageView.image = cachedImage
                     let imageHeight = CGFloat(cachedImage.size.height/cachedImage.size.width * 300)
                     cell.imageHeight = imageHeight
-                } else {
-                    let imageHeight = CGFloat(message.imageHeight/message.imageWidth * 300)
-                    cell.imageHeight = imageHeight
-                    Amplify.Storage.downloadData(key: imageURL) { result in
-                        switch result {
-                        case .success(let data):
-                            print("Success downloading image", data)
-                            if let image = UIImage(data: data) {
-                                DispatchQueue.main.async {
-                                    cell.messageImageView.image = image
-                                    self.imageCache.setObject(image, forKey: NSImageURL as NSString)
+                    if !self.chatImagesArray.contains(imageURL) {
+                        self.currentChatImageDictionary.removeValue(forKey: imageURL)
+                    }
+                } else if let chatImageDictionary = self.defaults.dictionary(forKey: "\(self.documentID) photos") {
+                    if let storedImageData = chatImageDictionary[imageURL] as? Data {
+                        let image = UIImage(data: storedImageData)!
+                        print("Already Contained group Chat Photo")
+                        cell.messageImageView.image = image
+                        let imageHeight = CGFloat(message.imageHeight/message.imageWidth * 300)
+                        cell.imageHeight = imageHeight
+                        self.imageCache.setObject(image, forKey: NSImageURL as NSString)
+                        if !self.chatImagesArray.contains(imageURL) {
+                            self.currentChatImageDictionary.removeValue(forKey: imageURL)
+                        }
+                    } else {
+                        let imageHeight = CGFloat(message.imageHeight/message.imageWidth * 300)
+                        cell.imageHeight = imageHeight
+                        Amplify.Storage.downloadData(key: imageURL) { result in
+                            switch result {
+                            case .success(let data):
+                                print("Success downloading image", data)
+                                if let image = UIImage(data: data) {
+                                    DispatchQueue.main.async {
+                                        cell.messageImageView.image = image
+                                        self.imageCache.setObject(image, forKey: NSImageURL as NSString)
+                                        if self.chatImagesArray.contains(imageURL) {
+                                            self.currentChatImageDictionary[imageURL] = data
+                                            print("currentImageDictionary")
+                                            print(self.currentChatImageDictionary.count)
+                                            print(self.currentChatImageDictionary.keys)
+                                            self.defaults.setValue(self.currentChatImageDictionary, forKey: "\(self.documentID) photos")
+                                        }
+                                    }
                                 }
+                            case .failure(let error):
+                                print("failure downloading image", error)
                             }
-                        case .failure(let error):
-                            print("failure downloading image", error)
                         }
                     }
                 }
                 
-                cell.emailLabel.text = message.messageSenderNickName
+                /*else {
+                 let imageHeight = CGFloat(message.imageHeight/message.imageWidth * 300)
+                 cell.imageHeight = imageHeight
+                 Amplify.Storage.downloadData(key: imageURL) { result in
+                 switch result {
+                 case .success(let data):
+                 print("Success downloading image", data)
+                 if let image = UIImage(data: data) {
+                 DispatchQueue.main.async {
+                 cell.messageImageView.image = image
+                 self.imageCache.setObject(image, forKey: NSImageURL as NSString)
+                 if self.chatImagesArray.contains(imageURL) {
+                 var chatImageDictionary: [String: Data] = [:]
+                 chatImageDictionary[imageURL] = data
+                 self.defaults.setValue(chatImageDictionary, forKey: "\(self.documentID) photos")
+                 }
+                 }
+                 }
+                 case .failure(let error):
+                 print("failure downloading image", error)
+                 }
+                 }
+                 }*/
                 
                 cell.isGroupMessage = true
+                
+                cell.emailLabel.text = message.messageSenderNickName
                 
                 cell.transform = CGAffineTransform(scaleX: 1, y: -1)
                 
@@ -1638,19 +1742,14 @@ extension GroupChatViewController: UITableViewDataSource, UITableViewDelegate {
                 let chatImageUrl = message.messageSenderChatImage ?? "default"
                 
                 if chatImageUrl != "default" {
-                    print("chatImageUrl")
-                    print(chatImageUrl)
                     if let cachedImage = self.imageCache.object(forKey: chatImageUrl as NSString? ?? "") as? UIImage {
                         cell.profileImageView.image = cachedImage
-                        print("cached")
                     } else if var imageDictionary = defaults.dictionary(forKey: "dmContactPictures")  {
                         if let storedImageData = imageDictionary[chatImageUrl] {
                             let image = UIImage(data: storedImageData as! Data)!
                             cell.profileImageView.image = image
                             let NSChatImageUrl = chatImageUrl as NSString
                             self.imageCache.setObject(image, forKey: NSChatImageUrl)
-                            print("stored")
-                            print(image)
                         } else {
                             Amplify.Storage.downloadData(key: chatImageUrl) { result in
                                 switch result {
@@ -1849,7 +1948,7 @@ extension GroupChatViewController: UITableViewDataSource, UITableViewDelegate {
             
             if section == self.keyArray.count {
                 let emptyFooterView = UIView()
-                emptyFooterView.backgroundColor = .black
+                emptyFooterView.backgroundColor = UIColor(named: "WarmBlack")
                 return emptyFooterView
             }
             
@@ -1875,7 +1974,7 @@ extension GroupChatViewController: UITableViewDataSource, UITableViewDelegate {
                 
                 let containerView = UIView()
                 containerView.addSubview(headerLabel)
-                containerView.backgroundColor = .black
+                containerView.backgroundColor = UIColor(named: "WarmBlack")
                 
                 let headerViewConstraints = [
                     //headerLabel.topAnchor.constraint(equalTo: containerView.topAnchor, constant: 10),

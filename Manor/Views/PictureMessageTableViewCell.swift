@@ -12,7 +12,8 @@ class PictureMessageTableViewCell: UITableViewCell {
     var imageURL: String = ""
     
     var messageImageViewContraints: [NSLayoutConstraint]!
-    var incomingMessageConstraints: [NSLayoutConstraint]!
+    var dmIncomingMessageConstraints: [NSLayoutConstraint]!
+    var groupIncomingMessageConstraints: [NSLayoutConstraint]!
     var outgoingMessageConstraints: [NSLayoutConstraint]!
     var groupStartConstraints: [NSLayoutConstraint]!
     var groupMiddleConstraints: [NSLayoutConstraint]!
@@ -21,6 +22,7 @@ class PictureMessageTableViewCell: UITableViewCell {
     var emailLabelConstraints: [NSLayoutConstraint]!
     var contentViewHeightConstraint: NSLayoutConstraint!
     var newMessageImageConstraints: [NSLayoutConstraint]!
+    var profileImageConstraints: [NSLayoutConstraint]!
     let emailLabel = UILabel()
     var newImageHeight: CGFloat = 0
     var newImageWidth: CGFloat = 0
@@ -120,11 +122,22 @@ class PictureMessageTableViewCell: UITableViewCell {
         }
     }*/
     
+    var profileImageView: UIImageView = {
+        let profileImageView = UIImageView()
+        profileImageView.translatesAutoresizingMaskIntoConstraints = false
+        profileImageView.clipsToBounds = true
+        profileImageView.image = #imageLiteral(resourceName: "NewContactIcon")
+        profileImageView.layer.cornerRadius = 35/2
+        profileImageView.backgroundColor = .red
+        return profileImageView
+    }()
+    
     let messageImageView: UIImageView = {
         let messageImageView = UIImageView()
         messageImageView.translatesAutoresizingMaskIntoConstraints = false
         messageImageView.layer.cornerRadius = 15
         messageImageView.clipsToBounds = true
+        messageImageView.backgroundColor = .darkGray
         messageImageView.contentMode = .scaleAspectFill
         return messageImageView
     }()
@@ -132,11 +145,19 @@ class PictureMessageTableViewCell: UITableViewCell {
     var isIncoming: Bool! {
        didSet {
             if isIncoming {
-             NSLayoutConstraint.deactivate(outgoingMessageConstraints)
-             NSLayoutConstraint.activate(incomingMessageConstraints)
-             } else {
-             NSLayoutConstraint.deactivate(incomingMessageConstraints)
-             NSLayoutConstraint.activate(outgoingMessageConstraints)
+                if isGroupMessage {
+                    NSLayoutConstraint.deactivate(outgoingMessageConstraints)
+                    NSLayoutConstraint.deactivate(dmIncomingMessageConstraints)
+                    NSLayoutConstraint.activate(groupIncomingMessageConstraints)
+                } else {
+                    NSLayoutConstraint.deactivate(outgoingMessageConstraints)
+                    NSLayoutConstraint.deactivate(groupIncomingMessageConstraints)
+                    NSLayoutConstraint.activate(dmIncomingMessageConstraints)
+                }
+            } else {
+                NSLayoutConstraint.deactivate(dmIncomingMessageConstraints)
+                NSLayoutConstraint.deactivate(groupIncomingMessageConstraints)
+                NSLayoutConstraint.activate(outgoingMessageConstraints)
              }
         }
     }
@@ -192,7 +213,7 @@ class PictureMessageTableViewCell: UITableViewCell {
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
         
-        self.backgroundColor = .black
+        self.backgroundColor = .clear
         //contentView.translatesAutoresizingMaskIntoConstraints = false
         
         self.addSubview(messageImageView)
@@ -206,7 +227,6 @@ class PictureMessageTableViewCell: UITableViewCell {
         }*/
 
 
-        messageImageView.backgroundColor = .clear
         messageImageView.widthAnchor.constraint(equalToConstant: 300).isActive = true
         
         
@@ -223,7 +243,7 @@ class PictureMessageTableViewCell: UITableViewCell {
         messageImageViewHeightConstraint650 = messageImageView.heightAnchor.constraint(equalToConstant: 650)
         
         groupStartConstraints = [
-            messageImageView.topAnchor.constraint(equalTo: self.topAnchor, constant: 5),
+            messageImageView.topAnchor.constraint(equalTo: self.topAnchor, constant: 15),
             messageImageView.bottomAnchor.constraint(equalTo: self.bottomAnchor, constant: -1)
         ]
         
@@ -242,9 +262,13 @@ class PictureMessageTableViewCell: UITableViewCell {
             messageImageView.bottomAnchor.constraint(equalTo: self.bottomAnchor, constant: -10)
         ]
         
-        incomingMessageConstraints = [
-            messageImageView.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 10),
+        dmIncomingMessageConstraints = [
+            messageImageView.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 20),
             //messageImageView.trailingAnchor.constraint(lessThanOrEqualTo: trailingAnchor, constant: -150)
+        ]
+        
+        groupIncomingMessageConstraints = [
+            messageImageView.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 60),
         ]
         
         outgoingMessageConstraints = [
@@ -253,8 +277,15 @@ class PictureMessageTableViewCell: UITableViewCell {
         ]
         
         emailLabelConstraints = [
-            emailLabel.leadingAnchor.constraint(equalTo: messageImageView.leadingAnchor, constant: 0)
+            emailLabel.leadingAnchor.constraint(equalTo: messageImageView.leadingAnchor, constant: 10)
         ]
+        
+        /*profileImageConstraints = [
+            profileImageView.topAnchor.constraint(equalTo: messageImageView.topAnchor, constant: 3),
+            profileImageView.heightAnchor.constraint(equalToConstant: 35),
+            profileImageView.widthAnchor.constraint(equalToConstant: 35),
+            profileImageView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 20),
+        ]*/
         
     }
     

@@ -96,7 +96,8 @@ class NewContactPageViewController: UIViewController, UIScrollViewDelegate {
         }
         
         NotificationCenter.default.post(name: NSNotification.Name(rawValue: "makeGroupChatTitleBold"), object: nil)
-        self.navigationController?.setNavigationBarHidden(true, animated: false)
+        self.navigationController?.setNavigationBarHidden(false, animated: false)
+        self.navigationController?.navigationBar.tintColor = UIColor(named: K.BrandColors.purple)
     }
     
     override func viewDidLayoutSubviews() {
@@ -193,9 +194,10 @@ class NewContactPageViewController: UIViewController, UIScrollViewDelegate {
     override func viewDidLoad() {
         super.viewDidLoad()
         
+        
         self.view.addSubview(groupChatScrollView)
         groupChatScrollView.translatesAutoresizingMaskIntoConstraints = false
-        groupChatScrollView.backgroundColor = .black
+        groupChatScrollView.backgroundColor = UIColor(named: "Warmblack")
         
         let groupChatScrollViewConstraints = [
             groupChatScrollView.topAnchor.constraint(equalTo: self.view.topAnchor, constant: 0),
@@ -359,6 +361,7 @@ class NewContactPageViewController: UIViewController, UIScrollViewDelegate {
         littleGroupChatCollectionView.dataSource = self
         EventChatCollectionView.delegate = self
         EventChatCollectionView.dataSource = self
+        groupChatScrollView.delegate = self
         
         //sets size, scroll direction, etc. of contacts in collection view
         let cellWidth = UIScreen.main.bounds.width/2 - 10
@@ -411,6 +414,15 @@ class NewContactPageViewController: UIViewController, UIScrollViewDelegate {
         
         loadContacts()
         
+    }
+    
+    func scrollViewDidScroll(_ scrollView: UIScrollView) {
+        print(scrollView.contentOffset.y)
+        guard let navigationController = self.navigationController else { return }
+        let navBarHeight = navigationController.navigationBar.frame.height
+        let threshold: CGFloat = 0
+        let alpha = (scrollView.contentOffset.y + navBarHeight + threshold) / threshold
+        navigationController.navigationBar.subviews.first?.alpha = alpha
     }
     
     func checkSignInStatus(email: String, password: String) {

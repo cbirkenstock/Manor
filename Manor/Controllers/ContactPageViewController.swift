@@ -242,9 +242,6 @@ extension ContactPageViewController: UICollectionViewDataSource {
             cell.hasUnreadMessages = true
         }
         
-        print("indexpath")
-        print(sortedContacts[indexPath.row].fullName)
-        
         cell.lastMessageLabel.text = sortedContacts[indexPath.row].lastMessage
         cell.contactName.text = sortedContacts[indexPath.row].fullName
         cell.documentID = sortedContacts[indexPath.row].email

@@ -86,6 +86,9 @@ class LogInViewController: UIViewController {
         passwordView.layer.borderWidth = 3
         passwordView.layer.borderColor = UIColor(named: K.BrandColors.purple)?.cgColor
         
+        emailInput.attributedPlaceholder = NSAttributedString(string: emailInput.placeholder!, attributes: [NSAttributedString.Key.foregroundColor : UIColor.white])
+        passwordInput.attributedPlaceholder = NSAttributedString(string: passwordInput.placeholder!, attributes: [NSAttributedString.Key.foregroundColor : UIColor.white])
+        
     }
     
     //moves view up when keyboard is called

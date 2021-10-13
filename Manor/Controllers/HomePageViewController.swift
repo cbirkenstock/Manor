@@ -71,38 +71,42 @@ class HomePageViewController: UIViewController {
         dropDown.show()
     }
     
+
+    
     func setupNavigationBar() {
-        navigationController?.navigationBar.isHidden = false
-        navigationController?.navigationBar.isTranslucent = false
-        navigationController?.navigationBar.barTintColor = .black
-        navigationController?.navigationBar.shadowImage = UIImage()
+        navigationController?.navigationBar.isHidden = true
+        navigationController?.navigationBar.isTranslucent = true
+        navigationController?.navigationBar.barTintColor = UIColor(named: "WarmBlack")
+        //navigationController?.navigationBar.shadowImage = UIImage()
         self.navigationController?.navigationBar.tintColor = UIColor(named: K.BrandColors.purple)
+        self.navigationController?.navigationBar.subviews.first?.alpha = 0
+        
     }
     
     @objc func makeDMTitleBold() {
         //had to switch quickly before rush so that's why this is confusing
-        self.groupChatLabel.font = UIFont.systemFont(ofSize: 21, weight: .bold)
-        self.directMessagesLabel.font = UIFont.systemFont(ofSize: 21, weight: .regular)
+        //self.groupChatLabel.font = UIFont.systemFont(ofSize: 21, weight: .bold)
+        //self.directMessagesLabel.font = UIFont.systemFont(ofSize: 21, weight: .regular)
     }
     
     @objc func makeGroupChatTitleBold() {
         //had to switch quickly before rush so that's why this is confusing 
-        self.directMessagesLabel.font = UIFont.systemFont(ofSize: 21, weight: .bold)
-        self.groupChatLabel.font = UIFont.systemFont(ofSize: 21, weight: .regular)
+        //self.directMessagesLabel.font = UIFont.systemFont(ofSize: 21, weight: .bold)
+        //self.groupChatLabel.font = UIFont.systemFont(ofSize: 21, weight: .regular)
     }
     
 
     @objc func hideNavigationBar() {
-        self.navigationController?.setNavigationBarHidden(true, animated: false)
-        self.titleStackHeightConstraint.constant = 0
-        self.view.layoutIfNeeded()
+        //self.navigationController?.setNavigationBarHidden(true, animated: false)
+        //self.titleStackHeightConstraint?.constant = 0
+        //self.view.layoutIfNeeded()
         //UIView.animate(withDuration: 0.05) { self.view.layoutIfNeeded() }
     }
     
     @objc func showNavigationBar() {
-        self.navigationController?.setNavigationBarHidden(false, animated: false)
-        self.titleStackHeightConstraint.constant = 25.5
-        self.view.layoutIfNeeded()
+        //self.navigationController?.setNavigationBarHidden(false, animated: false)
+        //self.titleStackHeightConstraint.constant = 25.5
+        //self.view.layoutIfNeeded()
         //UIView.animate(withDuration: 0.05) { self.view.layoutIfNeeded() }
     }
     

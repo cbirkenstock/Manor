@@ -76,6 +76,12 @@ class SignUpViewController: UIViewController {
         passwordView.layer.borderWidth = 3
         passwordView.layer.borderColor = UIColor(named: K.BrandColors.purple)?.cgColor
         
+        
+        firstNameInput.attributedPlaceholder = NSAttributedString(string: firstNameInput.placeholder!, attributes: [NSAttributedString.Key.foregroundColor : UIColor.white])
+        lastNameInput.attributedPlaceholder = NSAttributedString(string: lastNameInput.placeholder!, attributes: [NSAttributedString.Key.foregroundColor : UIColor.white])
+        emailInput.attributedPlaceholder = NSAttributedString(string: emailInput.placeholder!, attributes: [NSAttributedString.Key.foregroundColor : UIColor.white])
+        passwordInput.attributedPlaceholder = NSAttributedString(string: passwordInput.placeholder!, attributes: [NSAttributedString.Key.foregroundColor : UIColor.white])
+        
     }
     
     

@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="18122" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES" initialViewController="pRF-dc-r7S">
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="19162" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES" initialViewController="pRF-dc-r7S">
     <device id="retina6_1" orientation="portrait" appearance="light"/>
     <dependencies>
         <deployment identifier="iOS"/>
-        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="18093"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="19144"/>
         <capability name="Image references" minToolsVersion="12.0"/>
         <capability name="Named colors" minToolsVersion="9.0"/>
         <capability name="Safe area layout guides" minToolsVersion="9.0"/>
@@ -268,16 +268,6 @@
             </objects>
             <point key="canvasLocation" x="3199" y="-452"/>
         </scene>
-        <!--Page View Controller-->
-        <scene sceneID="XFx-Xx-crX">
-            <objects>
-                <pageViewController restorationIdentifier="PageViewController" storyboardIdentifier="PageViewController" autoresizesArchivedViewToFullSize="NO" transitionStyle="scroll" navigationOrientation="horizontal" spineLocation="none" id="AQN-Dx-nq8" customClass="PageViewController" customModule="Manor" customModuleProvider="target" sceneMemberID="viewController">
-                    <navigationItem key="navigationItem" id="zmZ-pJ-X2O"/>
-                </pageViewController>
-                <placeholder placeholderIdentifier="IBFirstResponder" id="Ic9-7K-6DF" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
-            </objects>
-            <point key="canvasLocation" x="5255" y="682"/>
-        </scene>
         <!--Messages-->
         <scene sceneID="ipE-uM-9Ou">
             <objects>
@@ -287,57 +277,25 @@
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
                             <containerView opaque="NO" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="5V7-PF-cLS">
-                                <rect key="frame" x="0.0" y="113.5" width="414" height="782.5"/>
-                                <connections>
-                                    <segue destination="AQN-Dx-nq8" kind="embed" id="LCI-JL-Tdf"/>
-                                </connections>
+                                <rect key="frame" x="0.0" y="88" width="414" height="809"/>
+                                <color key="backgroundColor" name="WarmBlack"/>
                             </containerView>
-                            <stackView opaque="NO" contentMode="scaleToFill" spacing="36" translatesAutoresizingMaskIntoConstraints="NO" id="gS0-8J-qtw">
-                                <rect key="frame" x="30" y="88" width="354.5" height="25.5"/>
-                                <subviews>
-                                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" verticalHuggingPriority="251" text="Group Messages" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="FGM-4Y-i65">
-                                        <rect key="frame" x="0.0" y="0.0" width="165.5" height="25.5"/>
-                                        <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
-                                        <constraints>
-                                            <constraint firstAttribute="width" relation="greaterThanOrEqual" constant="165.5" id="0L0-Zt-MK3"/>
-                                        </constraints>
-                                        <fontDescription key="fontDescription" type="system" pointSize="21"/>
-                                        <color key="textColor" name="BrandPurpleColor"/>
-                                        <nil key="highlightedColor"/>
-                                    </label>
-                                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Direct Messages" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="vKU-DH-CSi">
-                                        <rect key="frame" x="201.5" y="0.0" width="153" height="25.5"/>
-                                        <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
-                                        <constraints>
-                                            <constraint firstAttribute="width" relation="greaterThanOrEqual" constant="112.5" id="h5q-Hj-vmM"/>
-                                        </constraints>
-                                        <fontDescription key="fontDescription" type="system" pointSize="21"/>
-                                        <color key="textColor" name="BrandPurpleColor"/>
-                                        <nil key="highlightedColor"/>
-                                    </label>
-                                </subviews>
-                                <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
-                                <constraints>
-                                    <constraint firstAttribute="height" constant="25.5" id="ygE-HP-8ny"/>
-                                </constraints>
-                            </stackView>
                         </subviews>
                         <viewLayoutGuide key="safeArea" id="3JB-69-Jgw"/>
-                        <color key="backgroundColor" white="0.0" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                        <color key="backgroundColor" name="WarmBlack"/>
                         <constraints>
-                            <constraint firstItem="gS0-8J-qtw" firstAttribute="centerX" secondItem="OZb-Fe-IvX" secondAttribute="centerX" id="7FC-G9-Hv5"/>
-                            <constraint firstItem="5V7-PF-cLS" firstAttribute="top" secondItem="gS0-8J-qtw" secondAttribute="bottom" id="C0V-Bt-MHG"/>
-                            <constraint firstItem="3JB-69-Jgw" firstAttribute="trailing" secondItem="5V7-PF-cLS" secondAttribute="trailing" id="HAx-2w-evG"/>
-                            <constraint firstAttribute="bottom" secondItem="5V7-PF-cLS" secondAttribute="bottom" id="dsG-mS-CAR"/>
-                            <constraint firstItem="gS0-8J-qtw" firstAttribute="top" secondItem="3JB-69-Jgw" secondAttribute="top" id="ggs-89-h6d"/>
-                            <constraint firstItem="5V7-PF-cLS" firstAttribute="leading" secondItem="3JB-69-Jgw" secondAttribute="leading" id="ycH-VU-Dq6"/>
+                            <constraint firstItem="5V7-PF-cLS" firstAttribute="top" secondItem="3JB-69-Jgw" secondAttribute="top" id="4s6-aX-Uff"/>
+                            <constraint firstItem="5V7-PF-cLS" firstAttribute="leading" secondItem="3JB-69-Jgw" secondAttribute="leading" id="6Ig-d1-dq8"/>
+                            <constraint firstItem="5V7-PF-cLS" firstAttribute="leading" secondItem="3JB-69-Jgw" secondAttribute="leading" id="AC2-Hm-znP"/>
+                            <constraint firstItem="5V7-PF-cLS" firstAttribute="trailing" secondItem="3JB-69-Jgw" secondAttribute="trailing" id="bOR-8l-qJy"/>
+                            <constraint firstAttribute="bottomMargin" secondItem="5V7-PF-cLS" secondAttribute="bottom" constant="-35" id="rfw-Wf-9Sg"/>
                         </constraints>
                     </view>
                     <navigationItem key="navigationItem" title="Messages" id="lN1-bT-0aP">
                         <leftBarButtonItems>
                             <barButtonItem id="A3I-7y-YpJ"/>
-                            <barButtonItem id="mfT-AO-k3y">
-                                <imageReference key="image" image="person.circle" catalog="system" symbolScale="large"/>
+                            <barButtonItem title="Item" id="mfT-AO-k3y">
+                                <imageReference key="image" image="person.circle.fill" catalog="system" symbolScale="large" renderingMode="template"/>
                                 <color key="tintColor" name="BrandPurpleColor"/>
                                 <connections>
                                     <action selector="profileButtonPressed:" destination="cWP-v7-4ON" id="C9Y-o7-kID"/>
@@ -353,11 +311,7 @@
                         </barButtonItem>
                     </navigationItem>
                     <connections>
-                        <outlet property="directMessagesLabel" destination="FGM-4Y-i65" id="n5f-7z-zfJ"/>
-                        <outlet property="groupChatLabel" destination="vKU-DH-CSi" id="wui-0l-0AS"/>
                         <outlet property="profileBarButton" destination="mfT-AO-k3y" id="pQk-2y-ufi"/>
-                        <outlet property="titleStackHeightConstraint" destination="ygE-HP-8ny" id="7N9-yS-Xq7"/>
-                        <outlet property="titleStackView" destination="gS0-8J-qtw" id="kXz-GC-vX8"/>
                         <segue destination="i3q-Cy-3QU" kind="show" identifier="toNewGroupMessageView" id="vcp-15-YPF"/>
                         <segue destination="8g5-vs-ZP1" kind="show" identifier="toNewDirectMessageView" id="L1N-KH-Lqd"/>
                         <segue destination="vaY-i2-WX2" kind="show" identifier="toProfile" id="1GB-Xw-Yhk"/>
@@ -365,7 +319,7 @@
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="Z30-B1-6AW" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="5255" y="-87"/>
+            <point key="canvasLocation" x="5253.6231884057979" y="-87.053571428571431"/>
         </scene>
         <!--Contact Page View Controller-->
         <scene sceneID="Zo7-cA-dU1">
@@ -377,7 +331,7 @@
                         <subviews>
                             <collectionView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" dataMode="prototypes" translatesAutoresizingMaskIntoConstraints="NO" id="nbx-93-gQ9">
                                 <rect key="frame" x="0.0" y="88" width="414" height="808"/>
-                                <color key="backgroundColor" white="0.0" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                <color key="backgroundColor" name="WarmBlack"/>
                                 <collectionViewFlowLayout key="collectionViewLayout" automaticEstimatedItemSize="YES" minimumLineSpacing="10" minimumInteritemSpacing="10" id="YyB-2J-i0Q">
                                     <size key="itemSize" width="191" height="224"/>
                                     <size key="headerReferenceSize" width="0.0" height="0.0"/>
@@ -883,10 +837,10 @@
                         <rect key="frame" x="0.0" y="0.0" width="414" height="896"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <viewLayoutGuide key="safeArea" id="an2-tm-owk"/>
-                        <color key="backgroundColor" white="0.0" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                        <color key="backgroundColor" name="WarmBlack"/>
                     </view>
                     <navigationItem key="navigationItem" id="WOL-54-dvT">
-                        <barButtonItem key="leftBarButtonItem" image="person.circle" catalog="system" id="Yes-U5-OIc">
+                        <barButtonItem key="leftBarButtonItem" image="person.circle.fill" catalog="system" id="Yes-U5-OIc">
                             <connections>
                                 <action selector="profileButtonPressed:" destination="pc4-J2-6wl" id="lJW-14-74w"/>
                             </connections>
@@ -905,7 +859,7 @@
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="Hvn-k6-6EZ" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="8778.2608695652179" y="-452.00892857142856"/>
+            <point key="canvasLocation" x="8932" y="-452"/>
         </scene>
         <!--Navigation Controller-->
         <scene sceneID="RKn-jz-NIC">
@@ -1888,7 +1842,7 @@
                         <subviews>
                             <tableView clipsSubviews="YES" contentMode="scaleToFill" alwaysBounceVertical="YES" dataMode="prototypes" style="plain" separatorStyle="none" rowHeight="-1" estimatedRowHeight="-1" sectionHeaderHeight="28" sectionFooterHeight="28" translatesAutoresizingMaskIntoConstraints="NO" id="Ole-82-UYy">
                                 <rect key="frame" x="0.0" y="68" width="414" height="735.5"/>
-                                <color key="backgroundColor" white="0.0" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                <color key="backgroundColor" name="WarmBlack"/>
                             </tableView>
                             <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="XJ3-O2-EuM">
                                 <rect key="frame" x="5" y="803.5" width="404" height="37.5"/>
@@ -1921,7 +1875,7 @@
                             </view>
                         </subviews>
                         <viewLayoutGuide key="safeArea" id="18w-Ii-LaQ"/>
-                        <color key="backgroundColor" white="0.0" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                        <color key="backgroundColor" name="WarmBlack"/>
                         <constraints>
                             <constraint firstItem="18w-Ii-LaQ" firstAttribute="trailing" secondItem="XJ3-O2-EuM" secondAttribute="trailing" constant="5" id="HrY-sV-2oL"/>
                             <constraint firstItem="XJ3-O2-EuM" firstAttribute="leading" secondItem="18w-Ii-LaQ" secondAttribute="leading" constant="5" id="LKZ-G7-nok"/>
@@ -2137,11 +2091,11 @@
                             </view>
                             <tableView clipsSubviews="YES" contentMode="scaleToFill" alwaysBounceVertical="YES" dataMode="prototypes" style="plain" separatorStyle="none" rowHeight="-1" estimatedRowHeight="-1" sectionHeaderHeight="28" sectionFooterHeight="28" translatesAutoresizingMaskIntoConstraints="NO" id="zib-KN-9qB">
                                 <rect key="frame" x="0.0" y="68" width="414" height="733"/>
-                                <color key="backgroundColor" white="0.0" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                <color key="backgroundColor" name="WarmBlack"/>
                             </tableView>
                         </subviews>
                         <viewLayoutGuide key="safeArea" id="9AG-2a-bXX"/>
-                        <color key="backgroundColor" white="0.0" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                        <color key="backgroundColor" name="WarmBlack"/>
                         <constraints>
                             <constraint firstItem="zib-KN-9qB" firstAttribute="leading" secondItem="9AG-2a-bXX" secondAttribute="leading" id="0wF-oF-zha"/>
                             <constraint firstItem="9AG-2a-bXX" firstAttribute="trailing" secondItem="zib-KN-9qB" secondAttribute="trailing" id="BGi-67-SpQ"/>
@@ -2182,7 +2136,7 @@
         </designable>
     </designables>
     <inferredMetricsTieBreakers>
-        <segue reference="QEw-sZ-jvC"/>
+        <segue reference="qAs-88-ClA"/>
         <segue reference="sK6-Wz-DpL"/>
         <segue reference="iwR-df-2n9"/>
     </inferredMetricsTieBreakers>
@@ -2191,7 +2145,7 @@
         <image name="ManorPurpleWithWhiteOutline" width="1773.5" height="1534.5"/>
         <image name="ellipsis" catalog="system" width="128" height="37"/>
         <image name="location.north" catalog="system" width="108" height="128"/>
-        <image name="person.circle" catalog="system" width="128" height="121"/>
+        <image name="person.circle.fill" catalog="system" width="128" height="121"/>
         <image name="plus" catalog="system" width="128" height="113"/>
         <image name="scribble" catalog="system" width="128" height="118"/>
         <namedColor name="BrandPurpleColor">
@@ -2199,6 +2153,9 @@
         </namedColor>
         <namedColor name="NavigationBarGrey">
             <color red="0.10980392156862745" green="0.10980392156862745" blue="0.10980392156862745" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+        </namedColor>
+        <namedColor name="WarmBlack">
+            <color red="0.058823529411764705" green="0.058823529411764705" blue="0.058823529411764705" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
         </namedColor>
         <systemColor name="systemBackgroundColor">
             <color white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>

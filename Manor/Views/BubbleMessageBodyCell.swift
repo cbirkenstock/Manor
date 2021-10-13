@@ -66,6 +66,7 @@ class BubbleMessageBodyCell: UITableViewCell {
     var isIncoming: Bool! {
         didSet {
             bubbleView.layer.borderColor = isIncoming ? UIColor.systemGray.cgColor : UIColor(named: K.BrandColors.purple)!.cgColor
+            bubbleView.backgroundColor = isIncoming ? .systemGray.withAlphaComponent(0.25) :  UIColor(named: K.BrandColors.purple)?.withAlphaComponent(0.25)
             
             if isIncoming {
                 if isGroupChat {

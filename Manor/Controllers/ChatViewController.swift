@@ -60,6 +60,10 @@ class ChatViewController: UIViewController, PHPickerViewControllerDelegate, UIIm
     let imageCache = NSCache<NSString, AnyObject>()
     var isNewChat: Bool = false
     //var conversationBadgeCountHandler: UInt?
+    var photoCount: Int = 0
+    var chatImagesArray: [String] = []
+    var currentChatImageDictionary: [String:Data] = [:]
+    let defaults = UserDefaults.standard
     
     
     override func viewDidAppear(_ animated: Bool) {
@@ -67,6 +71,13 @@ class ChatViewController: UIViewController, PHPickerViewControllerDelegate, UIIm
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        
+        if let chatImageDictionary = self.defaults.dictionary(forKey: "\(self.documentID) photos") as? [String: Data] {
+            self.currentChatImageDictionary = chatImageDictionary
+            //self.defaults.setValue([:], forKey: "\(self.documentID) photos")
+        } else {
+            self.defaults.setValue([:], forKey: "\(self.documentID) photos")
+        }
         
         let otherUserCommaEmail = self.otherUserEmail.replacingOccurrences(of: ".", with: ",")
         
@@ -87,9 +98,9 @@ class ChatViewController: UIViewController, PHPickerViewControllerDelegate, UIIm
         //self.textBarAndButtonHolder.isHidden = false
         
         navigationController?.navigationBar.isHidden = false
-        navigationController?.navigationBar.isTranslucent = false
-        navigationController?.navigationBar.barTintColor = .black
-        navigationController?.navigationBar.shadowImage = UIImage()
+        navigationController?.navigationBar.isTranslucent = true
+        navigationController?.navigationBar.barTintColor = UIColor(named: "WarmBlack")
+        //navigationController?.navigationBar.shadowImage = UIImage()
         //navigationItem.backBarButtonItem?.tintColor = UIColor(named: K.BrandColors.purple)
         self.navigationController?.navigationBar.tintColor = UIColor(named: K.BrandColors.purple)
         
@@ -456,7 +467,12 @@ class ChatViewController: UIViewController, PHPickerViewControllerDelegate, UIIm
             let postDict = snapshot.value as? [String : AnyObject] ?? [:]
             self.messages = [:]
             self.keyArray = []
-            for value in postDict.values {
+            var myKeys: [String] = postDict.map{String($0.key)}
+            myKeys.sort {
+                $1 < $0
+            }
+            for key in myKeys {
+                let value = postDict[key]!
                 if let messageSender = value.object(forKey: "messageSender")! as? String, let timeStamp = value.object(forKey: "timeStamp") as? Double {
                     self.totalMessages += 1
                     if let messageBody = value.object(forKey: "messageBody") as? String {
@@ -502,6 +518,11 @@ class ChatViewController: UIViewController, PHPickerViewControllerDelegate, UIIm
                             self.messages[messageDate] = [message]
                             self.keyArray.append(messageDate)
                             self.keyArray = self.keyArray.sorted(by: { $0 < $1 })
+                        }
+                        
+                        if self.photoCount < 30 && myKeys.contains(key){
+                            self.chatImagesArray.append(imageURL)
+                            self.photoCount += 1
                         }
                         
                         self.chatTableView.reloadData()
@@ -586,6 +607,11 @@ extension ChatViewController: UITableViewDataSource, UITableViewDelegate {
                 //} else {
                 if let _ = self.imageCache.object(forKey: NSImageURL) {
                     print("already contained")
+                } else if let chatImageDictionary = self.defaults.dictionary(forKey: "\(self.documentID) photos") {
+                    if let storedImageData = chatImageDictionary[message2.imageURL!] as? Data {
+                        print("already contained")
+                        self.imageCache.setObject(UIImage(data: storedImageData)!, forKey: NSImageURL as NSString)
+                    }
                 } else {
                     Amplify.Storage.downloadData(key: message2.imageURL!) { result in
                         switch result {
@@ -594,6 +620,13 @@ extension ChatViewController: UITableViewDataSource, UITableViewDelegate {
                             if let image = UIImage(data: data) {
                                 DispatchQueue.main.async {
                                     self.imageCache.setObject(image, forKey: NSImageURL)
+                                    if self.chatImagesArray.contains(message2.imageURL!) {
+                                        self.currentChatImageDictionary[message2.imageURL!] = data
+                                        self.defaults.setValue(self.currentChatImageDictionary, forKey: "\(self.documentID) photos")
+                                        print("currentImageDictionary")
+                                        print(self.currentChatImageDictionary.count)
+                                        print(self.currentChatImageDictionary.keys)
+                                    }
                                 }
                             }
                         case .failure(let error):
@@ -632,7 +665,13 @@ extension ChatViewController: UITableViewDataSource, UITableViewDelegate {
         if message.imageURL != "" {
             let cell = chatTableView.dequeueReusableCell(withIdentifier: "pictureMessageCell", for: indexPath) as! PictureMessageTableViewCell
             
+            self.photoCount += 1
+
+            cell.messageImageView.image = nil
+            
             cell.groupPosition = self.checkCellPosition(sortedMessages: sortedMessages, indexPathRow: indexPath.row)
+            
+            cell.isGroupMessage = false
             
             if message.messageSender == userFullName {
                 cell.isIncoming = false
@@ -646,15 +685,53 @@ extension ChatViewController: UITableViewDataSource, UITableViewDelegate {
             
             let NSImageURL = message.imageURL! as NSString
             
-            if let cachedImage = self.imageCache.object(forKey: NSImageURL as NSString) as? UIImage {
+            /*if let cachedImage = self.imageCache.object(forKey: NSImageURL as NSString) as? UIImage {
                 cell.messageImageView.image = cachedImage
                 let imageHeight = CGFloat(cachedImage.size.height/cachedImage.size.width * 300)
                 print("Cached", imageHeight)
-                cell.imageHeight = imageHeight 
-                /*} else if let storedImage = self.photoDictionary[imageURL] {
-                 cell.messageImageView.image = storedImage
-                 self.imageCache.setObject(storedImage, forKey: NSImageURL)*/
-            } else {
+                cell.imageHeight = imageHeight
+                if !self.chatImagesArray.contains(imageURL) {
+                    self.currentChatImageDictionary.removeValue(forKey: imageURL)
+                }
+            } else*/ if let chatImageDictionary = self.defaults.dictionary(forKey: "\(self.documentID) photos") {
+                if let storedImageData = chatImageDictionary[imageURL] as? Data {
+                    let image = UIImage(data: storedImageData)!
+                    print("Already Contained DM Chat Photo")
+                    cell.messageImageView.image = image
+                    let imageHeight = CGFloat(message.imageHeight/message.imageWidth * 300)
+                    cell.imageHeight = imageHeight
+                    self.imageCache.setObject(image, forKey: NSImageURL as NSString)
+                    if !self.chatImagesArray.contains(imageURL) {
+                        self.currentChatImageDictionary.removeValue(forKey: imageURL)
+                    }
+                } else {
+                    let imageHeight = CGFloat(message.imageHeight/message.imageWidth * 300)
+                    cell.imageHeight = imageHeight
+                    Amplify.Storage.downloadData(key: imageURL) { result in
+                        switch result {
+                        case .success(let data):
+                            print("Success downloading image", data)
+                            if let image = UIImage(data: data) {
+                                DispatchQueue.main.async {
+                                    cell.messageImageView.image = image
+                                    self.imageCache.setObject(image, forKey: NSImageURL as NSString)
+                                    if self.chatImagesArray.contains(imageURL) {
+                                        self.currentChatImageDictionary[imageURL] = data
+                                        print("currentImageDictionary")
+                                        print(self.currentChatImageDictionary.count)
+                                        print(self.currentChatImageDictionary.keys)
+                                        self.defaults.setValue(self.currentChatImageDictionary, forKey: "\(self.documentID) photos")
+                                    }
+                                }
+                            }
+                        case .failure(let error):
+                            print("failure downloading image", error)
+                        }
+                    }
+                }
+            }
+            
+            /*else {
                 let imageHeight = CGFloat(message.imageHeight/message.imageWidth * 300)
                 cell.imageHeight = imageHeight
                 Amplify.Storage.downloadData(key: imageURL) { result in
@@ -675,11 +752,11 @@ extension ChatViewController: UITableViewDataSource, UITableViewDelegate {
                         print("failure downloading image", error)
                     }
                 }
-            }
+            }*/
             
             cell.emailLabel.text = message.messageSenderNickName
             
-            cell.isGroupMessage = true
+            cell.isGroupMessage = false
             
             cell.transform = CGAffineTransform(scaleX: 1, y: -1)
             
@@ -875,7 +952,7 @@ extension ChatViewController: UITableViewDataSource, UITableViewDelegate {
             
             let containerView = UIView()
             containerView.addSubview(headerLabel)
-            containerView.backgroundColor = .black //UIColor.init(named: K.BrandColors.backgroundBlack)
+            containerView.backgroundColor = UIColor(named: "WarmBlack") //UIColor.init(named: K.BrandColors.backgroundBlack)
             
             let headerViewConstraints = [
                 //headerLabel.topAnchor.constraint(equalTo: containerView.topAnchor, constant: 10),
