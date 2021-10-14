@@ -31,7 +31,7 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
             
             fetchCurrentAuthSession(userName: userName, password: password)
             let storyboard = UIStoryboard(name: "Main", bundle: nil)
-            let initialVC = storyboard.instantiateViewController(withIdentifier: "homeScreenNavigation")
+            let initialVC = storyboard.instantiateViewController(withIdentifier: "ContactPageViewController")
             //self.window = UIWindow(frame: UIScreen.main.bounds)
             self.window?.rootViewController = initialVC
             self.window?.makeKeyAndVisible()

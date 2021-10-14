@@ -54,14 +54,14 @@ class ContactPageViewController: UIViewController {
         self.contactCollectionView.register(TestCollectionViewCell.self, forCellWithReuseIdentifier: "testCell")
         
         //shows navigation bar
-        /*navigationController?.setNavigationBarHidden(false, animated: true)
+        navigationController?.setNavigationBarHidden(false, animated: true)
          
          navigationController?.navigationBar.isHidden = false
-         navigationController?.navigationBar.isTranslucent = false
-         navigationController?.navigationBar.barTintColor = .black
+         navigationController?.navigationBar.isTranslucent = true
+         navigationController?.navigationBar.barTintColor = UIColor(named: "warmBlack")
          navigationController?.navigationBar.shadowImage = UIImage()
          //navigationItem.backBarButtonItem?.tintColor = UIColor(named: K.BrandColors.purple)
-         self.navigationController!.navigationBar.tintColor = UIColor(named: K.BrandColors.purple)*/
+         self.navigationController?.navigationBar.tintColor = UIColor(named: K.BrandColors.purple)
         
         
         //sets size, scroll direction, etc. of contacts in collection view
@@ -100,7 +100,7 @@ class ContactPageViewController: UIViewController {
         
         self.navigationItem.setHidesBackButton(true, animated: false)
         
-        //title = "Messages"
+        title = "Messages"
         
         contactCollectionView.delegate = self
         contactCollectionView.dataSource = self
@@ -123,6 +123,15 @@ class ContactPageViewController: UIViewController {
                 vc.documentID = chatTitle.replacingOccurrences(of: ".", with: ",")
             }
         }
+    }
+    
+    func scrollViewDidScroll(_ scrollView: UIScrollView) {
+        print(scrollView.contentOffset.y)
+        guard let navigationController = self.navigationController else { return }
+        let navBarHeight = navigationController.navigationBar.frame.height
+        let threshold: CGFloat = 20
+        let alpha = (scrollView.contentOffset.y + navBarHeight + threshold) / threshold
+        navigationController.navigationBar.subviews.first?.alpha = alpha
     }
     
     @IBAction func CreateNewMessagePressed(_ sender: Any) {
@@ -215,7 +224,7 @@ class ContactPageViewController: UIViewController {
         super.viewWillAppear(animated)
         
         NotificationCenter.default.post(name: NSNotification.Name(rawValue: "makeDMTitleBold"), object: nil)
-        self.navigationController?.setNavigationBarHidden(true, animated: false)
+        //self.navigationController?.setNavigationBarHidden(false, animated: false)
     }
 }
 
