@@ -21,6 +21,7 @@ class ContactPageViewController: UIViewController {
     
     let db = Firestore.firestore()
     let chatsByUserRef = Database.database().reference().child("ChatsByUser")
+    let groupChatsByUserRef = Database.database().reference().child("GroupChatsByUser")
     let usersRef = Database.database().reference().child("users")
     let chatViewcontroller = ChatViewController()
     var ref: DocumentReference? = nil
@@ -32,6 +33,7 @@ class ContactPageViewController: UIViewController {
     var groupChats: [String] = []
     let dropDown = DropDown()
     let flowLayout = UICollectionViewFlowLayout()
+    var groupChatImageUrl: String = ""
     
     let imageCache = NSCache<NSString, AnyObject>()
     let defaults = UserDefaults.standard
@@ -41,6 +43,52 @@ class ContactPageViewController: UIViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        
+        /*let view2 = UIView()
+        //self.view.addSubview(view2)
+        let navBarHeight = navigationController?.navigationBar.frame.height
+        //view2.frame = CGRect(x: 100, y: 100, width: (navBarHeight ?? 30) - 10, height: (navBarHeight ?? 30) - 10)
+        view2.frame.size.height = (navBarHeight ?? 30)
+        view2.frame.size.width = (navBarHeight ?? 30)
+        view2.layer.cornerRadius = ((navBarHeight ?? 30))/2
+        view2.backgroundColor = .red
+        
+        let imageView: UIImageView = UIImageView()
+        view2.addSubview(imageView)
+        imageView.frame.size.height = (navBarHeight ?? 30)
+        imageView.frame.size.width = (navBarHeight ?? 30)
+        imageView.layer.cornerRadius = ((navBarHeight ?? 30))/2
+        imageView.backgroundColor = .blue
+        let config = UIImage.SymbolConfiguration(pointSize: 30, weight: .light, scale: .small)
+        imageView.image = UIImage(systemName: "person", withConfiguration: config)
+        imageView.clipsToBounds = true
+        
+        
+        
+        let constraints = [
+            imageView.topAnchor.constraint(equalTo: view2.topAnchor, constant: 0),
+            imageView.leadingAnchor.constraint(equalTo: view2.leadingAnchor, constant: 0),
+            imageView.bottomAnchor.constraint(equalTo: view2.bottomAnchor, constant: 0),
+            imageView.trailingAnchor.constraint(equalTo: view2.trailingAnchor, constant: 0),
+        ]
+        
+        //NSLayoutConstraint.activate(constraints)
+        
+        
+
+        
+        //let config = UIImage.SymbolConfiguration(pointSize: 30, weight: .medium, scale: .default)
+
+        //let image = UIImage(systemName: "person.circle.fill", withConfiguration: config)*/
+        
+        /*if #available(iOS 14.0, *) {
+            let config = UIImage.SymbolConfiguration(pointSize: 100, weight: .medium, scale: .large)
+            let image = UIImage(systemName: "person", withConfiguration: config)
+            let barButton = UIBarButtonItem(image: image, landscapeImagePhone: image, style: .plain, target: nil, action: nil)
+            self.navigationItem.setLeftBarButton(barButton, animated: true)
+        }*/
+        
+         //
         
         Amplify.Auth.fetchAuthSession { result in
             switch result {
@@ -54,14 +102,14 @@ class ContactPageViewController: UIViewController {
         self.contactCollectionView.register(TestCollectionViewCell.self, forCellWithReuseIdentifier: "testCell")
         
         //shows navigation bar
-        navigationController?.setNavigationBarHidden(false, animated: true)
+        //navigationController?.setNavigationBarHidden(false, animated: true)
          
-         navigationController?.navigationBar.isHidden = false
-         navigationController?.navigationBar.isTranslucent = true
-         navigationController?.navigationBar.barTintColor = UIColor(named: "warmBlack")
-         navigationController?.navigationBar.shadowImage = UIImage()
-         //navigationItem.backBarButtonItem?.tintColor = UIColor(named: K.BrandColors.purple)
-         self.navigationController?.navigationBar.tintColor = UIColor(named: K.BrandColors.purple)
+        navigationController?.navigationBar.isHidden = false
+        navigationController?.navigationBar.isTranslucent = true
+        navigationController?.navigationBar.barTintColor = UIColor(named: "warmBlack")
+        navigationController?.navigationBar.shadowImage = UIImage()
+        navigationItem.backBarButtonItem?.tintColor = UIColor(named: K.BrandColors.purple)
+        self.navigationController?.navigationBar.tintColor = UIColor(named: K.BrandColors.purple)
         
         
         //sets size, scroll direction, etc. of contacts in collection view
@@ -126,11 +174,11 @@ class ContactPageViewController: UIViewController {
     }
     
     func scrollViewDidScroll(_ scrollView: UIScrollView) {
-        print(scrollView.contentOffset.y)
         guard let navigationController = self.navigationController else { return }
         let navBarHeight = navigationController.navigationBar.frame.height
-        let threshold: CGFloat = 20
-        let alpha = (scrollView.contentOffset.y + navBarHeight + threshold) / threshold
+        //let threshold: CGFloat = 20
+        //let alpha = (scrollView.contentOffset.y + navBarHeight + threshold) / threshold
+        let alpha: CGFloat = (scrollView.contentOffset.y + 88)/100
         navigationController.navigationBar.subviews.first?.alpha = alpha
     }
     
@@ -150,7 +198,6 @@ class ContactPageViewController: UIViewController {
         userChatsRef.observe(DataEventType.value, with: { (snapshot) in
             let postDict = snapshot.value as? [String : AnyObject] ?? [:]
             var otherUserEmail: String = ""
-            self.contacts = []
             for (key,value) in postDict {
                 let userEmails = key.components(separatedBy: " + ")
                 if (userEmails[0] != commaEmail) {
@@ -181,12 +228,44 @@ class ContactPageViewController: UIViewController {
                     let userContact = Contact(email: otherUserEmail, fullName: otherUserFullName, timeStamp: timeStamp, lastMessage: lastMessage, badgeCount: badgeCount!, profileImageUrl: profileImageUrl)
                     
                     self.contacts.append(userContact)
+                    for contact in self.contacts {
+                        print(contact.profileImageUrl)
+                    }
                     
                 }
                 
                 DispatchQueue.main.async {
                     self.contactCollectionView.reloadData()
                 }
+            }
+        })
+        
+        let chatsRef = groupChatsByUserRef.child(commaEmail).child("Chats")
+        
+        chatsRef.observe(DataEventType.value, with: { (snapshot) in
+            let postDict = snapshot.value as? [String : AnyObject] ?? [:]
+            for value in postDict.values {
+                if let groupChatTitle = value.object(forKey: "title") as? String, let groupChatDocumentID = value.object(forKey: "documentID") as? String, let commaTimeStamp = value.object(forKey: "timeStamp") as? String {
+                    
+                    let timeStamp = commaTimeStamp.replacingOccurrences(of: ",", with: ".")
+                    
+                    let stringBadgeCount = value.object(forKey: "badgeCount") as? String ?? "0"
+                    let badgeCount = Int(stringBadgeCount)
+                    
+                    let lastMessage = value.object(forKey: "lastMessage") as? String ?? ""
+                    
+                    let profileImageUrl = value.object(forKey: "profileImageUrl") as? String ?? "default"
+                    
+                    self.groupChatImageUrl = profileImageUrl
+                    
+                    
+                    let groupChatContact = Contact(email: groupChatDocumentID , fullName: groupChatTitle , timeStamp: Double(timeStamp)!, lastMessage: lastMessage, badgeCount: badgeCount!, profileImageUrl: profileImageUrl)
+                    
+                    self.contacts.append(groupChatContact)
+                }
+            }
+            DispatchQueue.main.async {
+                self.contactCollectionView.reloadData()
             }
         })
         
@@ -262,12 +341,13 @@ extension ContactPageViewController: UICollectionViewDataSource {
         cell.contactImageView.image = #imageLiteral(resourceName: "AbstractPainting")
         
         if profileImageUrl == "default" || profileImageUrl == "" {
+            print("true")
             return cell
         } else {
             if let cachedImage = self.imageCache.object(forKey: profileImageUrl as NSString) {
                 print("there is cached image")
                 cell.contactImageView.image = cachedImage as? UIImage
-            } else if var imageDictionary = defaults.dictionary(forKey: "dmContactPictures") {
+            } else if var imageDictionary = defaults.dictionary(forKey: "ContactPictures") {
                 if let storedImageData = imageDictionary[profileImageUrl] {
                     let image = UIImage(data: storedImageData as! Data)
                     cell.contactImageView.image = image
@@ -284,7 +364,7 @@ extension ContactPageViewController: UICollectionViewDataSource {
                                     cell.contactImageView.image = image
                                     self.imageCache.setObject(image, forKey: profileImageUrl as NSString)
                                     imageDictionary[profileImageUrl] = data
-                                    self.defaults.setValue(imageDictionary, forKey: "dmContactPictures")
+                                    self.defaults.setValue(imageDictionary, forKey: "ContactPictures")
                                 }
                             }
                         case .failure(let error):

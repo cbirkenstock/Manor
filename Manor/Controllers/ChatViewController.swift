@@ -98,7 +98,7 @@ class ChatViewController: UIViewController, PHPickerViewControllerDelegate, UIIm
         //self.textBarAndButtonHolder.isHidden = false
         
         navigationController?.navigationBar.isHidden = false
-        navigationController?.navigationBar.isTranslucent = true
+        navigationController?.navigationBar.isTranslucent = false
         navigationController?.navigationBar.barTintColor = UIColor(named: "WarmBlack")
         //navigationController?.navigationBar.shadowImage = UIImage()
         //navigationItem.backBarButtonItem?.tintColor = UIColor(named: K.BrandColors.purple)
