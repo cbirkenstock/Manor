@@ -45,10 +45,10 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
         
         let firebaseManager = FirebaseManagerViewController()
         
-        firebaseManager.downloadContactPhotos { groupContactPhotosDictionary in
-            self.defaults.setValue(groupContactPhotosDictionary, forKey: "groupContactPictures")
-        } dmCompletion: { dmContactPhotosDictionary in
-            self.defaults.setValue(dmContactPhotosDictionary, forKey: "dmContactPictures")
+        firebaseManager.downloadContactPhotos { contactPicturesDictionary in
+            self.defaults.setValue(contactPicturesDictionary, forKey: "contactPictures")
+        } dmCompletion: { contactPicturesDictionary in
+            self.defaults.setValue(contactPicturesDictionary, forKey: "contactPictures")
         }
         return true
     }

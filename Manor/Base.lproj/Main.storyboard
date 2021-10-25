@@ -275,70 +275,15 @@
                     <view key="view" contentMode="scaleToFill" id="4vc-ai-aWh">
                         <rect key="frame" x="0.0" y="0.0" width="414" height="896"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
-                        <subviews>
-                            <collectionView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" dataMode="prototypes" translatesAutoresizingMaskIntoConstraints="NO" id="nbx-93-gQ9">
-                                <rect key="frame" x="0.0" y="0.0" width="414" height="896"/>
-                                <color key="backgroundColor" name="WarmBlack"/>
-                                <collectionViewFlowLayout key="collectionViewLayout" automaticEstimatedItemSize="YES" minimumLineSpacing="10" minimumInteritemSpacing="10" id="YyB-2J-i0Q">
-                                    <size key="itemSize" width="191" height="224"/>
-                                    <size key="headerReferenceSize" width="0.0" height="0.0"/>
-                                    <size key="footerReferenceSize" width="0.0" height="0.0"/>
-                                    <inset key="sectionInset" minX="0.0" minY="0.0" maxX="0.0" maxY="0.0"/>
-                                </collectionViewFlowLayout>
-                                <cells>
-                                    <collectionViewCell opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" reuseIdentifier="contactCollectionViewCell" id="RAV-A7-XBH" customClass="ContactCollectionViewCell" customModule="Manor" customModuleProvider="target">
-                                        <rect key="frame" x="0.0" y="0.0" width="191" height="224"/>
-                                        <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
-                                        <collectionViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" insetsLayoutMarginsFromSafeArea="NO" id="gN6-eT-FQV">
-                                            <rect key="frame" x="0.0" y="0.0" width="191" height="224"/>
-                                            <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
-                                            <subviews>
-                                                <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" spacing="5" translatesAutoresizingMaskIntoConstraints="NO" id="PWe-62-ZtK">
-                                                    <rect key="frame" x="5" y="5" width="181" height="214"/>
-                                                    <subviews>
-                                                        <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="DefaultContactIcon" translatesAutoresizingMaskIntoConstraints="NO" id="zbO-Zg-VTm">
-                                                            <rect key="frame" x="0.0" y="0.0" width="181" height="179"/>
-                                                        </imageView>
-                                                        <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="George Lawrence" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" minimumFontSize="12" adjustsLetterSpacingToFitWidth="YES" adjustsFontForContentSizeCategory="YES" translatesAutoresizingMaskIntoConstraints="NO" id="KM0-3j-qDp">
-                                                            <rect key="frame" x="0.0" y="184" width="181" height="30"/>
-                                                            <constraints>
-                                                                <constraint firstAttribute="height" constant="30" id="uAh-rq-07p"/>
-                                                            </constraints>
-                                                            <fontDescription key="fontDescription" type="boldSystem" pointSize="21"/>
-                                                            <color key="textColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
-                                                            <nil key="highlightedColor"/>
-                                                        </label>
-                                                    </subviews>
-                                                </stackView>
-                                            </subviews>
-                                            <constraints>
-                                                <constraint firstAttribute="trailing" secondItem="PWe-62-ZtK" secondAttribute="trailing" constant="5" id="2Wf-YC-47g"/>
-                                                <constraint firstItem="PWe-62-ZtK" firstAttribute="top" secondItem="gN6-eT-FQV" secondAttribute="top" constant="5" id="QR5-eb-Bx6"/>
-                                                <constraint firstItem="PWe-62-ZtK" firstAttribute="leading" secondItem="gN6-eT-FQV" secondAttribute="leading" constant="5" id="RJK-pR-aa6"/>
-                                                <constraint firstAttribute="bottom" secondItem="PWe-62-ZtK" secondAttribute="bottom" constant="5" id="vsJ-Ng-Sjl"/>
-                                            </constraints>
-                                        </collectionViewCellContentView>
-                                        <size key="customSize" width="191" height="224"/>
-                                        <connections>
-                                            <outlet property="defaultContactIcon" destination="zbO-Zg-VTm" id="pHL-u6-7C1"/>
-                                            <outlet property="nameLabel" destination="KM0-3j-qDp" id="aiY-55-iJX"/>
-                                        </connections>
-                                    </collectionViewCell>
-                                </cells>
-                            </collectionView>
-                        </subviews>
                         <viewLayoutGuide key="safeArea" id="o0K-VN-77g"/>
                         <color key="backgroundColor" name="WarmBlack"/>
-                        <constraints>
-                            <constraint firstAttribute="bottomMargin" secondItem="nbx-93-gQ9" secondAttribute="bottom" constant="-34" id="0fk-qu-jb9"/>
-                            <constraint firstItem="nbx-93-gQ9" firstAttribute="leading" secondItem="o0K-VN-77g" secondAttribute="leading" id="GUV-B9-Zgy"/>
-                            <constraint firstItem="nbx-93-gQ9" firstAttribute="top" secondItem="o0K-VN-77g" secondAttribute="top" constant="-88" id="gZY-pN-2gS"/>
-                            <constraint firstItem="nbx-93-gQ9" firstAttribute="centerX" secondItem="4vc-ai-aWh" secondAttribute="centerX" id="rce-If-RWh"/>
-                        </constraints>
                     </view>
                     <navigationItem key="navigationItem" title="Messages" largeTitleDisplayMode="always" id="sXi-Rs-mcv">
                         <barButtonItem key="leftBarButtonItem" id="NQX-AL-v0Z">
                             <imageReference key="image" image="person" catalog="system" symbolScale="large"/>
+                            <connections>
+                                <action selector="profileButtonPressed:" destination="JRK-Wi-NdQ" id="Pj2-4f-37y"/>
+                            </connections>
                         </barButtonItem>
                         <barButtonItem key="rightBarButtonItem" image="scribble" catalog="system" id="Qre-pK-PCN">
                             <connections>
@@ -347,15 +292,17 @@
                         </barButtonItem>
                     </navigationItem>
                     <connections>
-                        <outlet property="contactCollectionView" destination="nbx-93-gQ9" id="lbe-9S-d96"/>
                         <outlet property="createConversationButton" destination="Qre-pK-PCN" id="G96-cY-OjJ"/>
                         <segue destination="8g5-vs-ZP1" kind="show" identifier="toNewDirectMessageView" id="yEN-uB-1VB"/>
                         <segue destination="zsh-ZK-apK" kind="show" identifier="toChatView" id="UCm-pG-jXe"/>
+                        <segue destination="Ir0-ic-lsG" kind="show" identifier="toGroupChatView" id="lkl-jK-06J"/>
+                        <segue destination="i3q-Cy-3QU" kind="show" identifier="toNewGroupMessageView" id="wCP-AJ-OMs"/>
+                        <segue destination="vaY-i2-WX2" kind="show" identifier="toProfile" id="y4P-ay-g9Z"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="Ryk-ex-UHp" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="5331.884057971015" y="-87.053571428571431"/>
+            <point key="canvasLocation" x="5487" y="-87"/>
         </scene>
         <!--New Conversation View Controller-->
         <scene sceneID="YVg-t9-EwC">
@@ -597,7 +544,7 @@
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
                             <collectionView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" dataMode="prototypes" translatesAutoresizingMaskIntoConstraints="NO" id="m4G-sI-f97">
-                                <rect key="frame" x="0.0" y="253" width="414" height="643"/>
+                                <rect key="frame" x="0.0" y="297" width="414" height="599"/>
                                 <color key="backgroundColor" white="0.0" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                 <collectionViewFlowLayout key="collectionViewLayout" automaticEstimatedItemSize="YES" minimumLineSpacing="10" minimumInteritemSpacing="10" id="U1S-Gb-tX9">
                                     <size key="itemSize" width="191" height="219"/>
@@ -648,7 +595,7 @@
                                 </cells>
                             </collectionView>
                             <textField opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="left" contentVerticalAlignment="center" text="Chat Title" textAlignment="natural" minimumFontSize="17" translatesAutoresizingMaskIntoConstraints="NO" id="kOh-rW-STc">
-                                <rect key="frame" x="10" y="49" width="394" height="45"/>
+                                <rect key="frame" x="10" y="93" width="394" height="45"/>
                                 <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                 <constraints>
                                     <constraint firstAttribute="height" constant="45" id="ayp-Ae-4g7"/>
@@ -661,7 +608,7 @@
                                 </connections>
                             </textField>
                             <textField opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="left" contentVerticalAlignment="center" text="Members" textAlignment="natural" minimumFontSize="17" translatesAutoresizingMaskIntoConstraints="NO" id="lIp-ne-5RL">
-                                <rect key="frame" x="10" y="95" width="394" height="45"/>
+                                <rect key="frame" x="10" y="139" width="394" height="45"/>
                                 <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                 <constraints>
                                     <constraint firstAttribute="height" constant="45" id="X5F-Fn-FdD"/>
@@ -675,7 +622,7 @@
                                 </connections>
                             </textField>
                             <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="Vp1-J8-47T">
-                                <rect key="frame" x="2" y="150" width="410" height="98"/>
+                                <rect key="frame" x="2" y="194" width="410" height="98"/>
                                 <subviews>
                                     <collectionView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" dataMode="prototypes" translatesAutoresizingMaskIntoConstraints="NO" id="HQP-XM-SeH">
                                         <rect key="frame" x="0.0" y="3" width="410" height="92"/>
@@ -778,7 +725,7 @@
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="pUU-PL-g0l" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="6136" y="-1031"/>
+            <point key="canvasLocation" x="7004" y="654"/>
         </scene>
         <!--New Contact Page View Controller-->
         <scene sceneID="wpw-Jn-T0A">
@@ -805,37 +752,11 @@
                     <connections>
                         <outlet property="createConversationButton" destination="UqF-cd-Ccg" id="H6K-xL-0n8"/>
                         <outlet property="profileBarButton" destination="Yes-U5-OIc" id="euQ-K7-hNr"/>
-                        <segue destination="Ir0-ic-lsG" kind="show" identifier="toGroupChatView" id="iwR-df-2n9"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="Hvn-k6-6EZ" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="8603" y="-1007"/>
-        </scene>
-        <!--Navigation Controller-->
-        <scene sceneID="jEe-eJ-2B9">
-            <objects>
-                <navigationController storyboardIdentifier="GroupChatContactView" automaticallyAdjustsScrollViewInsets="NO" id="vBw-ML-2db" sceneMemberID="viewController">
-                    <toolbarItems/>
-                    <navigationBar key="navigationBar" contentMode="scaleToFill" id="rt8-8H-MGX">
-                        <rect key="frame" x="0.0" y="44" width="414" height="44"/>
-                        <autoresizingMask key="autoresizingMask"/>
-                        <color key="barTintColor" white="0.0" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
-                        <textAttributes key="titleTextAttributes">
-                            <color key="textColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
-                        </textAttributes>
-                        <textAttributes key="largeTitleTextAttributes">
-                            <color key="textColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
-                        </textAttributes>
-                    </navigationBar>
-                    <nil name="viewControllers"/>
-                    <connections>
-                        <segue destination="pc4-J2-6wl" kind="relationship" relationship="rootViewController" id="jGq-Dy-KiC"/>
-                    </connections>
-                </navigationController>
-                <placeholder placeholderIdentifier="IBFirstResponder" id="ahj-PR-aq5" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
-            </objects>
-            <point key="canvasLocation" x="7471" y="-1031"/>
+            <point key="canvasLocation" x="9522" y="-2178"/>
         </scene>
         <!--Chat View Controller-->
         <scene sceneID="nkK-sg-ET4">
@@ -943,7 +864,7 @@
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="RMV-au-TLf" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="8932" y="1137"/>
+            <point key="canvasLocation" x="10054" y="1803"/>
         </scene>
         <!--Group Chat View Controller-->
         <scene sceneID="mFp-U3-Nlz">
@@ -1112,7 +1033,7 @@
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="Myl-FX-8PE" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="12778.260869565218" y="-452.00892857142856"/>
+            <point key="canvasLocation" x="10054" y="48"/>
         </scene>
         <!--Unreached Members View Controller-->
         <scene sceneID="dw2-J8-4KH">
@@ -1150,7 +1071,7 @@
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="T2H-Ff-oQA" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="13773.913043478262" y="-77.008928571428569"/>
+            <point key="canvasLocation" x="11616" y="532"/>
         </scene>
         <!--View Controller-->
         <scene sceneID="tJM-YC-VgX">
@@ -1320,7 +1241,7 @@
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
                             <stackView opaque="NO" contentMode="scaleToFill" alignment="center" spacing="10" translatesAutoresizingMaskIntoConstraints="NO" id="1YY-8p-i4I">
-                                <rect key="frame" x="20" y="74" width="374" height="126"/>
+                                <rect key="frame" x="20" y="118" width="374" height="126"/>
                                 <subviews>
                                     <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="HjL-5P-kb6">
                                         <rect key="frame" x="0.0" y="0.0" width="126" height="126"/>
@@ -1385,7 +1306,7 @@
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="7ro-CL-Nt8" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="5252" y="-858"/>
+            <point key="canvasLocation" x="5487" y="-909"/>
         </scene>
         <!--New Group Message View Controller-->
         <scene sceneID="wdj-ue-t0l">
@@ -1758,7 +1679,7 @@
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="iw4-fo-HLR" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="11868" y="-1117"/>
+            <point key="canvasLocation" x="11616" y="-348"/>
         </scene>
         <!--Group Chat View Controller-->
         <scene sceneID="bcb-BW-4tN">
@@ -1769,7 +1690,7 @@
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
                             <tableView clipsSubviews="YES" contentMode="scaleToFill" alwaysBounceVertical="YES" dataMode="prototypes" style="plain" separatorStyle="none" rowHeight="-1" estimatedRowHeight="-1" sectionHeaderHeight="28" sectionFooterHeight="28" translatesAutoresizingMaskIntoConstraints="NO" id="Ole-82-UYy">
-                                <rect key="frame" x="0.0" y="68" width="414" height="735.5"/>
+                                <rect key="frame" x="0.0" y="0.0" width="414" height="803.5"/>
                                 <color key="backgroundColor" name="WarmBlack"/>
                             </tableView>
                             <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="XJ3-O2-EuM">
@@ -1807,28 +1728,20 @@
                         <constraints>
                             <constraint firstItem="18w-Ii-LaQ" firstAttribute="trailing" secondItem="XJ3-O2-EuM" secondAttribute="trailing" constant="5" id="HrY-sV-2oL"/>
                             <constraint firstItem="XJ3-O2-EuM" firstAttribute="leading" secondItem="18w-Ii-LaQ" secondAttribute="leading" constant="5" id="LKZ-G7-nok"/>
-                            <constraint firstItem="Ole-82-UYy" firstAttribute="top" secondItem="18w-Ii-LaQ" secondAttribute="top" constant="-20" id="aQ8-aL-G7v"/>
+                            <constraint firstItem="Ole-82-UYy" firstAttribute="top" secondItem="18w-Ii-LaQ" secondAttribute="top" constant="-88" id="aQ8-aL-G7v"/>
                             <constraint firstItem="18w-Ii-LaQ" firstAttribute="trailing" secondItem="Ole-82-UYy" secondAttribute="trailing" id="d1D-gh-75v"/>
                             <constraint firstAttribute="bottom" secondItem="XJ3-O2-EuM" secondAttribute="bottom" constant="55" id="nwY-0Y-Fp1"/>
                             <constraint firstItem="XJ3-O2-EuM" firstAttribute="top" secondItem="Ole-82-UYy" secondAttribute="bottom" id="pAa-fz-rpS"/>
                             <constraint firstItem="Ole-82-UYy" firstAttribute="leading" secondItem="18w-Ii-LaQ" secondAttribute="leading" id="yee-Uc-iXd"/>
                         </constraints>
                     </view>
-                    <navigationItem key="navigationItem" id="d3c-nF-075">
-                        <barButtonItem key="rightBarButtonItem" title="Item" id="3r5-NL-HSy">
-                            <imageReference key="image" image="ellipsis" catalog="system" symbolScale="large"/>
-                            <color key="tintColor" name="BrandPurpleColor"/>
-                            <connections>
-                                <action selector="pushButtonPressed:" destination="Ir0-ic-lsG" id="mwm-7M-QSJ"/>
-                            </connections>
-                        </barButtonItem>
-                    </navigationItem>
+                    <navigationItem key="navigationItem" id="d3c-nF-075"/>
                     <connections>
                         <outlet property="bottomConstraint" destination="nwY-0Y-Fp1" id="ENJ-Ef-Ojd"/>
                         <outlet property="chatTableView" destination="Ole-82-UYy" id="c74-h6-cGf"/>
                         <outlet property="chatTextBar" destination="Sgf-h4-B8e" id="N7E-EE-j44"/>
                         <outlet property="chatViewNavigationBar" destination="d3c-nF-075" id="6Ov-Ex-f7i"/>
-                        <outlet property="pushMessageButton" destination="3r5-NL-HSy" id="8Io-7T-9tQ"/>
+                        <outlet property="textBarLeftConstaint" destination="LKZ-G7-nok" id="Rua-jK-JoW"/>
                         <outlet property="textBarRightConstraint" destination="HrY-sV-2oL" id="gU8-0n-rQ8"/>
                         <outlet property="textBarView" destination="XJ3-O2-EuM" id="1Kn-1E-xB6"/>
                         <segue destination="760-Pp-JBG" kind="show" identifier="toGroupChatInfo" id="oBf-Wm-jhd"/>
@@ -1836,7 +1749,7 @@
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="cOn-WH-cGg" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="9614" y="-1031"/>
+            <point key="canvasLocation" x="8310" y="636"/>
         </scene>
         <!--Chat View Controller-->
         <scene sceneID="Agc-zP-WE5">
@@ -1846,10 +1759,10 @@
                         <rect key="frame" x="0.0" y="0.0" width="414" height="896"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
-                            <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="6sY-fW-L44">
+                            <view contentMode="scaleToFill" ambiguous="YES" translatesAutoresizingMaskIntoConstraints="NO" id="6sY-fW-L44">
                                 <rect key="frame" x="0.0" y="794" width="414" height="60"/>
                                 <subviews>
-                                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="MbB-UA-9nw">
+                                    <button opaque="NO" contentMode="scaleToFill" ambiguous="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="MbB-UA-9nw">
                                         <rect key="frame" x="349" y="7" width="45" height="44.5"/>
                                         <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                         <constraints>
@@ -1867,10 +1780,10 @@
                                             <action selector="sendButtonPressed:" destination="NfL-SG-GTD" eventType="touchUpInside" id="Pbd-va-NoJ"/>
                                         </connections>
                                     </button>
-                                    <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="mGy-G8-9Hd">
+                                    <view contentMode="scaleToFill" ambiguous="YES" translatesAutoresizingMaskIntoConstraints="NO" id="mGy-G8-9Hd">
                                         <rect key="frame" x="14" y="8" width="315" height="45"/>
                                         <subviews>
-                                            <textView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" textAlignment="natural" translatesAutoresizingMaskIntoConstraints="NO" id="coq-x1-AFg" customClass="GrowingTextView" customModule="GrowingTextView">
+                                            <textView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" ambiguous="YES" textAlignment="natural" translatesAutoresizingMaskIntoConstraints="NO" id="coq-x1-AFg" customClass="GrowingTextView" customModule="GrowingTextView">
                                                 <rect key="frame" x="15" y="2" width="285" height="43"/>
                                                 <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                                 <color key="textColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
@@ -1904,7 +1817,7 @@
                                     <constraint firstAttribute="bottom" secondItem="MbB-UA-9nw" secondAttribute="bottom" constant="8" id="gV8-20-dn7"/>
                                 </constraints>
                             </view>
-                            <tableView clipsSubviews="YES" contentMode="scaleToFill" alwaysBounceVertical="YES" dataMode="prototypes" style="plain" separatorStyle="none" rowHeight="-1" estimatedRowHeight="-1" sectionHeaderHeight="28" sectionFooterHeight="28" translatesAutoresizingMaskIntoConstraints="NO" id="S6T-wG-H9M">
+                            <tableView clipsSubviews="YES" contentMode="scaleToFill" ambiguous="YES" alwaysBounceVertical="YES" dataMode="prototypes" style="plain" separatorStyle="none" rowHeight="-1" estimatedRowHeight="-1" sectionHeaderHeight="28" sectionFooterHeight="28" translatesAutoresizingMaskIntoConstraints="NO" id="S6T-wG-H9M">
                                 <rect key="frame" x="0.0" y="24" width="414" height="770"/>
                                 <color key="backgroundColor" white="0.0" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                             </tableView>
@@ -1942,7 +1855,7 @@
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="YyD-RP-Ia5" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="12126" y="1329"/>
+            <point key="canvasLocation" x="10774" y="1803"/>
         </scene>
         <!--Navigation Controller-->
         <scene sceneID="Uhb-74-lZO">
@@ -1999,7 +1912,7 @@
                                 </constraints>
                             </view>
                             <tableView clipsSubviews="YES" contentMode="scaleToFill" alwaysBounceVertical="YES" dataMode="prototypes" style="plain" separatorStyle="none" rowHeight="-1" estimatedRowHeight="-1" sectionHeaderHeight="28" sectionFooterHeight="28" translatesAutoresizingMaskIntoConstraints="NO" id="zib-KN-9qB">
-                                <rect key="frame" x="0.0" y="68" width="414" height="733"/>
+                                <rect key="frame" x="0.0" y="0.0" width="414" height="801"/>
                                 <color key="backgroundColor" name="WarmBlack"/>
                             </tableView>
                         </subviews>
@@ -2010,33 +1923,24 @@
                             <constraint firstItem="9AG-2a-bXX" firstAttribute="trailing" secondItem="zib-KN-9qB" secondAttribute="trailing" id="BGi-67-SpQ"/>
                             <constraint firstAttribute="bottom" secondItem="aqA-nP-rlN" secondAttribute="bottom" constant="57.5" id="OQg-0d-gDB"/>
                             <constraint firstItem="aqA-nP-rlN" firstAttribute="top" secondItem="zib-KN-9qB" secondAttribute="bottom" id="Rv3-6h-18b"/>
-                            <constraint firstItem="zib-KN-9qB" firstAttribute="top" secondItem="9AG-2a-bXX" secondAttribute="top" constant="-20" id="bm5-Hh-RIn"/>
+                            <constraint firstItem="zib-KN-9qB" firstAttribute="top" secondItem="9AG-2a-bXX" secondAttribute="top" constant="-88" id="bm5-Hh-RIn"/>
                             <constraint firstItem="aqA-nP-rlN" firstAttribute="leading" secondItem="9AG-2a-bXX" secondAttribute="leading" constant="5" id="fDd-IN-iHk"/>
                             <constraint firstItem="9AG-2a-bXX" firstAttribute="trailing" secondItem="aqA-nP-rlN" secondAttribute="trailing" constant="5" id="xr1-2b-qxd"/>
                         </constraints>
                     </view>
-                    <navigationItem key="navigationItem" id="LB9-8G-Fns">
-                        <barButtonItem key="rightBarButtonItem" title="Item" id="TRO-vs-m9G">
-                            <imageReference key="image" image="ellipsis" catalog="system" symbolScale="large"/>
-                            <color key="tintColor" name="BrandPurpleColor"/>
-                            <connections>
-                                <action selector="pushButtonPressed:" destination="zsh-ZK-apK" id="5OS-Vx-kWL"/>
-                            </connections>
-                        </barButtonItem>
-                    </navigationItem>
+                    <navigationItem key="navigationItem" id="LB9-8G-Fns"/>
                     <connections>
                         <outlet property="bottomConstraint" destination="OQg-0d-gDB" id="Q4b-qG-8hn"/>
                         <outlet property="chatTableView" destination="zib-KN-9qB" id="Y12-62-Q6t"/>
                         <outlet property="chatTextBar" destination="lth-dx-rR5" id="AbI-jd-nD1"/>
                         <outlet property="chatViewNavigationBar" destination="LB9-8G-Fns" id="dGk-2q-D22"/>
-                        <outlet property="pushMessageButton" destination="TRO-vs-m9G" id="uMS-Ox-CmO"/>
                         <outlet property="textBarRightConstraint" destination="xr1-2b-qxd" id="oh8-LJ-EMW"/>
                         <outlet property="textBarView" destination="aqA-nP-rlN" id="7el-lF-wl0"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="FVN-pB-1XD" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="7988" y="-87"/>
+            <point key="canvasLocation" x="8360.8695652173919" y="-216.29464285714286"/>
         </scene>
         <!--Navigation Controller-->
         <scene sceneID="Y4X-ws-lY8">
@@ -2060,22 +1964,13 @@
     </scenes>
     <designables>
         <designable name="NaG-pu-Rij">
-            <size key="intrinsicContentSize" width="-1" height="30"/>
-        </designable>
-        <designable name="Sgf-h4-B8e">
-            <size key="intrinsicContentSize" width="-1" height="30"/>
-        </designable>
-        <designable name="coq-x1-AFg">
-            <size key="intrinsicContentSize" width="-1" height="30"/>
-        </designable>
-        <designable name="lth-dx-rR5">
-            <size key="intrinsicContentSize" width="-1" height="30"/>
+            <size key="intrinsicContentSize" width="10" height="37.5"/>
         </designable>
     </designables>
     <inferredMetricsTieBreakers>
         <segue reference="V8z-Nk-rcA"/>
         <segue reference="UCm-pG-jXe"/>
-        <segue reference="iwR-df-2n9"/>
+        <segue reference="lkl-jK-06J"/>
     </inferredMetricsTieBreakers>
     <resources>
         <image name="DefaultContactIcon" width="953" height="953"/>

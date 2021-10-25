@@ -19,6 +19,7 @@ struct Contact: Equatable {
     var profileImageUrl: String = ""
     var image: UIImage? = nil
     var event: Event? = nil
+    let DM: Bool 
     
     static func == (lhs: Contact, rhs: Contact) -> Bool {
         return

@@ -185,7 +185,7 @@ class AddMembersViewController: UIViewController {
                 if let userFirstName = value.object(forKey: "firstName") as? String, let userLastName = value.object(forKey: "lastName") as? String, let userEmail = value.object(forKey: "email") as? String {
                     let userFullName = "\(userFirstName) \(userLastName)"
                     let userProfileImageUrl = (value.object(forKey: "profileImageUrl") as? String) ?? "default"
-                    let userContact: Contact = Contact(email: userEmail, fullName: userFullName, profileImageUrl: userProfileImageUrl)
+                    let userContact: Contact = Contact(email: userEmail, fullName: userFullName, profileImageUrl: userProfileImageUrl, DM: true)
                     //this loop just checks to see if all the letters of someone's name matches the searched name
                     if let i = searchName?.count {
                         var letterPos = 0
@@ -404,7 +404,7 @@ extension AddMembersViewController: UICollectionViewDelegate {
             let userEmail = cell.documentID
             let profileImage = cell.contactImageView.image
             
-            let userContact = Contact(email: userEmail, fullName: userFirstName, image: profileImage)
+            let userContact = Contact(email: userEmail, fullName: userFirstName, image: profileImage, DM: true)
             if (!chosenNames.contains(userContact)) {
                 chosenNames.append(userContact)
                 if (!groupMembers.contains([userFullName, userContact.email])) {
