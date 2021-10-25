@@ -548,11 +548,7 @@ extension ContactPageViewController: UICollectionViewDataSource {
             if let cachedImage = self.imageCache.object(forKey: profileImageUrl as NSString) {
                 print("there is cached image")
                 cell.contactImageView.image = cachedImage as? UIImage
-<<<<<<< Updated upstream
-            } else if var imageDictionary = defaults.dictionary(forKey: "dmContactPictures") {
-=======
             } else if var imageDictionary = defaults.dictionary(forKey: "contactPictures") {
->>>>>>> Stashed changes
                 if let storedImageData = imageDictionary[profileImageUrl] {
                     let image = UIImage(data: storedImageData as! Data)
                     cell.contactImageView.image = image
@@ -569,11 +565,8 @@ extension ContactPageViewController: UICollectionViewDataSource {
                                     cell.contactImageView.image = image
                                     self.imageCache.setObject(image, forKey: profileImageUrl as NSString)
                                     imageDictionary[profileImageUrl] = data
-<<<<<<< Updated upstream
                                     self.defaults.setValue(imageDictionary, forKey: "dmContactPictures")
-=======
                                     self.defaults.setValue(imageDictionary, forKey: "contactPictures")
->>>>>>> Stashed changes
                                 }
                             }
                         case .failure(let error):
