@@ -22,8 +22,8 @@ class FirebaseManagerViewController: UIViewController {
     
     func downloadContactPhotos(groupCompletion: @escaping([String:Data]) -> (), dmCompletion: @escaping([String:Data]) -> ()) {
         if let userEmail = user?.email {
-            var groupPhotoDictionary: [String:Data] = [:]
-            var dmPhotoDictionary: [String:Data] = [:]
+            
+            
             let groupChatsByUserRef = Database.database().reference().child("GroupChatsByUser")
             let chatsByUserRef = Database.database().reference().child("ChatsByUser")
             let commaEmail = userEmail.replacingOccurrences(of: ".", with: ",")
@@ -33,6 +33,12 @@ class FirebaseManagerViewController: UIViewController {
             
             let defaults = UserDefaults.standard
             
+            var contactPicturesDictionary: [String:Data] = [:]
+            
+            if let picturesDictionary = defaults.dictionary(forKey: "contactPictures") {
+                contactPicturesDictionary = picturesDictionary as? [String : Data] ?? [:]
+            }
+            
             groupChatsRef.observe(DataEventType.value, with: { (snapshot) in
                 let postDict = snapshot.value as? [String : AnyObject] ?? [:]
                 let valueCount = postDict.values.count
@@ -40,10 +46,8 @@ class FirebaseManagerViewController: UIViewController {
                 for value in postDict.values {
                     currentCount += 1
                     if let profileImageUrl = value.object(forKey: "profileImageUrl") as? String {
-                        if let groupContactPicturesDictionary = defaults.dictionary(forKey: "groupContactPictures") {
-                            if groupContactPicturesDictionary.keys.contains(profileImageUrl) {
-                                print("image already contained")
-                            }
+                        if contactPicturesDictionary.keys.contains(profileImageUrl) {
+                            print("image already contained")
                         } else {
                             Amplify.Storage.downloadData(key: profileImageUrl) { result in
                                 switch result {
@@ -52,11 +56,11 @@ class FirebaseManagerViewController: UIViewController {
                                     if let _ = UIImage(data: data) {
                                         //let imageHeight = CGFloat(image.size.height/image.size.width * 300)
                                         DispatchQueue.main.async {
-                                            groupPhotoDictionary[profileImageUrl] = data
+                                            contactPicturesDictionary[profileImageUrl] = data
                                         }
                                     }
                                     if currentCount == valueCount {
-                                        groupCompletion(groupPhotoDictionary)
+                                        groupCompletion(contactPicturesDictionary)
                                     }
                                 case .failure(let error):
                                     print("failure downloading image", error)
@@ -74,7 +78,7 @@ class FirebaseManagerViewController: UIViewController {
                 for value in postDict.values {
                     currentCount += 1
                     if let profileImageUrl = value.object(forKey: "profileImageUrl") as? String {
-                        if let dmContactPicturesDictionary = defaults.dictionary(forKey: "dmContactPictures") {
+                        if let dmContactPicturesDictionary = defaults.dictionary(forKey: "contactPictures") {
                             if dmContactPicturesDictionary.keys.contains(profileImageUrl) {
                                 print("image already contained")
                             }
@@ -86,11 +90,11 @@ class FirebaseManagerViewController: UIViewController {
                                     if let _ = UIImage(data: data) {
                                         //let imageHeight = CGFloat(image.size.height/image.size.width * 300)
                                         DispatchQueue.main.async {
-                                            dmPhotoDictionary[profileImageUrl] = data
+                                            contactPicturesDictionary[profileImageUrl] = data
                                         }
                                     }
                                     if currentCount == valueCount {
-                                        dmCompletion(dmPhotoDictionary)
+                                        dmCompletion(contactPicturesDictionary)
                                     }
                                 case .failure(let error):
                                     print("failure downloading image", error)

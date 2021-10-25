@@ -39,6 +39,7 @@ class GroupChatViewController: UIViewController, UIImagePickerControllerDelegate
     @IBOutlet weak var textBarStackView: UIStackView!
     @IBOutlet weak var textBarRightConstraint: NSLayoutConstraint!
     //@IBOutlet weak var chatTextBar: UITextField!
+    @IBOutlet weak var textBarLeftConstaint: NSLayoutConstraint!
     @IBOutlet weak var chatTextBar: GrowingTextView!
     @IBOutlet weak var chatViewNavigationBar: UINavigationItem!
     @IBOutlet weak var chatTableView: UITableView!
@@ -85,6 +86,8 @@ class GroupChatViewController: UIViewController, UIImagePickerControllerDelegate
     var userNickName: String?
     let photoManager = PhotoManagerViewController()
     let eventButton = UIButton()
+    let pinButton = UIButton()
+    let pinContainerView = UIView()
     let plusImageView = UIImageView()
     let titleField = UITextField()
     let descriptionTextField = UITextView()
@@ -152,7 +155,10 @@ class GroupChatViewController: UIViewController, UIImagePickerControllerDelegate
         chatTableView.allowsSelection = false
         
         self.setUpCamerabutton()
+        //self.setUpPossibleCameraButton()
+        self.setUpEventbutton()
         self.setUpSendButton()
+        self.setUpPinbutton()
         
         NotificationCenter.default.post(name: NSNotification.Name(rawValue: "disableSwipe"), object: nil)
         
@@ -169,7 +175,6 @@ class GroupChatViewController: UIViewController, UIImagePickerControllerDelegate
                 self.userVenmoName = value["venmoName"] as? String ?? ""
                 self.chatTableView.reloadData()
                 self.userChatImage = value["profileImageUrl"] as? String ?? ""
-                
                 /*if let navigationController = self.navigationController, let _ = self.user {
                  let userEntry  = [self.userFullName, self.user.email!]
                  if !self.groupMembers.contains(userEntry) {
@@ -211,10 +216,11 @@ class GroupChatViewController: UIViewController, UIImagePickerControllerDelegate
         
         self.keyboardIsShowing = false
         
-        navigationController?.navigationBar.isTranslucent = false
+        navigationController?.navigationBar.isTranslucent = true
         navigationController?.navigationBar.barTintColor = UIColor(named: "WarmBlack")
         navigationController?.navigationBar.shadowImage = UIImage()
         navigationController?.navigationBar.tintColor = UIColor(named: K.BrandColors.purple)
+        navigationController?.navigationBar.subviews.first?.alpha = 85
         
         //let displayWidth: CGFloat = self.view.frame.width
         //let displayHeight: CGFloat = self.view.frame.height
@@ -254,16 +260,64 @@ class GroupChatViewController: UIViewController, UIImagePickerControllerDelegate
         
         textBarView.layer.cornerRadius = chatTextBar.bounds.height/2
         textBarView.layer.backgroundColor = UIColor.clear.cgColor
-        textBarView.layer.borderWidth = 3
+        textBarView.layer.borderWidth = 1
         textBarView.layer.borderColor =
             UIColor.white.cgColor//UIColor(named: "BrandPurpleColor")?.cgColor
-        textBarView.backgroundColor = .black
+        textBarView.backgroundColor = UIColor(named: "WarmBlack")
         
         chatTableView.transform = CGAffineTransform(scaleX: 1, y: -1)
         
         if !isEventChat {
-            setUpEventsButton()
-            setUpEventOptions()
+            //setUpEventsButton()
+            //setUpEventOptions()
+        }
+        
+        
+        if let profileImageDictionary = self.defaults.dictionary(forKey: "contactPictures") {
+            if let storedImageData = profileImageDictionary[self.groupChatImageUrl] as? Data {
+            
+                print("ABCDEf")
+                
+                let profileImageContainerView = UIImageView()
+                profileImageContainerView.translatesAutoresizingMaskIntoConstraints = false
+                profileImageContainerView.backgroundColor = UIColor(named: "WarmBlack")
+                profileImageContainerView.center.y = textBarView.center.y
+                profileImageContainerView.clipsToBounds = true
+                profileImageContainerView.image = UIImage(data: storedImageData)
+                
+                let navbarHeight = navigationController?.navigationBar.frame.height ?? 0
+                
+                let profileImageContainerViewConstraints = [
+                    profileImageContainerView.heightAnchor.constraint(equalToConstant: navbarHeight - 1),
+                    profileImageContainerView.widthAnchor.constraint(equalToConstant: navbarHeight - 1),
+                ]
+                
+                NSLayoutConstraint.activate(profileImageContainerViewConstraints)
+                
+                profileImageContainerView.layer.cornerRadius = (navbarHeight - 1)/2
+                
+                let profileImageButton = UIButton()
+                profileImageContainerView.addSubview(profileImageButton)
+                profileImageButton.translatesAutoresizingMaskIntoConstraints = false
+                profileImageButton.tintColor = .white
+                profileImageButton.center.y = textBarView.center.y
+                /*let pinImageConfiguration = UIImage.SymbolConfiguration(pointSize: 30, weight: .regular, scale: .large)
+                let pinImage = UIImage(systemName: "pin", withConfiguration: pinImageConfiguration)*/
+                //profileImageButton.setImage(UIImage(data: storedImageData), for: .normal)
+                profileImageButton.addTarget(self, action: #selector(pushButtonPressed), for: .touchUpInside)
+                
+                let pinButtonContstraints = [
+                    profileImageButton.leadingAnchor.constraint(equalTo: profileImageContainerView.leadingAnchor, constant: 0),
+                    profileImageButton.trailingAnchor.constraint(equalTo: profileImageContainerView.trailingAnchor, constant: 0),
+                    profileImageButton.topAnchor.constraint(equalTo: profileImageContainerView.topAnchor, constant: 0),
+                    profileImageButton.bottomAnchor.constraint(equalTo: profileImageContainerView.bottomAnchor, constant: 0),
+                ]
+                
+                NSLayoutConstraint.activate(pinButtonContstraints)
+                
+                navigationItem.rightBarButtonItem = UIBarButtonItem(customView: profileImageContainerView)
+            }
+            
         }
         
         self.loadMessages()
@@ -272,7 +326,7 @@ class GroupChatViewController: UIViewController, UIImagePickerControllerDelegate
         
     }
     
-    func setUpEventsButton() {
+    /*func setUpEventsButton() {
         eventButton.translatesAutoresizingMaskIntoConstraints = false
         self.view.insertSubview(eventButton, aboveSubview: chatTableView)
         eventButton.backgroundColor = UIColor(named: K.BrandColors.purple)
@@ -302,7 +356,7 @@ class GroupChatViewController: UIViewController, UIImagePickerControllerDelegate
         
         NSLayoutConstraint.activate(plusImageViewConstraints)
         
-    }
+    }*/
     
     @objc func createEventButtonPressed() {
         self.view.addSubview(self.backgroundView)
@@ -680,13 +734,13 @@ class GroupChatViewController: UIViewController, UIImagePickerControllerDelegate
         pushMessagesTableView.isScrollEnabled = false
         pushMessagesTableView.dataSource = self
         pushMessagesTableView.delegate = self
-        //pushMessagesTableView.isScrollEnabled = false
+        pushMessagesTableView.layer.cornerRadius = 10
         
         let pushMessagesTableViewConstraints = [
-            pushMessagesTableView.topAnchor.constraint(equalTo: self.view.topAnchor, constant: 0),
+            pushMessagesTableView.topAnchor.constraint(equalTo: self.view.safeAreaLayoutGuide.topAnchor, constant: 0),
             //pushMessagesTableView.bottomAnchor.constraint(equalTo: self.view.bottomAnchor, constant: 0),
-            pushMessagesTableView.leadingAnchor.constraint(equalTo: self.view.leadingAnchor, constant: 0),
-            pushMessagesTableView.trailingAnchor.constraint(equalTo: self.view.trailingAnchor, constant: 0)
+            pushMessagesTableView.leadingAnchor.constraint(equalTo: self.view.leadingAnchor, constant: 5),
+            pushMessagesTableView.trailingAnchor.constraint(equalTo: self.view.trailingAnchor, constant: -5)
         ]
         
         NSLayoutConstraint.activate(pushMessagesTableViewConstraints)
@@ -736,7 +790,7 @@ class GroupChatViewController: UIViewController, UIImagePickerControllerDelegate
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         
-        NotificationCenter.default.post(name: NSNotification.Name(rawValue: "hideNavigationBar"), object: nil)
+        //NotificationCenter.default.post(name: NSNotification.Name(rawValue: "hideNavigationBar"), object: nil)
         
         /*self.firebaseManager.downloadChatPhotos(documentID: self.documentID) { photoDictionary in
          DispatchQueue.main.async {
@@ -756,9 +810,10 @@ class GroupChatViewController: UIViewController, UIImagePickerControllerDelegate
     
     @objc func keyboardWillShow(notification: NSNotification) {
         
-        /*self.keyboardIsShowing = true
-         self.pushMessageButton.image = UIImage(systemName: "pin")
-         self.pushMessageButton.tintColor = UIColor(named: K.BrandColors.red)*/
+        self.keyboardIsShowing = true
+        //self.pushMessageButton.image = UIImage(systemName: "pin")
+        //self.pushMessageButton.tintColor = UIColor(named: K.BrandColors.red)
+        navigationItem.rightBarButtonItem = UIBarButtonItem(customView: pinContainerView)
         
         guard let userInfo = notification.userInfo else {return}
         guard let duration: TimeInterval = (userInfo[UIResponder.keyboardAnimationDurationUserInfoKey] as? NSNumber)?.doubleValue else {return}
@@ -769,7 +824,8 @@ class GroupChatViewController: UIViewController, UIImagePickerControllerDelegate
         
         bottomConstraint.constant = keyboardFrame + 1
         
-        self.textBarRightConstraint.constant = 120
+        self.textBarRightConstraint.constant = 97
+        self.textBarLeftConstaint.constant = 53
         
         UIView.animate(withDuration: duration) { self.view.layoutIfNeeded() }
         
@@ -816,9 +872,10 @@ class GroupChatViewController: UIViewController, UIImagePickerControllerDelegate
     @objc func keyboardWillHide(notification: NSNotification) {
         
         self.keyboardIsShowing = false
-        
-        self.pushMessageButton.image = UIImage(systemName: "ellipsis")
-        self.pushMessageButton.tintColor = UIColor(named: K.BrandColors.purple)
+        let ellipsesBarButton = UIBarButtonItem()
+        ellipsesBarButton.image = UIImage(systemName: "ellipsis")
+        ellipsesBarButton.tintColor = UIColor(named: K.BrandColors.purple)
+        navigationItem.rightBarButtonItem = ellipsesBarButton
         
         guard let userInfo = notification.userInfo else {return}
         guard let duration: TimeInterval = (userInfo[UIResponder.keyboardAnimationDurationUserInfoKey] as? NSNumber)?.doubleValue else {return}
@@ -834,7 +891,8 @@ class GroupChatViewController: UIViewController, UIImagePickerControllerDelegate
          self.view.bounds.origin.y = 0
          }*/
         
-        self.textBarRightConstraint.constant = 14
+        self.textBarLeftConstaint.constant = 5
+        self.textBarRightConstraint.constant = 5
         
         UIView.animate(withDuration: duration) { self.view.layoutIfNeeded() }
     }
@@ -849,9 +907,9 @@ class GroupChatViewController: UIViewController, UIImagePickerControllerDelegate
         
         let cameraButtonContainerViewConstraints = [
             cameraContainerView.heightAnchor.constraint(equalToConstant: textBarView.frame.height),
-            cameraContainerView.widthAnchor.constraint(equalToConstant: 40),
+            cameraContainerView.widthAnchor.constraint(equalToConstant: textBarView.frame.height),
             cameraContainerView.bottomAnchor.constraint(equalTo: textBarView.bottomAnchor, constant: 0),
-            cameraContainerView.leadingAnchor.constraint(equalTo: textBarView.trailingAnchor, constant: 15)
+            cameraContainerView.leadingAnchor.constraint(equalTo: textBarView.leadingAnchor, constant: -46)
         ]
         
         NSLayoutConstraint.activate(cameraButtonContainerViewConstraints)
@@ -863,26 +921,104 @@ class GroupChatViewController: UIViewController, UIImagePickerControllerDelegate
         cameraButton.tintColor = .white
         cameraButton.center.y = textBarView.center.y
         let cameraImageConfiguration = UIImage.SymbolConfiguration(pointSize: 30, weight: .regular, scale: .large)
-        let cameraImage = UIImage(systemName: "camera", withConfiguration: cameraImageConfiguration)
+        let cameraImage = UIImage(systemName: "camera.fill", withConfiguration: cameraImageConfiguration)
         cameraButton.setImage(cameraImage, for: .normal)
         cameraButton.addTarget(self, action: #selector(cameraButtonPressed), for: .touchUpInside)
         
         let cameraButtonConstraints = [
             cameraButton.leadingAnchor.constraint(equalTo: cameraContainerView.leadingAnchor, constant: 5),
             cameraButton.trailingAnchor.constraint(equalTo: cameraContainerView.trailingAnchor, constant: -5),
-            cameraButton.topAnchor.constraint(equalTo: cameraContainerView.topAnchor, constant: 5),
-            cameraButton.bottomAnchor.constraint(equalTo: cameraContainerView.bottomAnchor, constant: -7),
+            cameraButton.topAnchor.constraint(equalTo: cameraContainerView.topAnchor, constant: 7),
+            cameraButton.bottomAnchor.constraint(equalTo: cameraContainerView.bottomAnchor, constant: -9),
         ]
         
         NSLayoutConstraint.activate(cameraButtonConstraints)
         
     }
     
+    func setUpEventbutton() {
+        
+        let eventContainerView = UIView()
+        self.view.addSubview(eventContainerView)
+        eventContainerView.translatesAutoresizingMaskIntoConstraints = false
+        eventContainerView.backgroundColor = UIColor(named: "CoolGreen")
+        eventContainerView.center.y = textBarView.center.y
+        
+        let eventButtonContainerViewConstraints = [
+            eventContainerView.heightAnchor.constraint(equalToConstant: textBarView.frame.height),
+            eventContainerView.widthAnchor.constraint(equalToConstant: textBarView.frame.height),
+            eventContainerView.bottomAnchor.constraint(equalTo: textBarView.bottomAnchor, constant: 0),
+            eventContainerView.leadingAnchor.constraint(equalTo: textBarView.trailingAnchor, constant: 7)
+        ]
+        
+        NSLayoutConstraint.activate(eventButtonContainerViewConstraints)
+        
+        eventContainerView.layer.cornerRadius = textBarView.frame.height/2
+        
+        eventContainerView.addSubview(eventButton)
+        eventButton.translatesAutoresizingMaskIntoConstraints = false
+        eventButton.tintColor = .white
+        eventButton.center.y = textBarView.center.y
+        let eventImageConfiguration = UIImage.SymbolConfiguration(pointSize: 30, weight: .regular, scale: .large)
+        let eventImage = UIImage(systemName: "calendar", withConfiguration: eventImageConfiguration)
+        eventButton.setImage(eventImage, for: .normal)
+        eventButton.addTarget(self, action: #selector(cameraButtonPressed), for: .touchUpInside)
+        
+        let eventButtonContstraints = [
+            eventButton.leadingAnchor.constraint(equalTo: eventContainerView.leadingAnchor, constant: 5),
+            eventButton.trailingAnchor.constraint(equalTo: eventContainerView.trailingAnchor, constant: -5),
+            eventButton.topAnchor.constraint(equalTo: eventContainerView.topAnchor, constant: 5),
+            eventButton.bottomAnchor.constraint(equalTo: eventContainerView.bottomAnchor, constant: -7),
+        ]
+        
+        //navigationItem.rightBarButtonItem = UIBarButtonItem(customView: eventContainerView)
+        
+        NSLayoutConstraint.activate(eventButtonContstraints)
+        
+    }
+    func setUpPinbutton() {
+        //self.view.addSubview(pinContainerView)
+        pinContainerView.translatesAutoresizingMaskIntoConstraints = false
+        pinContainerView.backgroundColor = UIColor(named: "BrandRedColor")
+        pinContainerView.center.y = textBarView.center.y
+        
+        let navbarHeight = navigationController?.navigationBar.frame.height ?? 0
+        
+        let pinButtonContainerViewConstraints = [
+            pinContainerView.heightAnchor.constraint(equalToConstant: navbarHeight - 10),
+            pinContainerView.widthAnchor.constraint(equalToConstant: navbarHeight - 10),
+            /*pinContainerView.bottomAnchor.constraint(equalTo: cameraButton.topAnchor, constant: -15),
+            pinContainerView.leadingAnchor.constraint(equalTo: textBarView.trailingAnchor, constant: 12)*/
+        ]
+        
+        NSLayoutConstraint.activate(pinButtonContainerViewConstraints)
+        
+        pinContainerView.layer.cornerRadius = (navbarHeight - 10)/2
+        
+        pinContainerView.addSubview(pinButton)
+        pinButton.translatesAutoresizingMaskIntoConstraints = false
+        pinButton.tintColor = .white
+        pinButton.center.y = textBarView.center.y
+        let pinImageConfiguration = UIImage.SymbolConfiguration(pointSize: 30, weight: .regular, scale: .large)
+        let pinImage = UIImage(systemName: "pin", withConfiguration: pinImageConfiguration)
+        pinButton.setImage(pinImage, for: .normal)
+        pinButton.addTarget(self, action: #selector(pushButtonPressed), for: .touchUpInside)
+        
+        let pinButtonContstraints = [
+            pinButton.leadingAnchor.constraint(equalTo: pinContainerView.leadingAnchor, constant: 5),
+            pinButton.trailingAnchor.constraint(equalTo: pinContainerView.trailingAnchor, constant: -5),
+            pinButton.topAnchor.constraint(equalTo: pinContainerView.topAnchor, constant: 5),
+            pinButton.bottomAnchor.constraint(equalTo: pinContainerView.bottomAnchor, constant: -5),
+        ]
+        
+        NSLayoutConstraint.activate(pinButtonContstraints)
+        
+    }
     func setUpSendButton() {
         let senderButton = UIButton()
         self.view.addSubview(senderButton)
         senderButton.translatesAutoresizingMaskIntoConstraints = false
-        senderButton.tintColor = UIColor(named: K.BrandColors.purple)
+        senderButton.tintColor = UIColor.white //(named: K.BrandColors.purple)
         senderButton.center.y = textBarView.center.y
         let cameraImageConfiguration = UIImage.SymbolConfiguration(pointSize: 40, weight: .regular, scale: .large)
         let cameraImage = UIImage(systemName: "location.north", withConfiguration: cameraImageConfiguration)
@@ -893,7 +1029,28 @@ class GroupChatViewController: UIViewController, UIImagePickerControllerDelegate
             senderButton.heightAnchor.constraint(equalToConstant: 35),
             senderButton.widthAnchor.constraint(equalToConstant: 35),
             senderButton.bottomAnchor.constraint(equalTo: textBarView.bottomAnchor, constant: 0),
-            senderButton.leadingAnchor.constraint(equalTo: cameraButton.trailingAnchor, constant: 12)
+            senderButton.leadingAnchor.constraint(equalTo: eventButton.trailingAnchor, constant: 12)
+        ]
+        
+        NSLayoutConstraint.activate(cameraButtonConstraints)
+        
+    }
+    
+    func setUpPossibleCameraButton() {
+        self.view.addSubview(cameraButton)
+        cameraButton.translatesAutoresizingMaskIntoConstraints = false
+        cameraButton.tintColor = UIColor(named: K.BrandColors.purple)
+        cameraButton.center.y = textBarView.center.y
+        let cameraImageConfiguration = UIImage.SymbolConfiguration(pointSize: 40, weight: .regular, scale: .large)
+        let cameraImage = UIImage(systemName: "camera", withConfiguration: cameraImageConfiguration)
+        cameraButton.setImage(cameraImage, for: .normal)
+        cameraButton.addTarget(self, action: #selector(sendButtonPressed), for: .touchUpInside)
+        
+        let cameraButtonConstraints = [
+            cameraButton.heightAnchor.constraint(equalToConstant: 33),
+            cameraButton.widthAnchor.constraint(equalToConstant: 42),
+            cameraButton.centerYAnchor.constraint(equalTo: textBarView.centerYAnchor, constant: 0),
+            cameraButton.leadingAnchor.constraint(equalTo: textBarView.leadingAnchor, constant: -46)
         ]
         
         NSLayoutConstraint.activate(cameraButtonConstraints)
@@ -985,7 +1142,9 @@ class GroupChatViewController: UIViewController, UIImagePickerControllerDelegate
                 
                 self.groupChatMessagesRef.child("\(self.documentID)/timeStamp").setValue(commaTimestamp)
                 
-                for email in groupMembers[1] {
+                for member in groupMembers {
+                    let email = member[1]
+                    print(email)
                     let commaEmail = email.replacingOccurrences(of: ".", with: ",")
                     
                     self.groupChatByUsersRef.child(commaEmail).child("Chats").child(documentID).child("unreadPushMessages").observeSingleEvent(of: DataEventType.value) { snapshot in
@@ -1318,8 +1477,6 @@ class GroupChatViewController: UIViewController, UIImagePickerControllerDelegate
                                 self.pushMessages.append(message)
                                 DispatchQueue.main.async {
                                     self.pushMessagesTableView.reloadData()
-                                    /*let indexPath = IndexPath(row: self.pushMessages.count - 1, section: 0)
-                                     self.pushMessagesTableView.scrollToRow(at: indexPath, at: .top, animated: false)*/
                                 }
                                 
                             }
@@ -1329,7 +1486,7 @@ class GroupChatViewController: UIViewController, UIImagePickerControllerDelegate
                     if count == 0 {
                         self.pushMessagesTableView.backgroundColor = .clear
                     } else {
-                        self.pushMessagesTableView.backgroundColor = .red
+                        //self.pushMessagesTableView.backgroundColor = .systemRed
                     }
                 }
                 DispatchQueue.main.async {
@@ -1358,8 +1515,6 @@ class GroupChatViewController: UIViewController, UIImagePickerControllerDelegate
                                 self.pushMessages.append(message)
                                 DispatchQueue.main.async {
                                     self.pushMessagesTableView.reloadData()
-                                    /*let indexPath = IndexPath(row: self.pushMessages.count - 1, section: 0)
-                                     self.pushMessagesTableView.scrollToRow(at: indexPath, at: .top, animated: false)*/
                                 }
                                 
                             }
@@ -1369,7 +1524,7 @@ class GroupChatViewController: UIViewController, UIImagePickerControllerDelegate
                     if count == 0 {
                         self.pushMessagesTableView.backgroundColor = .clear
                     } else {
-                        self.pushMessagesTableView.backgroundColor = .red
+                        //self.pushMessagesTableView.backgroundColor = .systemRed
                     }
                 }
                 
@@ -1419,7 +1574,7 @@ class GroupChatViewController: UIViewController, UIImagePickerControllerDelegate
         
         if self.isMovingFromParent {
             
-            NotificationCenter.default.post(name: NSNotification.Name(rawValue: "showNavigationBar"), object: nil)
+            //NotificationCenter.default.post(name: NSNotification.Name(rawValue: "showNavigationBar"), object: nil)
             
             guard let navigationController = self.navigationController else { return }
             var navigationArray = navigationController.viewControllers
@@ -1496,7 +1651,7 @@ extension GroupChatViewController: UITableViewDataSource, UITableViewDelegate {
             cell.readbutton.tag = indexPath.row
             cell.readbutton.addTarget(self, action: #selector(self.readButtonPressed(_:)), for: .touchUpInside)
             
-            cell.contentView.backgroundColor = UIColor.red
+            //cell.contentView.backgroundColor = UIColor.systemRed
             return cell
             
         } else {

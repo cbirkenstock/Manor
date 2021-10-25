@@ -575,7 +575,7 @@ class NewContactPageViewController: UIViewController, UIScrollViewDelegate {
                     self.groupChatImageUrl = profileImageUrl
                     
                     
-                    let groupChatContact = Contact(email: groupChatDocumentID , fullName: groupChatTitle , timeStamp: Double(timeStamp)!, lastMessage: lastMessage, badgeCount: badgeCount!, profileImageUrl: profileImageUrl)
+                    let groupChatContact = Contact(email: groupChatDocumentID , fullName: groupChatTitle , timeStamp: Double(timeStamp)!, lastMessage: lastMessage, badgeCount: badgeCount!, profileImageUrl: profileImageUrl, DM: true)
                     
                     self.contacts.append(groupChatContact)
                 }
@@ -610,7 +610,7 @@ class NewContactPageViewController: UIViewController, UIScrollViewDelegate {
                     
                     let event = Event(title: groupChatTitle, description: eventDescription, date: eventDate, time: eventTime, documentID: nil)
                     
-                    let groupChatContact = Contact(email: groupChatDocumentID , fullName: groupChatTitle , timeStamp: Double(timeStamp)!, lastMessage: "", badgeCount: badgeCount!, profileImageUrl: profileImageUrl, event: event)
+                    let groupChatContact = Contact(email: groupChatDocumentID , fullName: groupChatTitle , timeStamp: Double(timeStamp)!, lastMessage: "", badgeCount: badgeCount!, profileImageUrl: profileImageUrl, event: event, DM: true)
                     
                     self.eventContacts.append(groupChatContact)
                 }

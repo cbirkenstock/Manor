@@ -11,6 +11,7 @@ class RegularMessageBody: UITableViewCell {
     
     let defaults = UserDefaults.standard
     
+    @IBOutlet weak var profileImageView: UIImageView!
     @IBOutlet weak var emailLabel: UILabel!
     @IBOutlet weak var messageBody: UILabel!
     @IBOutlet weak var messageBodyView: UIView!
@@ -23,6 +24,16 @@ class RegularMessageBody: UITableViewCell {
     
     override func awakeFromNib() {
         super.awakeFromNib()
+        
+        profileImageView.backgroundColor = .black
+        profileImageView.clipsToBounds = true
+        self.profileImageView.contentMode = .scaleToFill
+        self.profileImageView.image = UIImage(named: "AbstractPainting")
+        self.profileImageView.layer.cornerRadius = 35/2
+        
+        self.readbutton.layer.cornerRadius = 8
+        self.readbutton.layer.shadowColor = UIColor(named: "WarmBlack")?.cgColor
+        self.readbutton.layer.shadowOpacity = 0.5
         
         /*getMessageBodyWidth { width in
             self.messageBodyViewWidth.constant = width + 20

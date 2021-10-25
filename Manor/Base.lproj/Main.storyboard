@@ -363,6 +363,7 @@
                     <view key="view" contentMode="scaleToFill" id="4vc-ai-aWh">
                         <rect key="frame" x="0.0" y="0.0" width="414" height="896"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+<<<<<<< Updated upstream
                         <subviews>
                             <collectionView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" dataMode="prototypes" translatesAutoresizingMaskIntoConstraints="NO" id="nbx-93-gQ9">
                                 <rect key="frame" x="0.0" y="88" width="414" height="808"/>
@@ -425,6 +426,18 @@
                         </constraints>
                     </view>
                     <navigationItem key="navigationItem" id="sXi-Rs-mcv">
+=======
+                        <viewLayoutGuide key="safeArea" id="o0K-VN-77g"/>
+                        <color key="backgroundColor" name="WarmBlack"/>
+                    </view>
+                    <navigationItem key="navigationItem" title="Messages" largeTitleDisplayMode="always" id="sXi-Rs-mcv">
+                        <barButtonItem key="leftBarButtonItem" id="NQX-AL-v0Z">
+                            <imageReference key="image" image="person" catalog="system" symbolScale="large"/>
+                            <connections>
+                                <action selector="profileButtonPressed:" destination="JRK-Wi-NdQ" id="Pj2-4f-37y"/>
+                            </connections>
+                        </barButtonItem>
+>>>>>>> Stashed changes
                         <barButtonItem key="rightBarButtonItem" image="scribble" catalog="system" id="Qre-pK-PCN">
                             <connections>
                                 <action selector="CreateNewMessagePressed:" destination="JRK-Wi-NdQ" id="fPU-Rn-y9I"/>
@@ -432,14 +445,25 @@
                         </barButtonItem>
                     </navigationItem>
                     <connections>
-                        <outlet property="contactCollectionView" destination="nbx-93-gQ9" id="lbe-9S-d96"/>
                         <outlet property="createConversationButton" destination="Qre-pK-PCN" id="G96-cY-OjJ"/>
+<<<<<<< Updated upstream
                         <segue destination="7WD-K0-WIY" kind="show" identifier="toChatView" id="mPS-qD-vT2"/>
+=======
+                        <segue destination="8g5-vs-ZP1" kind="show" identifier="toNewDirectMessageView" id="yEN-uB-1VB"/>
+                        <segue destination="zsh-ZK-apK" kind="show" identifier="toChatView" id="UCm-pG-jXe"/>
+                        <segue destination="Ir0-ic-lsG" kind="show" identifier="toGroupChatView" id="lkl-jK-06J"/>
+                        <segue destination="i3q-Cy-3QU" kind="show" identifier="toNewGroupMessageView" id="wCP-AJ-OMs"/>
+                        <segue destination="vaY-i2-WX2" kind="show" identifier="toProfile" id="y4P-ay-g9Z"/>
+>>>>>>> Stashed changes
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="Ryk-ex-UHp" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
             </objects>
+<<<<<<< Updated upstream
             <point key="canvasLocation" x="8778.2608695652179" y="371.65178571428572"/>
+=======
+            <point key="canvasLocation" x="5487" y="-87"/>
+>>>>>>> Stashed changes
         </scene>
         <!--New Conversation View Controller-->
         <scene sceneID="YVg-t9-EwC">
@@ -856,7 +880,11 @@
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="pUU-PL-g0l" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
             </objects>
+<<<<<<< Updated upstream
             <point key="canvasLocation" x="6199" y="-452"/>
+=======
+            <point key="canvasLocation" x="7004" y="654"/>
+>>>>>>> Stashed changes
         </scene>
         <!--New Contact Page View Controller-->
         <scene sceneID="wpw-Jn-T0A">
@@ -943,12 +971,16 @@
                         <outlet property="contactCollectionView" destination="bul-Tg-tiz" id="N4g-Tx-5aO"/>
                         <outlet property="createConversationButton" destination="UqF-cd-Ccg" id="H6K-xL-0n8"/>
                         <outlet property="profileBarButton" destination="Yes-U5-OIc" id="euQ-K7-hNr"/>
+<<<<<<< Updated upstream
                         <segue destination="Ir0-ic-lsG" kind="show" identifier="toGroupChatView" id="iwR-df-2n9"/>
                         <segue destination="vaY-i2-WX2" kind="show" identifier="toProfile" id="knY-q5-4zH"/>
+=======
+>>>>>>> Stashed changes
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="Hvn-k6-6EZ" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
             </objects>
+<<<<<<< Updated upstream
             <point key="canvasLocation" x="8778.2608695652179" y="-452.00892857142856"/>
         </scene>
         <!--Navigation Controller-->
@@ -997,6 +1029,9 @@
                 <placeholder placeholderIdentifier="IBFirstResponder" id="ahj-PR-aq5" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
             </objects>
             <point key="canvasLocation" x="7868.115942028986" y="-452.00892857142856"/>
+=======
+            <point key="canvasLocation" x="9522" y="-2178"/>
+>>>>>>> Stashed changes
         </scene>
         <!--Chat View Controller-->
         <scene sceneID="nkK-sg-ET4">
@@ -1104,7 +1139,7 @@
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="RMV-au-TLf" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="8932" y="1137"/>
+            <point key="canvasLocation" x="10054" y="1803"/>
         </scene>
         <!--Group Chat View Controller-->
         <scene sceneID="mFp-U3-Nlz">
@@ -1273,7 +1308,11 @@
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="Myl-FX-8PE" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
             </objects>
+<<<<<<< Updated upstream
             <point key="canvasLocation" x="11868.115942028986" y="-452.00892857142856"/>
+=======
+            <point key="canvasLocation" x="10054" y="48"/>
+>>>>>>> Stashed changes
         </scene>
         <!--Unreached Members View Controller-->
         <scene sceneID="dw2-J8-4KH">
@@ -1311,7 +1350,11 @@
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="T2H-Ff-oQA" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
             </objects>
+<<<<<<< Updated upstream
             <point key="canvasLocation" x="12863.76811594203" y="-77.008928571428569"/>
+=======
+            <point key="canvasLocation" x="11616" y="532"/>
+>>>>>>> Stashed changes
         </scene>
         <!--View Controller-->
         <scene sceneID="tJM-YC-VgX">
@@ -1560,7 +1603,11 @@
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="7ro-CL-Nt8" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
             </objects>
+<<<<<<< Updated upstream
             <point key="canvasLocation" x="6950.7246376811599" y="-1136.3839285714284"/>
+=======
+            <point key="canvasLocation" x="5487" y="-909"/>
+>>>>>>> Stashed changes
         </scene>
         <!--New Group Message View Controller-->
         <scene sceneID="wdj-ue-t0l">
@@ -1931,7 +1978,7 @@
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="iw4-fo-HLR" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="11868" y="-1117"/>
+            <point key="canvasLocation" x="11616" y="-348"/>
         </scene>
         <!--Group Chat View Controller-->
         <scene sceneID="bcb-BW-4tN">
@@ -1941,6 +1988,13 @@
                         <rect key="frame" x="0.0" y="0.0" width="414" height="896"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
+<<<<<<< Updated upstream
+=======
+                            <tableView clipsSubviews="YES" contentMode="scaleToFill" alwaysBounceVertical="YES" dataMode="prototypes" style="plain" separatorStyle="none" rowHeight="-1" estimatedRowHeight="-1" sectionHeaderHeight="28" sectionFooterHeight="28" translatesAutoresizingMaskIntoConstraints="NO" id="Ole-82-UYy">
+                                <rect key="frame" x="0.0" y="0.0" width="414" height="803.5"/>
+                                <color key="backgroundColor" name="WarmBlack"/>
+                            </tableView>
+>>>>>>> Stashed changes
                             <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="XJ3-O2-EuM">
                                 <rect key="frame" x="14" y="801.5" width="386" height="40"/>
                                 <subviews>
@@ -1974,30 +2028,28 @@
                         <viewLayoutGuide key="safeArea" id="18w-Ii-LaQ"/>
                         <color key="backgroundColor" white="0.0" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                         <constraints>
+<<<<<<< Updated upstream
                             <constraint firstItem="XJ3-O2-EuM" firstAttribute="top" secondItem="Ole-82-UYy" secondAttribute="bottom" id="7Xr-vd-0SW"/>
                             <constraint firstAttribute="bottom" secondItem="XJ3-O2-EuM" secondAttribute="bottom" constant="54.5" id="7al-N3-rD6"/>
                             <constraint firstItem="18w-Ii-LaQ" firstAttribute="trailing" secondItem="XJ3-O2-EuM" secondAttribute="trailing" constant="14" id="HrY-sV-2oL"/>
                             <constraint firstItem="XJ3-O2-EuM" firstAttribute="leading" secondItem="18w-Ii-LaQ" secondAttribute="leading" constant="14" id="LKZ-G7-nok"/>
                             <constraint firstItem="Ole-82-UYy" firstAttribute="top" secondItem="18w-Ii-LaQ" secondAttribute="top" constant="-20" id="aQ8-aL-G7v"/>
+=======
+                            <constraint firstItem="18w-Ii-LaQ" firstAttribute="trailing" secondItem="XJ3-O2-EuM" secondAttribute="trailing" constant="5" id="HrY-sV-2oL"/>
+                            <constraint firstItem="XJ3-O2-EuM" firstAttribute="leading" secondItem="18w-Ii-LaQ" secondAttribute="leading" constant="5" id="LKZ-G7-nok"/>
+                            <constraint firstItem="Ole-82-UYy" firstAttribute="top" secondItem="18w-Ii-LaQ" secondAttribute="top" constant="-88" id="aQ8-aL-G7v"/>
+>>>>>>> Stashed changes
                             <constraint firstItem="18w-Ii-LaQ" firstAttribute="trailing" secondItem="Ole-82-UYy" secondAttribute="trailing" id="d1D-gh-75v"/>
                             <constraint firstItem="Ole-82-UYy" firstAttribute="leading" secondItem="18w-Ii-LaQ" secondAttribute="leading" id="yee-Uc-iXd"/>
                         </constraints>
                     </view>
-                    <navigationItem key="navigationItem" id="d3c-nF-075">
-                        <barButtonItem key="rightBarButtonItem" title="Item" id="3r5-NL-HSy">
-                            <imageReference key="image" image="ellipsis" catalog="system" symbolScale="large"/>
-                            <color key="tintColor" name="BrandPurpleColor"/>
-                            <connections>
-                                <action selector="pushButtonPressed:" destination="Ir0-ic-lsG" id="mwm-7M-QSJ"/>
-                            </connections>
-                        </barButtonItem>
-                    </navigationItem>
+                    <navigationItem key="navigationItem" id="d3c-nF-075"/>
                     <connections>
                         <outlet property="bottomConstraint" destination="7al-N3-rD6" id="g4b-Qr-fdR"/>
                         <outlet property="chatTableView" destination="Ole-82-UYy" id="c74-h6-cGf"/>
                         <outlet property="chatTextBar" destination="Sgf-h4-B8e" id="N7E-EE-j44"/>
                         <outlet property="chatViewNavigationBar" destination="d3c-nF-075" id="6Ov-Ex-f7i"/>
-                        <outlet property="pushMessageButton" destination="3r5-NL-HSy" id="8Io-7T-9tQ"/>
+                        <outlet property="textBarLeftConstaint" destination="LKZ-G7-nok" id="Rua-jK-JoW"/>
                         <outlet property="textBarRightConstraint" destination="HrY-sV-2oL" id="gU8-0n-rQ8"/>
                         <outlet property="textBarView" destination="XJ3-O2-EuM" id="1Kn-1E-xB6"/>
                         <segue destination="760-Pp-JBG" kind="show" identifier="toGroupChatInfo" id="oBf-Wm-jhd"/>
@@ -2005,7 +2057,11 @@
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="cOn-WH-cGg" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
             </objects>
+<<<<<<< Updated upstream
             <point key="canvasLocation" x="10752.17391304348" y="-452.00892857142856"/>
+=======
+            <point key="canvasLocation" x="8310" y="636"/>
+>>>>>>> Stashed changes
         </scene>
         <!--Chat View Controller-->
         <scene sceneID="Agc-zP-WE5">
@@ -2015,10 +2071,10 @@
                         <rect key="frame" x="0.0" y="0.0" width="414" height="896"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
-                            <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="6sY-fW-L44">
+                            <view contentMode="scaleToFill" ambiguous="YES" translatesAutoresizingMaskIntoConstraints="NO" id="6sY-fW-L44">
                                 <rect key="frame" x="0.0" y="794" width="414" height="60"/>
                                 <subviews>
-                                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="MbB-UA-9nw">
+                                    <button opaque="NO" contentMode="scaleToFill" ambiguous="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="MbB-UA-9nw">
                                         <rect key="frame" x="349" y="7" width="45" height="44.5"/>
                                         <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                         <constraints>
@@ -2036,10 +2092,10 @@
                                             <action selector="sendButtonPressed:" destination="NfL-SG-GTD" eventType="touchUpInside" id="Pbd-va-NoJ"/>
                                         </connections>
                                     </button>
-                                    <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="mGy-G8-9Hd">
+                                    <view contentMode="scaleToFill" ambiguous="YES" translatesAutoresizingMaskIntoConstraints="NO" id="mGy-G8-9Hd">
                                         <rect key="frame" x="14" y="8" width="315" height="45"/>
                                         <subviews>
-                                            <textView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" textAlignment="natural" translatesAutoresizingMaskIntoConstraints="NO" id="coq-x1-AFg" customClass="GrowingTextView" customModule="GrowingTextView">
+                                            <textView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" ambiguous="YES" textAlignment="natural" translatesAutoresizingMaskIntoConstraints="NO" id="coq-x1-AFg" customClass="GrowingTextView" customModule="GrowingTextView">
                                                 <rect key="frame" x="15" y="2" width="285" height="43"/>
                                                 <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                                 <color key="textColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
@@ -2073,8 +2129,13 @@
                                     <constraint firstAttribute="bottom" secondItem="MbB-UA-9nw" secondAttribute="bottom" constant="8" id="gV8-20-dn7"/>
                                 </constraints>
                             </view>
+<<<<<<< Updated upstream
                             <tableView clipsSubviews="YES" contentMode="scaleToFill" alwaysBounceVertical="YES" dataMode="prototypes" style="plain" separatorStyle="none" rowHeight="-1" estimatedRowHeight="-1" sectionHeaderHeight="28" sectionFooterHeight="28" translatesAutoresizingMaskIntoConstraints="NO" id="S6T-wG-H9M">
                                 <rect key="frame" x="0.0" y="68" width="414" height="726"/>
+=======
+                            <tableView clipsSubviews="YES" contentMode="scaleToFill" ambiguous="YES" alwaysBounceVertical="YES" dataMode="prototypes" style="plain" separatorStyle="none" rowHeight="-1" estimatedRowHeight="-1" sectionHeaderHeight="28" sectionFooterHeight="28" translatesAutoresizingMaskIntoConstraints="NO" id="S6T-wG-H9M">
+                                <rect key="frame" x="0.0" y="24" width="414" height="770"/>
+>>>>>>> Stashed changes
                                 <color key="backgroundColor" white="0.0" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                             </tableView>
                         </subviews>
@@ -2111,7 +2172,11 @@
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="YyD-RP-Ia5" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
             </objects>
+<<<<<<< Updated upstream
             <point key="canvasLocation" x="10752.17391304348" y="371.65178571428572"/>
+=======
+            <point key="canvasLocation" x="10774" y="1803"/>
+>>>>>>> Stashed changes
         </scene>
         <!--Navigation Controller-->
         <scene sceneID="Uhb-74-lZO">
@@ -2131,6 +2196,76 @@
             </objects>
             <point key="canvasLocation" x="1099" y="-87"/>
         </scene>
+<<<<<<< Updated upstream
+=======
+        <!--Chat View Controller-->
+        <scene sceneID="hf4-uH-gdF">
+            <objects>
+                <viewController id="zsh-ZK-apK" customClass="ChatViewController" customModule="Manor" customModuleProvider="target" sceneMemberID="viewController">
+                    <view key="view" contentMode="scaleToFill" id="sT8-MS-7Dn">
+                        <rect key="frame" x="0.0" y="0.0" width="414" height="896"/>
+                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <subviews>
+                            <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="aqA-nP-rlN">
+                                <rect key="frame" x="5" y="801" width="404" height="37.5"/>
+                                <subviews>
+                                    <textView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" textAlignment="natural" translatesAutoresizingMaskIntoConstraints="NO" id="lth-dx-rR5" customClass="GrowingTextView" customModule="GrowingTextView">
+                                        <rect key="frame" x="15" y="0.0" width="374" height="37.5"/>
+                                        <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                        <constraints>
+                                            <constraint firstAttribute="height" constant="37.5" id="OgN-V3-zND"/>
+                                        </constraints>
+                                        <color key="textColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                        <fontDescription key="fontDescription" type="system" pointSize="18"/>
+                                        <textInputTraits key="textInputTraits" autocapitalizationType="sentences"/>
+                                        <userDefinedRuntimeAttributes>
+                                            <userDefinedRuntimeAttribute type="color" keyPath="placeholderColor">
+                                                <color key="value" systemColor="systemGray6Color"/>
+                                            </userDefinedRuntimeAttribute>
+                                            <userDefinedRuntimeAttribute type="string" keyPath="placeholder" value="Chat"/>
+                                        </userDefinedRuntimeAttributes>
+                                    </textView>
+                                </subviews>
+                                <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                <constraints>
+                                    <constraint firstAttribute="bottom" secondItem="lth-dx-rR5" secondAttribute="bottom" id="75H-yj-HFq"/>
+                                    <constraint firstItem="lth-dx-rR5" firstAttribute="top" secondItem="aqA-nP-rlN" secondAttribute="top" id="LsH-pv-abf"/>
+                                    <constraint firstItem="lth-dx-rR5" firstAttribute="leading" secondItem="aqA-nP-rlN" secondAttribute="leading" constant="15" id="imt-5Q-uzq"/>
+                                    <constraint firstAttribute="trailing" secondItem="lth-dx-rR5" secondAttribute="trailing" constant="15" id="zjc-BN-SlK"/>
+                                </constraints>
+                            </view>
+                            <tableView clipsSubviews="YES" contentMode="scaleToFill" alwaysBounceVertical="YES" dataMode="prototypes" style="plain" separatorStyle="none" rowHeight="-1" estimatedRowHeight="-1" sectionHeaderHeight="28" sectionFooterHeight="28" translatesAutoresizingMaskIntoConstraints="NO" id="zib-KN-9qB">
+                                <rect key="frame" x="0.0" y="0.0" width="414" height="801"/>
+                                <color key="backgroundColor" name="WarmBlack"/>
+                            </tableView>
+                        </subviews>
+                        <viewLayoutGuide key="safeArea" id="9AG-2a-bXX"/>
+                        <color key="backgroundColor" name="WarmBlack"/>
+                        <constraints>
+                            <constraint firstItem="zib-KN-9qB" firstAttribute="leading" secondItem="9AG-2a-bXX" secondAttribute="leading" id="0wF-oF-zha"/>
+                            <constraint firstItem="9AG-2a-bXX" firstAttribute="trailing" secondItem="zib-KN-9qB" secondAttribute="trailing" id="BGi-67-SpQ"/>
+                            <constraint firstAttribute="bottom" secondItem="aqA-nP-rlN" secondAttribute="bottom" constant="57.5" id="OQg-0d-gDB"/>
+                            <constraint firstItem="aqA-nP-rlN" firstAttribute="top" secondItem="zib-KN-9qB" secondAttribute="bottom" id="Rv3-6h-18b"/>
+                            <constraint firstItem="zib-KN-9qB" firstAttribute="top" secondItem="9AG-2a-bXX" secondAttribute="top" constant="-88" id="bm5-Hh-RIn"/>
+                            <constraint firstItem="aqA-nP-rlN" firstAttribute="leading" secondItem="9AG-2a-bXX" secondAttribute="leading" constant="5" id="fDd-IN-iHk"/>
+                            <constraint firstItem="9AG-2a-bXX" firstAttribute="trailing" secondItem="aqA-nP-rlN" secondAttribute="trailing" constant="5" id="xr1-2b-qxd"/>
+                        </constraints>
+                    </view>
+                    <navigationItem key="navigationItem" id="LB9-8G-Fns"/>
+                    <connections>
+                        <outlet property="bottomConstraint" destination="OQg-0d-gDB" id="Q4b-qG-8hn"/>
+                        <outlet property="chatTableView" destination="zib-KN-9qB" id="Y12-62-Q6t"/>
+                        <outlet property="chatTextBar" destination="lth-dx-rR5" id="AbI-jd-nD1"/>
+                        <outlet property="chatViewNavigationBar" destination="LB9-8G-Fns" id="dGk-2q-D22"/>
+                        <outlet property="textBarRightConstraint" destination="xr1-2b-qxd" id="oh8-LJ-EMW"/>
+                        <outlet property="textBarView" destination="aqA-nP-rlN" id="7el-lF-wl0"/>
+                    </connections>
+                </viewController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="FVN-pB-1XD" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="8360.8695652173919" y="-216.29464285714286"/>
+        </scene>
+>>>>>>> Stashed changes
         <!--Navigation Controller-->
         <scene sceneID="bPH-dx-hYW">
             <objects>
@@ -2153,6 +2288,7 @@
     </scenes>
     <designables>
         <designable name="NaG-pu-Rij">
+<<<<<<< Updated upstream
             <size key="intrinsicContentSize" width="-1" height="30"/>
         </designable>
         <designable name="Sgf-h4-B8e">
@@ -2166,6 +2302,15 @@
         <segue reference="sK6-Wz-DpL"/>
         <segue reference="eJM-PP-GWA"/>
         <segue reference="FKq-NV-TKW"/>
+=======
+            <size key="intrinsicContentSize" width="10" height="37.5"/>
+        </designable>
+    </designables>
+    <inferredMetricsTieBreakers>
+        <segue reference="V8z-Nk-rcA"/>
+        <segue reference="UCm-pG-jXe"/>
+        <segue reference="lkl-jK-06J"/>
+>>>>>>> Stashed changes
     </inferredMetricsTieBreakers>
     <resources>
         <image name="DefaultContactIcon" width="953" height="953"/>

@@ -12,7 +12,7 @@ class TestCollectionViewCell: UICollectionViewCell {
     var eventDescription: String = ""
     var eventDate: String = ""
     var eventTime: String = ""
-    
+    var DM: Bool = true
     var documentID: String = ""
     var members: [String] = []
     var contactImageViewConstraints: [NSLayoutConstraint]!
