@@ -26,7 +26,9 @@ class BackgroundVideoPlayer {
         avPlayer.volume = 0
         avPlayer.actionAtItemEnd = .none
         
-        avPlayerLayer.frame = controller.view.layer.bounds
+        avPlayerLayer.frame = UIScreen.main.bounds//controller.view.layer.bounds
+        
+        
         controller.view.backgroundColor = .clear
         controller.view.layer.insertSublayer(avPlayerLayer, at: 0)
         

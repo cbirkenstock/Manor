@@ -37,4 +37,7 @@ target 'Manor' do
   
   pod 'SwiftKeychainWrapper'
   
+  pod 'Fingertips', '~> 0.5'
+  
+  
 end

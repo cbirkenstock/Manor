@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="19162" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES" initialViewController="pRF-dc-r7S">
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="19455" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES" initialViewController="pRF-dc-r7S">
     <device id="retina6_1" orientation="portrait" appearance="light"/>
     <dependencies>
         <deployment identifier="iOS"/>
-        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="19144"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="19454"/>
         <capability name="Image references" minToolsVersion="12.0"/>
         <capability name="Named colors" minToolsVersion="9.0"/>
         <capability name="Safe area layout guides" minToolsVersion="9.0"/>
@@ -230,7 +230,7 @@
                                         </subviews>
                                     </stackView>
                                 </subviews>
-                                <color key="backgroundColor" white="0.0" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                <color key="backgroundColor" name="WarmBlack"/>
                                 <constraints>
                                     <constraint firstItem="OZ2-hO-FWr" firstAttribute="leading" secondItem="53R-gz-6zu" secondAttribute="leading" constant="30" id="HSv-1g-7gA"/>
                                     <constraint firstItem="H4I-Fm-9zb" firstAttribute="top" secondItem="53R-gz-6zu" secondAttribute="top" constant="30" id="Jdq-9g-ZbR"/>
@@ -496,7 +496,7 @@
                                         </constraints>
                                     </stackView>
                                 </subviews>
-                                <color key="backgroundColor" white="0.0" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                <color key="backgroundColor" name="WarmBlack"/>
                                 <constraints>
                                     <constraint firstItem="2YC-5b-wqG" firstAttribute="centerX" secondItem="tS7-LF-kcN" secondAttribute="centerX" id="5rF-iA-tBl"/>
                                     <constraint firstItem="tS7-LF-kcN" firstAttribute="centerX" secondItem="NkU-Ha-WdV" secondAttribute="centerX" id="A3u-i3-Qp7"/>
@@ -1044,7 +1044,7 @@
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
                             <tableView clipsSubviews="YES" contentMode="scaleToFill" alwaysBounceVertical="YES" dataMode="prototypes" style="plain" separatorStyle="none" rowHeight="-1" estimatedRowHeight="-1" sectionHeaderHeight="28" sectionFooterHeight="28" translatesAutoresizingMaskIntoConstraints="NO" id="ueK-K9-js7">
-                                <rect key="frame" x="0.0" y="88" width="414" height="808"/>
+                                <rect key="frame" x="0.0" y="93" width="414" height="803"/>
                                 <color key="backgroundColor" white="0.0" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                             </tableView>
                         </subviews>
@@ -1052,7 +1052,7 @@
                         <color key="backgroundColor" systemColor="systemBackgroundColor"/>
                         <constraints>
                             <constraint firstItem="ueK-K9-js7" firstAttribute="leading" secondItem="yYr-2y-mVu" secondAttribute="leading" id="Buq-y3-JNY"/>
-                            <constraint firstItem="ueK-K9-js7" firstAttribute="top" secondItem="yYr-2y-mVu" secondAttribute="top" id="ePN-vP-CeA"/>
+                            <constraint firstItem="ueK-K9-js7" firstAttribute="top" secondItem="yYr-2y-mVu" secondAttribute="top" constant="5" id="ePN-vP-CeA"/>
                             <constraint firstAttribute="bottom" secondItem="ueK-K9-js7" secondAttribute="bottom" id="q1r-lx-SJ3"/>
                             <constraint firstItem="ueK-K9-js7" firstAttribute="trailing" secondItem="yYr-2y-mVu" secondAttribute="trailing" id="wMA-FL-eif"/>
                         </constraints>
@@ -1067,6 +1067,7 @@
                     <connections>
                         <outlet property="unreachedMembersBottomConstraint" destination="q1r-lx-SJ3" id="OHo-up-ioq"/>
                         <outlet property="unreachedMembersTableView" destination="ueK-K9-js7" id="zbS-aX-IDe"/>
+                        <segue destination="zsh-ZK-apK" kind="show" identifier="toChatView" id="tHa-g3-ZqV"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="T2H-Ff-oQA" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>

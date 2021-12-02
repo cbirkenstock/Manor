@@ -10,12 +10,15 @@ import Firebase
 import Amplify
 import AmplifyPlugins
 import IQKeyboardManagerSwift
+import Fingertips
+//import ShowTime
 
 @UIApplicationMain
 class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterDelegate,  MessagingDelegate {
     
     let defaults = UserDefaults.standard
     let imageCache = NSCache<NSString, AnyObject>()
+    var window: UIWindow? = MBFingerTipWindow(frame: UIScreen.main.bounds)
 
     
     
@@ -23,6 +26,11 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
         
         FirebaseApp.configure()
         
+        //ShowTime.fillColor = UIColor(named: K.BrandColors.purple) ?? .black
+        //ShowTime.strokeColor = UIColor(named: K.BrandColors.purple) ?? .black
+        //ShowTime.size = CGSize(width: 50, height: 50)
+        //ShowTime.strokeWidth = 50
+    
         let userRef = Database.database().reference().child("users")
         
         userRef.observe(DataEventType.value, with: { (snapshot) in
@@ -50,6 +58,15 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
         } dmCompletion: { contactPicturesDictionary in
             self.defaults.setValue(contactPicturesDictionary, forKey: "contactPictures")
         }
+        
+        if #available(iOS 15.0, *) {
+            let navigationBarAppearance = UINavigationBarAppearance()
+            navigationBarAppearance.configureWithDefaultBackground()
+            UINavigationBar.appearance().standardAppearance = navigationBarAppearance
+            UINavigationBar.appearance().compactAppearance = navigationBarAppearance
+            UINavigationBar.appearance().scrollEdgeAppearance = navigationBarAppearance
+        }
+ 
         return true
     }
     

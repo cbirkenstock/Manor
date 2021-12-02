@@ -43,6 +43,8 @@ class GroupChatInfoViewController: UIViewController, UIImagePickerControllerDele
     var userNickName: String = ""
     let photoManager = PhotoManagerViewController()
     var isEventChat: Bool! = false
+    let imageCache = NSCache<NSString, AnyObject>()
+    let defaults = UserDefaults.standard
     
     
     override func viewDidLoad() {
@@ -58,7 +60,7 @@ class GroupChatInfoViewController: UIViewController, UIImagePickerControllerDele
         
         groupChatTitleTextField.isUserInteractionEnabled = false
         
-        self.downloadImage { image in
+        self.downloadImage(UrlString: self.groupChatImageUrl) { image in
             self.groupChatImageButton.setBackgroundImage(image, for: .normal)
             self.groupChatTitleTextField.text = self.groupChatTitle
         }
@@ -96,13 +98,17 @@ class GroupChatInfoViewController: UIViewController, UIImagePickerControllerDele
          }
          }*/
         
-        print(self.userFullName)
+        
         for member in groupMembers {
             print(member)
             if member[0] == self.userFullName {
                 self.userEmail = member[1]
             }
         }
+        
+        print("USEREMAIL")
+        print(self.userEmail)
+        print(self.userFullName)
         
         tableViewContents.append(groupMembers)
         
@@ -184,7 +190,7 @@ class GroupChatInfoViewController: UIViewController, UIImagePickerControllerDele
          self.present(imagePickerController, animated: true)*/
     }
     
-    func downloadImage(completion: @escaping (UIImage) -> ()) {
+    /*func downloadImage(completion: @escaping (UIImage) -> ()) {
         DispatchQueue.global().async { [weak self] in
             if var groupChatImageUrl = self?.groupChatImageUrl {
                 if groupChatImageUrl == "" {
@@ -212,6 +218,36 @@ class GroupChatInfoViewController: UIViewController, UIImagePickerControllerDele
                         if let image = UIImage(data: data) {
                             DispatchQueue.main.async {
                                 completion(image)
+                            }
+                        }
+                    case .failure(let error):
+                        print("failure downloading image", error)
+                    }
+                }
+            }
+        }
+    }*/
+    
+    func downloadImage(UrlString: String, completion: @escaping (UIImage) -> ()) {
+        if let cachedImage = self.imageCache.object(forKey: UrlString as NSString) {
+            completion(cachedImage as! UIImage)
+        } else if var imageDictionary = defaults.dictionary(forKey: "contactPictures") {
+            if let storedImageData = imageDictionary[UrlString] {
+                let image = UIImage(data: storedImageData as! Data)
+                completion(image!)
+                let NSProfileImageUrl = UrlString as NSString
+                self.imageCache.setObject(image!, forKey: NSProfileImageUrl)
+            } else {
+                Amplify.Storage.downloadData(key: UrlString) { result in
+                    switch result {
+                    case .success(let data):
+                        print("Success downloading image", data)
+                        if let image = UIImage(data: data) {
+                            DispatchQueue.main.async {
+                                completion(image)
+                                self.imageCache.setObject(image, forKey: UrlString as NSString)
+                                imageDictionary[UrlString] = data
+                                self.defaults.setValue(imageDictionary, forKey: "contactPictures")
                             }
                         }
                     case .failure(let error):
@@ -248,6 +284,8 @@ class GroupChatInfoViewController: UIViewController, UIImagePickerControllerDele
         
         if segue.destination is UnreachedMembersViewController {
             let vc = segue.destination as! UnreachedMembersViewController
+            vc.otherUserFullName = self.otherUserFullName
+            vc.otherUserEmail = self.otherUserEmail
             vc.pushMessageUID = self.pushMessageUID
             vc.groupMembers = self.groupMembers
             vc.documentID = self.documentID!

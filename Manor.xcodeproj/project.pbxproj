@@ -7,7 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		CC10B401A7900006D6630BD7 /* Pods_Manor.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 186B4837E8B18318994BB014 /* Pods_Manor.framework */; };
+		ED004B50AE7A835474A75268 /* Pods_Manor.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 961935E5A803AED3A5CFDFED /* Pods_Manor.framework */; };
 		F90A7201264D048100D6A17E /* ContactPageViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = F90A7200264D048100D6A17E /* ContactPageViewController.swift */; };
 		F90D2B8D26A77C4600E20D9B /* UnreachedMembersViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = F90D2B8C26A77C4600E20D9B /* UnreachedMembersViewController.swift */; };
 		F912DEF626D6D16D007BD4CE /* awsconfiguration.json in Resources */ = {isa = PBXBuildFile; fileRef = F912DEF526D6D16C007BD4CE /* awsconfiguration.json */; };
@@ -57,9 +57,9 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
-		186B4837E8B18318994BB014 /* Pods_Manor.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_Manor.framework; sourceTree = BUILT_PRODUCTS_DIR; };
-		673AA192D4E6F7ED76C630E6 /* Pods-Manor.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Manor.release.xcconfig"; path = "Target Support Files/Pods-Manor/Pods-Manor.release.xcconfig"; sourceTree = "<group>"; };
-		AE7F5D2E4DE102931B37EDB8 /* Pods-Manor.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Manor.debug.xcconfig"; path = "Target Support Files/Pods-Manor/Pods-Manor.debug.xcconfig"; sourceTree = "<group>"; };
+		1864F0D7813513D6D627401E /* Pods-Manor.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Manor.release.xcconfig"; path = "Target Support Files/Pods-Manor/Pods-Manor.release.xcconfig"; sourceTree = "<group>"; };
+		6F53FDCAC46205466E70DC46 /* Pods-Manor.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Manor.debug.xcconfig"; path = "Target Support Files/Pods-Manor/Pods-Manor.debug.xcconfig"; sourceTree = "<group>"; };
+		961935E5A803AED3A5CFDFED /* Pods_Manor.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_Manor.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		F90A7200264D048100D6A17E /* ContactPageViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContactPageViewController.swift; sourceTree = "<group>"; };
 		F90D2B8C26A77C4600E20D9B /* UnreachedMembersViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UnreachedMembersViewController.swift; sourceTree = "<group>"; };
 		F912DEF526D6D16C007BD4CE /* awsconfiguration.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = awsconfiguration.json; sourceTree = "<group>"; };
@@ -116,17 +116,17 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				CC10B401A7900006D6630BD7 /* Pods_Manor.framework in Frameworks */,
+				ED004B50AE7A835474A75268 /* Pods_Manor.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
-		13386D5840686CCC0D6D2E25 /* Frameworks */ = {
+		4448773891D98FE763C5719A /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
-				186B4837E8B18318994BB014 /* Pods_Manor.framework */,
+				961935E5A803AED3A5CFDFED /* Pods_Manor.framework */,
 			);
 			name = Frameworks;
 			sourceTree = "<group>";
@@ -134,8 +134,8 @@
 		9ECB4F9A3936D238F0415E28 /* Pods */ = {
 			isa = PBXGroup;
 			children = (
-				AE7F5D2E4DE102931B37EDB8 /* Pods-Manor.debug.xcconfig */,
-				673AA192D4E6F7ED76C630E6 /* Pods-Manor.release.xcconfig */,
+				6F53FDCAC46205466E70DC46 /* Pods-Manor.debug.xcconfig */,
+				1864F0D7813513D6D627401E /* Pods-Manor.release.xcconfig */,
 			);
 			path = Pods;
 			sourceTree = "<group>";
@@ -146,7 +146,7 @@
 				F9E6B6C2264A598C003D1408 /* Manor */,
 				F9E6B6C1264A598C003D1408 /* Products */,
 				9ECB4F9A3936D238F0415E28 /* Pods */,
-				13386D5840686CCC0D6D2E25 /* Frameworks */,
+				4448773891D98FE763C5719A /* Frameworks */,
 			);
 			sourceTree = "<group>";
 		};
@@ -244,11 +244,11 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = F9E6B6D4264A598E003D1408 /* Build configuration list for PBXNativeTarget "Manor" */;
 			buildPhases = (
-				64CF12CBB00B7B9B2FAA73D8 /* [CP] Check Pods Manifest.lock */,
+				A0648B35A32D4A05785D6198 /* [CP] Check Pods Manifest.lock */,
 				F9E6B6BC264A598C003D1408 /* Sources */,
 				F9E6B6BD264A598C003D1408 /* Frameworks */,
 				F9E6B6BE264A598C003D1408 /* Resources */,
-				3735CEBB7BFF82D957783288 /* [CP] Embed Pods Frameworks */,
+				52C742A2085944D60A31FB5E /* [CP] Embed Pods Frameworks */,
 			);
 			buildRules = (
 			);
@@ -311,7 +311,7 @@
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXShellScriptBuildPhase section */
-		3735CEBB7BFF82D957783288 /* [CP] Embed Pods Frameworks */ = {
+		52C742A2085944D60A31FB5E /* [CP] Embed Pods Frameworks */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -328,7 +328,7 @@
 			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-Manor/Pods-Manor-frameworks.sh\"\n";
 			showEnvVarsInLog = 0;
 		};
-		64CF12CBB00B7B9B2FAA73D8 /* [CP] Check Pods Manifest.lock */ = {
+		A0648B35A32D4A05785D6198 /* [CP] Check Pods Manifest.lock */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -537,13 +537,13 @@
 		};
 		F9E6B6D5264A598E003D1408 /* Debug */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = AE7F5D2E4DE102931B37EDB8 /* Pods-Manor.debug.xcconfig */;
+			baseConfigurationReference = 6F53FDCAC46205466E70DC46 /* Pods-Manor.debug.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_ENTITLEMENTS = Manor/Manor.entitlements;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 33;
+				CURRENT_PROJECT_VERSION = 34;
 				DEVELOPMENT_TEAM = SV4GDKS298;
 				INFOPLIST_FILE = Manor/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 13.0;
@@ -561,13 +561,13 @@
 		};
 		F9E6B6D6264A598E003D1408 /* Release */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 673AA192D4E6F7ED76C630E6 /* Pods-Manor.release.xcconfig */;
+			baseConfigurationReference = 1864F0D7813513D6D627401E /* Pods-Manor.release.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_ENTITLEMENTS = Manor/Manor.entitlements;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 33;
+				CURRENT_PROJECT_VERSION = 34;
 				DEVELOPMENT_TEAM = SV4GDKS298;
 				INFOPLIST_FILE = Manor/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 13.0;

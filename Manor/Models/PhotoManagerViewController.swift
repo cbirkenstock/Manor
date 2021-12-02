@@ -65,6 +65,7 @@ class PhotoManagerViewController: UIViewController {
         imagePicker.dismiss(animated: true, completion: nil)
         
         for result in results {
+
             let itemProvider = result.itemProvider
             if itemProvider.canLoadObject(ofClass: UIImage.self) {
                 itemProvider.loadObject(ofClass: UIImage.self)
@@ -170,6 +171,8 @@ class PhotoManagerViewController: UIViewController {
                         }
                     }
                 }
+            } else {
+                print("no")
             }
         }
     }

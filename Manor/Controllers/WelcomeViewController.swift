@@ -21,7 +21,6 @@ class WelcomeViewController: UIViewController {
     @IBOutlet weak var logInButton: UIButton!
     @IBOutlet weak var signUpButton: UIButton!
     @IBOutlet weak var buttonStackView: UIStackView!
-    
 
     
     override func viewDidLoad() {
@@ -31,6 +30,32 @@ class WelcomeViewController: UIViewController {
         
         //start video
         backgroundVideoPlayer.playVideo(video: "BackgroundVideo", type: "mp4", controller: self)
+        
+        self.navigationItem.title = "Hello"
+        
+        let navBar = self.navigationController!.navigationBar
+
+        let standardAppearance = UINavigationBarAppearance()
+        standardAppearance.configureWithOpaqueBackground()
+        //standardAppearance.backgroundImage = backImageForDefaultBarMetrics
+
+        let compactAppearance = standardAppearance.copy()
+        //compactAppearance.backgroundImage = backImageForLandscapePhoneBarMetrics
+
+        navBar.standardAppearance = standardAppearance
+        navBar.scrollEdgeAppearance = standardAppearance
+        navBar.compactAppearance = compactAppearance
+        if #available(iOS 15.0, *) { // For compatibility with earlier iOS.
+            navBar.compactScrollEdgeAppearance = compactAppearance
+        }
+        
+        /*let textAttributes = [NSAttributedString.Key.foregroundColor: UIColor.white]
+        navigationController?.navigationBar.titleTextAttributes = textAttributes
+        navigationController?.navigationBar.isTranslucent = false
+        navigationController?.navigationBar.barTintColor = UIColor(named: "WarmBlack")
+        navigationController?.navigationBar.shadowImage = UIImage()
+        navigationController?.navigationBar.tintColor = UIColor(named: K.BrandColors.purple)
+        navigationController?.navigationBar.subviews.first?.alpha = 1*/
     }
     
     @IBAction func LogInPressed(_ sender: Any) {
@@ -66,11 +91,16 @@ class WelcomeViewController: UIViewController {
         //self.navigationController?.setNavigationBarHidden(false, animated: animated)
     }
     
+    override var prefersStatusBarHidden: Bool {
+        return true
+    }
+    
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
 
         // Hides navigation bar on the this view controller
         self.navigationController?.setNavigationBarHidden(true, animated: animated)
+        //navigationController?.navigationBar.isHidden = false
     }
 }
 

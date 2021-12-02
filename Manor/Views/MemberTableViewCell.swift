@@ -22,6 +22,8 @@ class MemberTableViewCell: UITableViewCell {
     var contactNameConstraints: [NSLayoutConstraint] = []
     var profileImageViewConstraints: [NSLayoutConstraint] = []
     var defaultContactNameConstraints: [NSLayoutConstraint] = []
+    let imageCache = NSCache<NSString, AnyObject>()
+    let defaults = UserDefaults.standard
     
     let profileImageView: UIImageView = {
         let profileImageView = UIImageView()
@@ -157,17 +159,31 @@ class MemberTableViewCell: UITableViewCell {
     }
     
     func downloadImage(UrlString: String, completion: @escaping (UIImage) -> ()) {
-        Amplify.Storage.downloadData(key: UrlString) { result in
-            switch result {
-            case .success(let data):
-                print("Success downloading image", data)
-                if let image = UIImage(data: data) {
-                    DispatchQueue.main.async {
-                        completion(image)
+        if let cachedImage = self.imageCache.object(forKey: UrlString as NSString) {
+            completion(cachedImage as! UIImage)
+        } else if var imageDictionary = defaults.dictionary(forKey: "contactPictures") {
+            if let storedImageData = imageDictionary[UrlString] {
+                let image = UIImage(data: storedImageData as! Data)
+                completion(image!)
+                let NSProfileImageUrl = UrlString as NSString
+                self.imageCache.setObject(image!, forKey: NSProfileImageUrl)
+            } else {
+                Amplify.Storage.downloadData(key: UrlString) { result in
+                    switch result {
+                    case .success(let data):
+                        print("Success downloading image", data)
+                        if let image = UIImage(data: data) {
+                            DispatchQueue.main.async {
+                                completion(image)
+                                self.imageCache.setObject(image, forKey: UrlString as NSString)
+                                imageDictionary[UrlString] = data
+                                self.defaults.setValue(imageDictionary, forKey: "contactPictures")
+                            }
+                        }
+                    case .failure(let error):
+                        print("failure downloading image", error)
                     }
                 }
-            case .failure(let error):
-                print("failure downloading image", error)
             }
         }
     }

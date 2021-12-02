@@ -12,6 +12,7 @@ import GrowingTextView
 import PhotosUI
 import Amplify
 import AmplifyPlugins
+// ShowTime
 
 class SelfSizedTableView: UITableView {
     var maxHeight: CGFloat = UIScreen.main.bounds.size.height
@@ -118,8 +119,38 @@ class GroupChatViewController: UIViewController, UIImagePickerControllerDelegate
     var currentChatImageDictionary: [String:Data] = [:]
     
     
+    var isTranslucent: Bool {
+        return true
+    }
+    
     override func viewDidLoad() {
         super.viewDidLoad()
+        
+        /*if self.isEventChat {
+            ShowTime.enabled = .never
+        }*/
+        
+        self.pushMessagesTableView.backgroundColor = .clear
+        
+        chatTableView.contentInset = UIEdgeInsets(top: -75, left: 0, bottom: 0, right: 0)
+ 
+
+        /*// Make all buttons with green text.
+        let buttonAppearance = UIBarButtonItemAppearance()
+        buttonAppearance.normal.titleTextAttributes = [.foregroundColor: UIColor.systemGreen]
+        navigationItem.standardAppearance?.buttonAppearance = buttonAppearance
+        navigationItem.compactAppearance?.buttonAppearance = buttonAppearance // For iPhone small navigation bar in landscape.
+
+        // Make the done style button with yellow text.
+        let doneButtonAppearance = UIBarButtonItemAppearance()
+        doneButtonAppearance.normal.titleTextAttributes = [.foregroundColor: UIColor.systemYellow]
+        navigationItem.standardAppearance?.doneButtonAppearance = doneButtonAppearance
+        navigationItem.compactAppearance?.doneButtonAppearance = doneButtonAppearance // For iPhone small navigation bar in landscape*/
+        
+        
+        
+        
+        //chatTableView.contentInset.top = -75
         
         if let chatImageDictionary = self.defaults.dictionary(forKey: "\(self.documentID) photos") as? [String: Data] {
             self.currentChatImageDictionary = chatImageDictionary
@@ -168,7 +199,6 @@ class GroupChatViewController: UIViewController, UIImagePickerControllerDelegate
         usersRef.child(commaEmail).observe(DataEventType.value, with: { (snapshot) in
             // Get user value
             if let value = snapshot.value as? NSDictionary {
-                print("TRUEE")
                 let firstName = value["firstName"] as? String ?? ""
                 let lastName = value["lastName"] as? String ?? ""
                 self.userFullName = "\(firstName) \(lastName)"
@@ -216,11 +246,14 @@ class GroupChatViewController: UIViewController, UIImagePickerControllerDelegate
         
         self.keyboardIsShowing = false
         
-        navigationController?.navigationBar.isTranslucent = true
+        /*self.navigationItem.title = "Messages"
+        let textAttributes = [NSAttributedString.Key.foregroundColor: UIColor.white]
+        navigationController?.navigationBar.titleTextAttributes = textAttributes
+        navigationController?.navigationBar.isTranslucent = false
         navigationController?.navigationBar.barTintColor = UIColor(named: "WarmBlack")
         navigationController?.navigationBar.shadowImage = UIImage()
         navigationController?.navigationBar.tintColor = UIColor(named: K.BrandColors.purple)
-        navigationController?.navigationBar.subviews.first?.alpha = 85
+        navigationController?.navigationBar.subviews.first?.alpha = 1*/
         
         //let displayWidth: CGFloat = self.view.frame.width
         //let displayHeight: CGFloat = self.view.frame.height
@@ -268,15 +301,12 @@ class GroupChatViewController: UIViewController, UIImagePickerControllerDelegate
         chatTableView.transform = CGAffineTransform(scaleX: 1, y: -1)
         
         if !isEventChat {
-            //setUpEventsButton()
-            //setUpEventOptions()
+            setUpEventOptions()
         }
         
         
         if let profileImageDictionary = self.defaults.dictionary(forKey: "contactPictures") {
             if let storedImageData = profileImageDictionary[self.groupChatImageUrl] as? Data {
-            
-                print("ABCDEf")
                 
                 let profileImageContainerView = UIImageView()
                 profileImageContainerView.translatesAutoresizingMaskIntoConstraints = false
@@ -288,13 +318,13 @@ class GroupChatViewController: UIViewController, UIImagePickerControllerDelegate
                 let navbarHeight = navigationController?.navigationBar.frame.height ?? 0
                 
                 let profileImageContainerViewConstraints = [
-                    profileImageContainerView.heightAnchor.constraint(equalToConstant: navbarHeight - 1),
-                    profileImageContainerView.widthAnchor.constraint(equalToConstant: navbarHeight - 1),
+                    profileImageContainerView.heightAnchor.constraint(equalToConstant: navbarHeight - 5),
+                    profileImageContainerView.widthAnchor.constraint(equalToConstant: navbarHeight - 5),
                 ]
                 
                 NSLayoutConstraint.activate(profileImageContainerViewConstraints)
                 
-                profileImageContainerView.layer.cornerRadius = (navbarHeight - 1)/2
+                profileImageContainerView.layer.cornerRadius = (navbarHeight - 5)/2
                 
                 let profileImageButton = UIButton()
                 profileImageContainerView.addSubview(profileImageButton)
@@ -316,8 +346,22 @@ class GroupChatViewController: UIViewController, UIImagePickerControllerDelegate
                 NSLayoutConstraint.activate(pinButtonContstraints)
                 
                 navigationItem.rightBarButtonItem = UIBarButtonItem(customView: profileImageContainerView)
+            } else {
+                let ellipsesBarButton = UIBarButtonItem()
+                ellipsesBarButton.image = UIImage(systemName: "ellipsis")
+                ellipsesBarButton.tintColor = UIColor(named: K.BrandColors.purple)
+                ellipsesBarButton.target = self
+                ellipsesBarButton.action = #selector(pushButtonPressed)
+                navigationItem.rightBarButtonItem = ellipsesBarButton
             }
             
+        } else {
+            let ellipsesBarButton = UIBarButtonItem()
+            ellipsesBarButton.image = UIImage(systemName: "ellipsis")
+            ellipsesBarButton.tintColor = UIColor(named: K.BrandColors.purple)
+            ellipsesBarButton.target = self
+            ellipsesBarButton.action = #selector(pushButtonPressed)
+            navigationItem.rightBarButtonItem = ellipsesBarButton
         }
         
         self.loadMessages()
@@ -735,12 +779,13 @@ class GroupChatViewController: UIViewController, UIImagePickerControllerDelegate
         pushMessagesTableView.dataSource = self
         pushMessagesTableView.delegate = self
         pushMessagesTableView.layer.cornerRadius = 10
+        pushMessagesTableView.layer.maskedCorners = [.layerMinXMaxYCorner,.layerMaxXMaxYCorner]
         
         let pushMessagesTableViewConstraints = [
             pushMessagesTableView.topAnchor.constraint(equalTo: self.view.safeAreaLayoutGuide.topAnchor, constant: 0),
             //pushMessagesTableView.bottomAnchor.constraint(equalTo: self.view.bottomAnchor, constant: 0),
-            pushMessagesTableView.leadingAnchor.constraint(equalTo: self.view.leadingAnchor, constant: 5),
-            pushMessagesTableView.trailingAnchor.constraint(equalTo: self.view.trailingAnchor, constant: -5)
+            pushMessagesTableView.leadingAnchor.constraint(equalTo: self.view.leadingAnchor, constant: 0),
+            pushMessagesTableView.trailingAnchor.constraint(equalTo: self.view.trailingAnchor, constant: 0)
         ]
         
         NSLayoutConstraint.activate(pushMessagesTableViewConstraints)
@@ -790,6 +835,13 @@ class GroupChatViewController: UIViewController, UIImagePickerControllerDelegate
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         
+        /*navigationController?.navigationBar.isTranslucent = true
+               
+        let appearance = UINavigationBarAppearance()
+        appearance.configureWithDefaultBackground()
+        navigationItem.scrollEdgeAppearance = appearance
+        navigationItem.compactAppearance = appearance*/
+        
         //NotificationCenter.default.post(name: NSNotification.Name(rawValue: "hideNavigationBar"), object: nil)
         
         /*self.firebaseManager.downloadChatPhotos(documentID: self.documentID) { photoDictionary in
@@ -804,7 +856,7 @@ class GroupChatViewController: UIViewController, UIImagePickerControllerDelegate
         
         
         // Hide the navigation bar on the this view controller
-        self.navigationController?.setNavigationBarHidden(false, animated: animated)
+        //self.navigationController?.setNavigationBarHidden(false, animated: animated)
         //navigationController?.navigationBar.isHidden = false
     }
     
@@ -875,6 +927,8 @@ class GroupChatViewController: UIViewController, UIImagePickerControllerDelegate
         let ellipsesBarButton = UIBarButtonItem()
         ellipsesBarButton.image = UIImage(systemName: "ellipsis")
         ellipsesBarButton.tintColor = UIColor(named: K.BrandColors.purple)
+        ellipsesBarButton.target = self
+        ellipsesBarButton.action = #selector(pushButtonPressed)
         navigationItem.rightBarButtonItem = ellipsesBarButton
         
         guard let userInfo = notification.userInfo else {return}
@@ -962,7 +1016,7 @@ class GroupChatViewController: UIViewController, UIImagePickerControllerDelegate
         let eventImageConfiguration = UIImage.SymbolConfiguration(pointSize: 30, weight: .regular, scale: .large)
         let eventImage = UIImage(systemName: "calendar", withConfiguration: eventImageConfiguration)
         eventButton.setImage(eventImage, for: .normal)
-        eventButton.addTarget(self, action: #selector(cameraButtonPressed), for: .touchUpInside)
+        eventButton.addTarget(self, action: #selector(createEventButtonPressed), for: .touchUpInside)
         
         let eventButtonContstraints = [
             eventButton.leadingAnchor.constraint(equalTo: eventContainerView.leadingAnchor, constant: 5),
@@ -1078,8 +1132,8 @@ class GroupChatViewController: UIViewController, UIImagePickerControllerDelegate
         photoManager.processPickerResultsPHP(imagePicker: picker, results: results, isGroupMessage: true, isEventChat: isEventChat)
     }
     
-    @IBAction func pushButtonPressed(_ sender: UIBarButtonItem) {
-        
+    @objc func pushButtonPressed() {
+
         if let messageBody = chatTextBar.text, self.keyboardIsShowing == true {
             
             let pushMessageUID = String(Int.random(in: 1...10000000000000))
@@ -1095,7 +1149,8 @@ class GroupChatViewController: UIViewController, UIImagePickerControllerDelegate
                 self.eventChatMessagesRef.child(documentID).child("pushMessages").child(String(pushMessageUID)).setValue([
                     "messageSender": userFullName,
                     "messageBody": messageBody,
-                    "timeStamp": commaTimestamp
+                    "timeStamp": commaTimestamp,
+                    "messageSenderChatImage": self.userChatImage ?? "default"
                 ], withCompletionBlock: { err, DatabaseReference in
                     if let err = err {
                         print(err)
@@ -1130,7 +1185,8 @@ class GroupChatViewController: UIViewController, UIImagePickerControllerDelegate
                 self.groupChatMessagesRef.child(documentID).child("pushMessages").child(String(pushMessageUID)).setValue([
                     "messageSender": userFullName,
                     "messageBody": messageBody,
-                    "timeStamp": commaTimestamp
+                    "timeStamp": commaTimestamp,
+                    "messageSenderChatImage": self.userChatImage ?? "default"
                 ], withCompletionBlock: { err, DatabaseReference in
                     if let err = err {
                         print(err)
@@ -1163,7 +1219,7 @@ class GroupChatViewController: UIViewController, UIImagePickerControllerDelegate
                     }
                 }
             }
-        } else if keyboardIsShowing == false{
+        } else if keyboardIsShowing == false {
             performSegue(withIdentifier: "toGroupChatInfo", sender: self)
         }
     }
@@ -1382,6 +1438,7 @@ class GroupChatViewController: UIViewController, UIImagePickerControllerDelegate
                         }
                         
                         self.chatTableView.reloadData()
+
                     } else if let imageURL = value.object(forKey: "imageURL") as? String {
                         
                         let imageWidth = value.object(forKey: "imageWidth") as? Double ?? 300
@@ -1444,7 +1501,6 @@ class GroupChatViewController: UIViewController, UIImagePickerControllerDelegate
                         }
                         
                         self.chatTableView.reloadData()
-                        
                     }
                 }
             }
@@ -1473,7 +1529,8 @@ class GroupChatViewController: UIViewController, UIImagePickerControllerDelegate
                             count += 1
                             if let messageSender = value.object(forKey: "messageSender")! as? String, let messageBody = value.object(forKey: "messageBody") as? String, let commaTimeStamp = value.object(forKey: "timeStamp") as? String {
                                 let timeStamp = Double(commaTimeStamp.replacingOccurrences(of: ",", with: "."))!
-                                let message = Message(messageSender: messageSender, messageBody: messageBody, timeStamp: timeStamp, pushMessageUID: key)
+                                let messageSenderChatImage = value.object(forKey: "messageSenderChatImage") as? String ?? "default"
+                                let message = Message(messageSender: messageSender, messageBody: messageBody, timeStamp: timeStamp, pushMessageUID: key, messageSenderChatImage: messageSenderChatImage)
                                 self.pushMessages.append(message)
                                 DispatchQueue.main.async {
                                     self.pushMessagesTableView.reloadData()
@@ -1511,7 +1568,8 @@ class GroupChatViewController: UIViewController, UIImagePickerControllerDelegate
                             count += 1
                             if let messageSender = value.object(forKey: "messageSender")! as? String, let messageBody = value.object(forKey: "messageBody") as? String, let commaTimeStamp = value.object(forKey: "timeStamp") as? String {
                                 let timeStamp = Double(commaTimeStamp.replacingOccurrences(of: ",", with: "."))!
-                                let message = Message(messageSender: messageSender, messageBody: messageBody, timeStamp: timeStamp, pushMessageUID: key)
+                                let messageSenderChatImage = value.object(forKey: "messageSenderChatImage") as? String ?? "default"
+                                let message = Message(messageSender: messageSender, messageBody: messageBody, timeStamp: timeStamp, pushMessageUID: key, messageSenderChatImage: messageSenderChatImage)
                                 self.pushMessages.append(message)
                                 DispatchQueue.main.async {
                                     self.pushMessagesTableView.reloadData()
@@ -1641,9 +1699,45 @@ extension GroupChatViewController: UITableViewDataSource, UITableViewDelegate {
         if tableView == self.pushMessagesTableView {
             let cell = pushMessagesTableView.dequeueReusableCell(withIdentifier: "regularMessageCell", for: indexPath) as! RegularMessageBody
             
+            cell.backgroundColor = UIColor(named: K.BrandColors.purple)?.withAlphaComponent(0.98)
+            
             let sortedMessages = self.pushMessages.sorted(by: { $0.timeStamp < $1.timeStamp })
             
             let message = sortedMessages[indexPath.row]
+            
+            let chatImageUrl = message.messageSenderChatImage ?? "default"
+            
+            if chatImageUrl != "default" {
+                if let cachedImage = self.imageCache.object(forKey: chatImageUrl as NSString? ?? "") as? UIImage {
+                    cell.profileImageView.image = cachedImage
+                } else if var imageDictionary = defaults.dictionary(forKey: "contactPictures")  {
+                    if let storedImageData = imageDictionary[chatImageUrl] {
+                        let image = UIImage(data: storedImageData as! Data)!
+                        cell.profileImageView.image = image
+                        let NSChatImageUrl = chatImageUrl as NSString
+                        self.imageCache.setObject(image, forKey: NSChatImageUrl)
+                    } else {
+                        Amplify.Storage.downloadData(key: chatImageUrl) { result in
+                            switch result {
+                            case .success(let data):
+                                print("Success downloading image", data)
+                                if let image = UIImage(data: data) {
+                                    DispatchQueue.main.async {
+                                        cell.profileImageView.image = image
+                                        self.imageCache.setObject(image, forKey: chatImageUrl as NSString)
+                                        imageDictionary[chatImageUrl] = data
+                                        self.defaults.setValue(imageDictionary, forKey: "contactPictures")
+                                    }
+                                }
+                            case .failure(let error):
+                                print("failure downloading image", error)
+                            }
+                        }
+                    }
+                }
+            } else {
+                cell.profileImageView.image = #imageLiteral(resourceName: "NewContactIcon")
+            }
             
             cell.emailLabel.text = message.messageSender
             cell.messageBody.text = message.messageBody
@@ -1657,12 +1751,19 @@ extension GroupChatViewController: UITableViewDataSource, UITableViewDelegate {
         } else {
             
             if isEventChat && indexPath.section == self.keyArray.count {
-                print("XYZ")
                 let cell = chatTableView.dequeueReusableCell(withIdentifier: "eventInfoCell") as! EventInfoTableViewCell
                 
-                cell.eventDescriptionLabel.text = self.eventDescription
-                cell.timeLabel.text = self.eventTime
-                cell.dateLabel.text = self.eventDate
+                //cell.eventDescriptionLabel.text = self.eventDescription
+                //cell.timeLabel.text = self.eventTime
+                //cell.dateLabel.text = self.eventDate
+                
+                cell.eventDescriptionLabel.isHidden = true
+                cell.descriptionString.isHidden = true
+                cell.timeLabel.isHidden = true
+                cell.timeString.isHidden = true
+                cell.dateLabel.isHidden = true
+                cell.dateString.isHidden = true
+                
                 
                 cell.transform = CGAffineTransform(scaleX: 1, y: -1)
                 return cell
@@ -1872,6 +1973,8 @@ extension GroupChatViewController: UITableViewDataSource, UITableViewDelegate {
                 cell.GroupChatVCInstace = self
                 
                 
+                
+                
                 if event.eventCap == "No Limit" {
                     cell.eventCap.text = "No Limit"
                     cell.currentNumber.isHidden = true
@@ -1899,7 +2002,7 @@ extension GroupChatViewController: UITableViewDataSource, UITableViewDelegate {
                 if chatImageUrl != "default" {
                     if let cachedImage = self.imageCache.object(forKey: chatImageUrl as NSString? ?? "") as? UIImage {
                         cell.profileImageView.image = cachedImage
-                    } else if var imageDictionary = defaults.dictionary(forKey: "dmContactPictures")  {
+                    } else if var imageDictionary = defaults.dictionary(forKey: "contactPictures")  {
                         if let storedImageData = imageDictionary[chatImageUrl] {
                             let image = UIImage(data: storedImageData as! Data)!
                             cell.profileImageView.image = image
@@ -1915,7 +2018,7 @@ extension GroupChatViewController: UITableViewDataSource, UITableViewDelegate {
                                             cell.profileImageView.image = image
                                             self.imageCache.setObject(image, forKey: chatImageUrl as NSString)
                                             imageDictionary[chatImageUrl] = data
-                                            self.defaults.setValue(imageDictionary, forKey: "dmContactPictures")
+                                            self.defaults.setValue(imageDictionary, forKey: "contactPictures")
                                         }
                                     }
                                 case .failure(let error):

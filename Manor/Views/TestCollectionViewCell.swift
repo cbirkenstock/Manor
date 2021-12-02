@@ -7,6 +7,13 @@
 
 import UIKit
 
+class TopAlignedLabel: UILabel {
+      override func drawText(in rect: CGRect) {
+        let textRect = super.textRect(forBounds: bounds, limitedToNumberOfLines: numberOfLines)
+        super.drawText(in: textRect)
+      }
+}
+
 class TestCollectionViewCell: UICollectionViewCell {
     
     var eventDescription: String = ""
@@ -19,6 +26,7 @@ class TestCollectionViewCell: UICollectionViewCell {
     let imageCache = NSCache<NSString, AnyObject>()
     var bigIndicatorCircleConstraints: [NSLayoutConstraint]!
     var smallIndicatorCircleConstraints: [NSLayoutConstraint]!
+    var contactNameHeightConstraint: NSLayoutConstraint!
 
 
     var profileImageUrl: String! {
@@ -66,7 +74,7 @@ class TestCollectionViewCell: UICollectionViewCell {
                 
                 NSLayoutConstraint.activate(newContactImageViewConstraints)
                 
-                contactImageView.layer.cornerRadius = (self.frame.width - 20)/2
+                //contactImageView.layer.cornerRadius = (self.frame.width - 20)/2
             }
         }
     }
@@ -86,12 +94,14 @@ class TestCollectionViewCell: UICollectionViewCell {
         return contactImageView
     }()
     
-    var contactName: UILabel = {
-        let contactLabel = UILabel()
+    var contactName: TopAlignedLabel = {
+        let contactLabel = TopAlignedLabel()
         contactLabel.translatesAutoresizingMaskIntoConstraints = false
         contactLabel.textColor = .white
-        contactLabel.font = UIFont.systemFont(ofSize: 21, weight: .bold)
+        //contactLabel.font = UIFont.systemFont(ofSize: 21, weight: .bold)//UIFont(name: "San Francisco", size: 21)
         contactLabel.textAlignment = .center
+        contactLabel.backgroundColor = .clear
+        //contactLabel.numberOfLines = 0
         return contactLabel
     }()
     
@@ -122,14 +132,20 @@ class TestCollectionViewCell: UICollectionViewCell {
                 contactImageView.layer.cornerRadius = (self.frame.width - 30)/2
                 
                 lastMessageLabel.isHidden = false
+                
+                contactName.font = UIFont.systemFont(ofSize: 21, weight: .bold)
+                
             } else {
                 NSLayoutConstraint.deactivate(bigIndicatorCircleConstraints)
                 NSLayoutConstraint.activate(smallIndicatorCircleConstraints)
                 
-                indicatorCircle.layer.cornerRadius = (UIScreen.main.bounds.width/3 - 20)/2
-                contactImageView.layer.cornerRadius = (UIScreen.main.bounds.width/3 - 30)/2
+                indicatorCircle.layer.cornerRadius = (self.frame.width)/2
+                contactImageView.layer.cornerRadius = (self.frame.width - 6)/2
                 
                 lastMessageLabel.isHidden = true
+                
+                contactName.font = UIFont.systemFont(ofSize: 14, weight: .regular)
+                //contactName.font = UIFont.systemFont(ofSize: 21, weight: .regular)
             }
         }
     }
@@ -137,28 +153,33 @@ class TestCollectionViewCell: UICollectionViewCell {
     override init(frame: CGRect) {
         super.init(frame: frame)
         
+        //self.backgroundColor = .green
+        
         self.addSubview(indicatorCircle)
         indicatorCircle.addSubview(contactImageView)
         self.addSubview(contactName)
         self.addSubview(lastMessageLabel)
         
         contactImageViewConstraints = [
-            contactImageView.topAnchor.constraint(equalTo: indicatorCircle.topAnchor, constant: 5),
-            contactImageView.bottomAnchor.constraint(equalTo: indicatorCircle.bottomAnchor, constant: -5),
-            contactImageView.leadingAnchor.constraint(equalTo: indicatorCircle.leadingAnchor, constant: 5),
-            contactImageView.trailingAnchor.constraint(equalTo: indicatorCircle.trailingAnchor, constant: -5)
+            contactImageView.topAnchor.constraint(equalTo: indicatorCircle.topAnchor, constant: 3),
+            contactImageView.bottomAnchor.constraint(equalTo: indicatorCircle.bottomAnchor, constant: -3),
+            contactImageView.leadingAnchor.constraint(equalTo: indicatorCircle.leadingAnchor, constant: 3),
+            contactImageView.trailingAnchor.constraint(equalTo: indicatorCircle.trailingAnchor, constant: -3)
         ]
         
         NSLayoutConstraint.activate(contactImageViewConstraints)
         
         let contactNameConstraints = [
-            contactName.topAnchor.constraint(equalTo: indicatorCircle.bottomAnchor, constant: 5),
-            contactName.heightAnchor.constraint(equalToConstant: 25),
-            contactName.leadingAnchor.constraint(equalTo: self.leadingAnchor, constant: 0),
-            contactName.trailingAnchor.constraint(equalTo: self.trailingAnchor, constant: 0)
+            contactName.topAnchor.constraint(equalTo: indicatorCircle.bottomAnchor, constant: 0),
+            contactName.leadingAnchor.constraint(equalTo: self.leadingAnchor, constant: -1.5),
+            contactName.trailingAnchor.constraint(equalTo: self.trailingAnchor, constant: 1.5)
         ]
         
         NSLayoutConstraint.activate(contactNameConstraints)
+        
+        contactNameHeightConstraint = contactName.heightAnchor.constraint(greaterThanOrEqualToConstant: 20)
+        
+        contactNameHeightConstraint.isActive = true
         
         let lastMessageConstraints = [
             lastMessageLabel.topAnchor.constraint(equalTo: contactName.bottomAnchor, constant: 5),
@@ -169,8 +190,8 @@ class TestCollectionViewCell: UICollectionViewCell {
         
         NSLayoutConstraint.activate(lastMessageConstraints)
         
-        indicatorCircle.layer.cornerRadius = (self.frame.width - 20)/2
-        contactImageView.layer.cornerRadius = (self.frame.width - 30)/2
+        //indicatorCircle.layer.cornerRadius = (self.frame.width - 20)/2
+        //contactImageView.layer.cornerRadius = (self.frame.width - 30)/2
         
         let bigCellWidth = UIScreen.main.bounds.width/2 - 10
         let bigCellHeight = bigCellWidth/0.8244
@@ -192,19 +213,21 @@ class TestCollectionViewCell: UICollectionViewCell {
             indicatorCircle.centerXAnchor.constraint(equalTo: self.centerXAnchor)
         ]*/
         
-        let smallCellWidth = UIScreen.main.bounds.width/3 - 10
-        let smallCellHeight = smallCellWidth/0.875
-        let smallIconWidth = smallCellWidth - 10
-        let smallBottomConstraint = ((smallCellHeight - smallIconWidth - 5) * -1)
+        //let smallCellWidth = UIScreen.main.bounds.width/4.5
+        //let smallCellHeight = smallCellWidth/0.875
+        //let smallIconWidth = smallCellWidth - 10
+        //let smallBottomConstraint = ((smallCellHeight - smallIconWidth - 5) * -1)
 
         
+        //make all constants 5 to put back to two line labels
         smallIndicatorCircleConstraints = [
-            //indicatorCircle.widthAnchor.constraint(equalToConstant: width),
-            //indicatorCircle.heightAnchor.constraint(equalToConstant: width),
-            indicatorCircle.leadingAnchor.constraint(equalTo: self.leadingAnchor, constant: 5),
-            indicatorCircle.trailingAnchor.constraint(equalTo: self.trailingAnchor, constant: -5),
-            indicatorCircle.bottomAnchor.constraint(equalTo: self.bottomAnchor, constant: smallBottomConstraint),
-            indicatorCircle.topAnchor.constraint(equalTo: self.topAnchor, constant: 5),
+            indicatorCircle.widthAnchor.constraint(equalToConstant: self.frame.width),
+            indicatorCircle.heightAnchor.constraint(equalToConstant: self.frame.width),
+            //indicatorCircle.topAnchor.constraint(equalTo: self.topAnchor, constant: 0),
+            //indicatorCircle.leadingAnchor.constraint(equalTo: self.leadingAnchor, constant: 5),
+            //indicatorCircle.trailingAnchor.constraint(equalTo: self.trailingAnchor, constant: -5),
+            //indicatorCircle.bottomAnchor.constraint(equalTo: self.bottomAnchor, constant: smallBottomConstraint),
+            indicatorCircle.topAnchor.constraint(equalTo: self.topAnchor, constant: 0)
             //indicatorCircle.centerXAnchor.constraint(equalTo: self.centerXAnchor)
         ]
     }

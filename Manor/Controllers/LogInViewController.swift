@@ -31,23 +31,57 @@ class LogInViewController: UIViewController {
     @IBOutlet weak var logoStack: UIStackView!
     @IBOutlet weak var holderView: UIView!
     
+    var window: UIWindow?
+    
     //--//
     
     let defaults = UserDefaults.standard
     
     //--//
     
+    
+    override var prefersStatusBarHidden: Bool {
+        return true
+    }
+    
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        title = ""
+        self.navigationItem.title = "Hello"
+        
+        // Make the navigation bar's title with red text.
+        let appearance = UINavigationBarAppearance()
+        appearance.configureWithOpaqueBackground()
+        appearance.backgroundColor = UIColor.systemRed
+        appearance.titleTextAttributes = [.foregroundColor: UIColor.lightText] // With a red background, make the title more readable.
+        
+        
+        navigationItem.standardAppearance = appearance
+        navigationItem.scrollEdgeAppearance = appearance
+        navigationItem.compactAppearance = appearance // For iPhone small navigation bar in landscape.
+
+        // Make all buttons with green text.
+        let buttonAppearance = UIBarButtonItemAppearance()
+        buttonAppearance.normal.titleTextAttributes = [.foregroundColor: UIColor.systemGreen]
+        navigationItem.standardAppearance?.buttonAppearance = buttonAppearance
+        navigationItem.compactAppearance?.buttonAppearance = buttonAppearance // For iPhone small navigation bar in landscape.
+
+        // Make the done style button with yellow text.
+        let doneButtonAppearance = UIBarButtonItemAppearance()
+        doneButtonAppearance.normal.titleTextAttributes = [.foregroundColor: UIColor.systemYellow]
+        navigationItem.standardAppearance?.doneButtonAppearance = doneButtonAppearance
+        navigationItem.compactAppearance?.doneButtonAppearance = doneButtonAppearance // For iPhone small navigation bar in landscape
+        
+
+        /*title = ""
         
         navigationController?.navigationBar.isHidden = false
         navigationController?.navigationBar.isTranslucent = false
         navigationController?.navigationBar.barTintColor = .black
         navigationController?.navigationBar.shadowImage = UIImage()
         //navigationItem.backBarButtonItem?.tintColor = UIColor(named: K.BrandColors.purple)
-        self.navigationController?.navigationBar.tintColor = UIColor(named: K.BrandColors.purple)
+        self.navigationController?.navigationBar.tintColor = UIColor(named: K.BrandColors.purple)*/
         
         
         //checks whether remember me is checked and colors in button and fills in information if it is
@@ -181,7 +215,7 @@ class LogInViewController: UIViewController {
             signIn(username: username, password: password, isFirstTry: true)
         }
     }
-    
+ 
     func signIn(username: String, password: String, isFirstTry: Bool) {
         Amplify.Auth.signIn(username: username, password: password) { result in
             switch result {

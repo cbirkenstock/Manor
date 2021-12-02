@@ -47,17 +47,17 @@ class EventTableViewCell: UITableViewCell {
         let eventContainer = UIImageView()
         eventContainer.translatesAutoresizingMaskIntoConstraints = false
         eventContainer.layer.cornerRadius = 10
-        eventContainer.backgroundColor = .systemGreen
-        //eventContainer.image = #imageLiteral(resourceName: "AbstractPainting")
-        //eventContainer.clipsToBounds = true
-        //eventContainer.contentMode = .scaleToFill
+        eventContainer.backgroundColor = .clear
+        eventContainer.image = #imageLiteral(resourceName: "Beach")
+        eventContainer.clipsToBounds = true
+        eventContainer.contentMode = .scaleAspectFill
         return eventContainer
     }()
     
     let titleContainer: UIView = {
         let titleContainer = UIView()
         titleContainer.translatesAutoresizingMaskIntoConstraints = false
-        titleContainer.backgroundColor = UIColor(named: "Gray")
+        //titleContainer.backgroundColor = .black.withAlphaComponent(0.25)
         titleContainer.clipsToBounds = true
         titleContainer.layer.maskedCorners = [.layerMaxXMinYCorner, .layerMinXMinYCorner]
         titleContainer.layer.cornerRadius = 10
@@ -79,9 +79,9 @@ class EventTableViewCell: UITableViewCell {
         timeContainer.translatesAutoresizingMaskIntoConstraints = false
         timeContainer.backgroundColor = .clear
         timeContainer.clipsToBounds = true
-        timeContainer.layer.borderWidth = 2
-        timeContainer.layer.cornerRadius = 10
-        timeContainer.layer.borderColor = UIColor.white.cgColor
+        //timeContainer.layer.borderWidth = 2
+        //timeContainer.layer.cornerRadius = 10
+        //timeContainer.layer.borderColor = UIColor.white.cgColor
         return timeContainer
     }()
     
@@ -101,7 +101,7 @@ class EventTableViewCell: UITableViewCell {
         let bodyContainer = UIView()
         bodyContainer.translatesAutoresizingMaskIntoConstraints = false
         bodyContainer.backgroundColor = .clear
-        bodyContainer.layer.cornerRadius = 10
+        //bodyContainer.layer.cornerRadius = 10
         bodyContainer.clipsToBounds = true
         return bodyContainer
     }()
@@ -109,7 +109,7 @@ class EventTableViewCell: UITableViewCell {
     let bodyTextField: UILabel = {
         let bodyTextField = UILabel()
         bodyTextField.translatesAutoresizingMaskIntoConstraints = false
-        bodyTextField.font = UIFont.systemFont(ofSize: 18, weight: .semibold)
+        bodyTextField.font = UIFont.systemFont(ofSize: 14, weight: .semibold)
         bodyTextField.textColor = .white
         bodyTextField.numberOfLines = 0
         bodyTextField.textAlignment = .center
@@ -119,7 +119,7 @@ class EventTableViewCell: UITableViewCell {
     let fractionLine: UIView = {
         let fractionLine = UIView()
         fractionLine.translatesAutoresizingMaskIntoConstraints = false
-        fractionLine.backgroundColor = .white
+        fractionLine.backgroundColor = .clear
         return fractionLine
     }()
     
@@ -128,10 +128,13 @@ class EventTableViewCell: UITableViewCell {
         currentNumber.text = "5"
         currentNumber.translatesAutoresizingMaskIntoConstraints = false
         currentNumber.font = UIFont.systemFont(ofSize: 30)
-        currentNumber.backgroundColor = .systemGreen
+        currentNumber.backgroundColor = .clear
+        currentNumber.layer.borderColor = UIColor.clear.cgColor
+        currentNumber.layer.borderWidth = 2
         currentNumber.layer.masksToBounds = true
         currentNumber.layer.cornerRadius = 40/2
         currentNumber.textAlignment = .center
+        currentNumber.textColor = .clear
         return currentNumber
     }()
     
@@ -140,10 +143,13 @@ class EventTableViewCell: UITableViewCell {
         eventCap.translatesAutoresizingMaskIntoConstraints = false
         eventCap.text = "15"
         eventCap.font = UIFont.systemFont(ofSize: 30)
-        eventCap.backgroundColor = .systemGreen
+        eventCap.backgroundColor = .clear
+        eventCap.layer.borderColor = UIColor.clear.cgColor
+        eventCap.layer.borderWidth = 2
         eventCap.layer.masksToBounds = true
         eventCap.layer.cornerRadius = 40/2
         eventCap.textAlignment = .center
+        eventCap.textColor = .clear
         return eventCap
     }()
     
@@ -162,7 +168,7 @@ class EventTableViewCell: UITableViewCell {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
         
         self.backgroundColor = .clear
-        
+
         contentView.addSubview(eventContainer)
         eventContainer.addSubview(titleContainer)
         titleContainer.addSubview(titleTextField)
@@ -176,27 +182,40 @@ class EventTableViewCell: UITableViewCell {
         contentView.addSubview(joinEventButton)
         joinEventButton.addTarget(self, action: #selector(joinEvent), for: .touchUpInside)
         
+        let eventWidth = UIScreen.main.bounds.width - 115
+        
+        let eventContainerConstraints = [
+            eventContainer.topAnchor.constraint(equalTo: contentView.topAnchor, constant: 8),
+            eventContainer.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: -10),
+            eventContainer.widthAnchor.constraint(equalToConstant: eventWidth),
+            eventContainer.heightAnchor.constraint(equalToConstant: eventWidth + 87.5)
+        ]
+        
+        NSLayoutConstraint.activate(eventContainerConstraints)
+        
         let titleTextFieldConstraints = [
-            titleTextField.topAnchor.constraint(equalTo: contentView.topAnchor, constant: 5),
-            titleTextField.centerXAnchor.constraint(equalTo: contentView.centerXAnchor),
-            titleTextField.widthAnchor.constraint(equalToConstant: 200)
+            titleTextField.topAnchor.constraint(equalTo: eventContainer.topAnchor, constant: 5),
+            titleTextField.centerXAnchor.constraint(equalTo: eventContainer.centerXAnchor),
+            titleTextField.widthAnchor.constraint(equalToConstant: eventWidth),
+            titleTextField.heightAnchor.constraint(lessThanOrEqualToConstant: 30)
         ]
         
         NSLayoutConstraint.activate(titleTextFieldConstraints)
         
         let titleContainerConstraints = [
-            titleContainer.topAnchor.constraint(equalTo: titleTextField.topAnchor, constant: -3),
+            titleContainer.topAnchor.constraint(equalTo: titleTextField.topAnchor, constant: -5),
             titleContainer.bottomAnchor.constraint(equalTo: titleTextField.bottomAnchor, constant: 3),
-            titleContainer.leadingAnchor.constraint(equalTo: titleTextField.leadingAnchor, constant: -10),
-            titleContainer.trailingAnchor.constraint(equalTo: titleTextField.trailingAnchor, constant: 10)
+            titleContainer.leadingAnchor.constraint(equalTo: eventContainer.leadingAnchor, constant: 0),
+            titleContainer.trailingAnchor.constraint(equalTo: eventContainer.trailingAnchor, constant: 0)
         ]
         
         NSLayoutConstraint.activate(titleContainerConstraints)
         
         let timeTextFieldConstraints = [
-            timeTextField.topAnchor.constraint(equalTo: titleContainer.bottomAnchor, constant: 10),
-            timeTextField.bottomAnchor.constraint(equalTo: bodyContainer.topAnchor, constant: 0),
-            timeTextField.centerXAnchor.constraint(equalTo: titleContainer.centerXAnchor, constant: 0)
+            timeTextField.topAnchor.constraint(equalTo: titleContainer.bottomAnchor, constant: 5),
+            //timeTextField.bottomAnchor.constraint(equalTo: bodyContainer.topAnchor, constant: 0),
+            timeTextField.centerXAnchor.constraint(equalTo: titleContainer.centerXAnchor, constant: 0),
+            timeTextField.heightAnchor.constraint(equalToConstant: 20),
             //timeTextField.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 20),
             //timeTextField.widthAnchor.constraint(equalToConstant: 200)
         ]
@@ -206,38 +225,52 @@ class EventTableViewCell: UITableViewCell {
         let timeContainerConstraints = [
             timeContainer.topAnchor.constraint(equalTo: timeTextField.topAnchor, constant: -5),
             timeContainer.bottomAnchor.constraint(equalTo: timeTextField.bottomAnchor, constant: 5),
-            timeContainer.leadingAnchor.constraint(equalTo: timeTextField.leadingAnchor, constant: -10),
-            timeContainer.trailingAnchor.constraint(equalTo: timeTextField.trailingAnchor, constant: 10)
+            timeContainer.leadingAnchor.constraint(equalTo: timeTextField.leadingAnchor, constant: -5),
+            timeContainer.trailingAnchor.constraint(equalTo: timeTextField.trailingAnchor, constant: 5)
         ]
         
         NSLayoutConstraint.activate(timeContainerConstraints)
         
+        let gradientLayer:CAGradientLayer = CAGradientLayer()
+        gradientLayer.frame = CGRect(origin: eventContainer.bounds.origin, size: CGSize(width: eventWidth, height: 90))
+        gradientLayer.colors =
+        [UIColor.black.withAlphaComponent(0.5).cgColor,UIColor.black.withAlphaComponent(0).cgColor]
+        gradientLayer.startPoint = CGPoint(x: 0.0, y: 0.0)
+        gradientLayer.endPoint = CGPoint(x: 0.0, y: 1.0)
+        gradientLayer.cornerRadius = 10
+       //Use diffrent colors
+        gradientLayer.maskedCorners = [.layerMinXMinYCorner, .layerMaxXMinYCorner]
+        eventContainer.layer.insertSublayer(gradientLayer, at: 0)
+        
         let bodyTextFieldConstraints = [
-            bodyTextField.topAnchor.constraint(equalTo: timeContainer.bottomAnchor, constant: 10),
-            bodyTextField.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: -15),
+            bodyTextField.bottomAnchor.constraint(equalTo: eventContainer.bottomAnchor, constant: -10),
             bodyTextField.centerXAnchor.constraint(equalTo: contentView.centerXAnchor),
-            bodyTextField.widthAnchor.constraint(equalToConstant: 200)
+            bodyTextField.widthAnchor.constraint(equalToConstant: eventWidth - 20),
+            bodyTextField.heightAnchor.constraint(lessThanOrEqualToConstant: 150)
+            //bodyTextField.heightAnchor.constraint(lessThanOrEqualToConstant: 100)
         ]
         
         NSLayoutConstraint.activate(bodyTextFieldConstraints)
         
         let bodyContainerConstraints = [
             bodyContainer.topAnchor.constraint(equalTo: bodyTextField.topAnchor, constant: -5),
-            bodyContainer.bottomAnchor.constraint(equalTo: bodyTextField.bottomAnchor, constant: 5),
+            bodyContainer.bottomAnchor.constraint(equalTo: bodyTextField.bottomAnchor, constant: 10),
             bodyContainer.leadingAnchor.constraint(equalTo: bodyTextField.leadingAnchor, constant: -10),
             bodyContainer.trailingAnchor.constraint(equalTo: bodyTextField.trailingAnchor, constant: 10)
         ]
         
         NSLayoutConstraint.activate(bodyContainerConstraints)
         
-        let eventContainerConstraints = [
-            eventContainer.topAnchor.constraint(equalTo: titleContainer.topAnchor, constant: 0),
-            eventContainer.bottomAnchor.constraint(equalTo: bodyContainer.bottomAnchor, constant: 0),
-            eventContainer.leadingAnchor.constraint(equalTo: titleContainer.leadingAnchor, constant: 0),
-            eventContainer.trailingAnchor.constraint(equalTo: titleContainer.trailingAnchor, constant: 0)
-        ]
-        
-        NSLayoutConstraint.activate(eventContainerConstraints)
+        let gradientLayer2:CAGradientLayer = CAGradientLayer()
+        gradientLayer2.frame = CGRect(origin: bodyContainer.bounds.origin, size: CGSize(width: eventWidth, height: 115))
+        gradientLayer2.colors =
+        [UIColor.black.withAlphaComponent(0).cgColor,UIColor.black.withAlphaComponent(0.8).cgColor]
+        gradientLayer2.startPoint = CGPoint(x: 0.0, y: 0.0)
+        gradientLayer2.endPoint = CGPoint(x: 0.0, y: 1.0)
+        gradientLayer2.cornerRadius = 10
+       //Use diffrent colors
+        gradientLayer2.maskedCorners = [.layerMinXMinYCorner, .layerMaxXMinYCorner]
+        bodyContainer.layer.insertSublayer(gradientLayer2, at: 0)
         
         let fractionLineConstraints = [
             fractionLine.centerYAnchor.constraint(equalTo: eventContainer.centerYAnchor, constant: 0),
@@ -287,18 +320,24 @@ class EventTableViewCell: UITableViewCell {
     
     func updateSpace() {
         if self.eventCap.text == "No Limit" {
-            self.eventContainer.backgroundColor = .systemGreen
-            self.currentNumber.backgroundColor = .clear
-            self.eventCap.backgroundColor = .clear
+            //self.eventContainer.layer.borderColor = UIColor.systemGreen.cgColor
+            self.eventContainer.layer.borderWidth = 2
+            //self.eventContainer.backgroundColor = .systemGreen.withAlphaComponent(0.15)
+            //self.currentNumber.backgroundColor = .clear
+            //self.eventCap.backgroundColor = .clear
         } else if let currentNumberInt = Int(self.currentNumber.text ?? "5"), let eventCapInt = Int(self.eventCap.text ?? "15") {
             if currentNumberInt < eventCapInt {
-                self.eventContainer.backgroundColor = .systemGreen
-                self.currentNumber.backgroundColor = .systemGreen
-                self.eventCap.backgroundColor = .systemGreen
+                //self.eventContainer.layer.borderColor = UIColor.systemGreen.cgColor
+                self.eventContainer.layer.borderWidth = 2
+                //self.eventContainer.backgroundColor = .systemGreen.withAlphaComponent(0.15)
+                //self.currentNumber.backgroundColor = .systemGreen
+                //self.eventCap.backgroundColor = .systemGreen
             } else {
-                self.eventContainer.backgroundColor = .systemRed
-                self.currentNumber.backgroundColor = .systemRed
-                self.eventCap.backgroundColor = .systemRed
+                //self.eventContainer.layer.borderColor = UIColor.systemRed.cgColor
+                self.eventContainer.layer.borderWidth = 2
+                //self.eventContainer.backgroundColor = .systemRed.withAlphaComponent(0.15)
+                //self.currentNumber.backgroundColor = .systemRed
+                //self.eventCap.backgroundColor = .systemRed
             }
         }
     }
@@ -343,14 +382,11 @@ class EventTableViewCell: UITableViewCell {
                         let alreadyJoined = self.groupMembers?.contains(userInfo)
                         var isFull: Bool?
                         
-                        print(self.eventCap.text)
-                        print(self.currentNumber.text)
-                        
                         if self.eventCap.text == "No Limit" {
                             isFull = false
                         } else if let eventCapInt = Int(self.eventCap.text ?? "0"), let currentNumberInt = Int(self.currentNumber.text ?? "0") {
                             if eventCapInt <= currentNumberInt {
-                                isFull = true
+                                isFull = false
                             } else {
                                 isFull = false
                             }

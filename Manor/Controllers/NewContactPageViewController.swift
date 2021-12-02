@@ -109,6 +109,9 @@ class NewContactPageViewController: UIViewController, UIScrollViewDelegate {
         let bigHeight = bigGroupChatCollectionView.collectionViewLayout.collectionViewContentSize.height + 5
         bigCollectionViewHeightConstraint.constant = bigHeight
         
+        print("height")
+        print(bigHeight)
+        
         //var eventHeight = EventChatCollectionView.collectionViewLayout.collectionViewContentSize.height + 5
         //eventChatCollectionViewHeightConstraint.constant = eventHeight
         
@@ -416,14 +419,14 @@ class NewContactPageViewController: UIViewController, UIScrollViewDelegate {
         
     }
     
-    func scrollViewDidScroll(_ scrollView: UIScrollView) {
+    /*func scrollViewDidScroll(_ scrollView: UIScrollView) {
         print(scrollView.contentOffset.y)
         guard let navigationController = self.navigationController else { return }
         let navBarHeight = navigationController.navigationBar.frame.height
         let threshold: CGFloat = 0
         let alpha = (scrollView.contentOffset.y + navBarHeight + threshold) / threshold
         navigationController.navigationBar.subviews.first?.alpha = alpha
-    }
+    }*/
     
     func checkSignInStatus(email: String, password: String) {
         let commaUserName = email.replacingOccurrences(of: ".", with: ",")
@@ -616,7 +619,7 @@ class NewContactPageViewController: UIViewController, UIScrollViewDelegate {
                 }
             }
             DispatchQueue.main.async {
-                self.updateLayout()
+                //self.updateLayout()
                 self.EventChatCollectionView.reloadData()
             }
         })
@@ -686,7 +689,7 @@ extension NewContactPageViewController: UICollectionViewDataSource {
             } else {
                 if let cachedImage = self.imageCache.object(forKey: profileImageUrl as NSString) {
                     cell.contactImageView.image = cachedImage as? UIImage
-                } else if var imageDictionary = defaults.dictionary(forKey: "groupContactPictures") {
+                } else if var imageDictionary = defaults.dictionary(forKey: "contactPictures") {
                     if let storedImageData = imageDictionary[profileImageUrl] {
                         let image = UIImage(data: storedImageData as! Data)
                         cell.contactImageView.image = image
@@ -703,7 +706,7 @@ extension NewContactPageViewController: UICollectionViewDataSource {
                                         cell.contactImageView.image = image
                                         self.imageCache.setObject(image, forKey: profileImageUrl as NSString)
                                         imageDictionary[profileImageUrl] = data
-                                        self.defaults.setValue(imageDictionary, forKey: "groupContactPictures")
+                                        self.defaults.setValue(imageDictionary, forKey: "contactPictures")
                                     }
                                 }
                             case .failure(let error):

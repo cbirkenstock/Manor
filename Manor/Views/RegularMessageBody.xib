@@ -1,10 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="19162" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES">
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="19455" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES">
     <device id="retina6_1" orientation="portrait" appearance="light"/>
     <dependencies>
         <deployment identifier="iOS"/>
-        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="19144"/>
-        <capability name="Named colors" minToolsVersion="9.0"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="19454"/>
         <capability name="Safe area layout guides" minToolsVersion="9.0"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
@@ -14,7 +13,7 @@
         <tableViewCell contentMode="scaleToFill" selectionStyle="default" indentationWidth="10" reuseIdentifier="regularMessageCell" rowHeight="74" id="KGk-i7-Jjw" customClass="RegularMessageBody" customModule="Manor" customModuleProvider="target">
             <rect key="frame" x="0.0" y="0.0" width="476" height="74"/>
             <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
-            <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" tableViewCell="KGk-i7-Jjw" id="H2p-sc-9uM">
+            <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" alpha="0.94999999999999996" contentMode="center" tableViewCell="KGk-i7-Jjw" id="H2p-sc-9uM">
                 <rect key="frame" x="0.0" y="0.0" width="476" height="74"/>
                 <autoresizingMask key="autoresizingMask"/>
                 <subviews>
@@ -52,7 +51,7 @@
                         </constraints>
                     </imageView>
                 </subviews>
-                <color key="backgroundColor" name="BrandPurpleColor"/>
+                <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                 <constraints>
                     <constraint firstItem="HFn-Fs-zRv" firstAttribute="leading" secondItem="0Co-4C-gQ1" secondAttribute="trailing" constant="15" id="41y-tW-hYQ"/>
                     <constraint firstAttribute="bottom" relation="greaterThanOrEqual" secondItem="Ufz-ur-6R9" secondAttribute="bottom" constant="4" id="8Ck-qg-Vll"/>
@@ -77,9 +76,4 @@
             <point key="canvasLocation" x="-86.956521739130437" y="92.410714285714278"/>
         </tableViewCell>
     </objects>
-    <resources>
-        <namedColor name="BrandPurpleColor">
-            <color red="0.36078431372549019" green="0.41568627450980394" blue="0.93725490196078431" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
-        </namedColor>
-    </resources>
 </document>

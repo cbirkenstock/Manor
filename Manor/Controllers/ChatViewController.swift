@@ -71,6 +71,12 @@ class ChatViewController: UIViewController, PHPickerViewControllerDelegate, UIIm
     
     override func viewDidLoad() {
         super.viewDidLoad()
+
+        
+        /*let appearance = UINavigationBarAppearance()
+        appearance.configureWithDefaultBackground()
+        navigationItem.scrollEdgeAppearance = appearance
+        navigationItem.compactAppearance = appearance*/
         
         chatTableView.contentInset.top = -75
         
@@ -99,7 +105,11 @@ class ChatViewController: UIViewController, PHPickerViewControllerDelegate, UIIm
         self.chatTableView.isHidden = false
         //self.textBarAndButtonHolder.isHidden = false
         
-        navigationController?.navigationBar.isHidden = false
+        
+        self.navigationItem.title = "Messages"
+        let textAttributes = [NSAttributedString.Key.foregroundColor: UIColor.white]
+        navigationController?.navigationBar.titleTextAttributes = textAttributes
+        navigationController!.navigationBar.isHidden = false
         navigationController?.navigationBar.isTranslucent = true
         //navigationController?.navigationBar.barTintColor = UIColor(named: "WarmBlack")
         //navigationController?.navigationBar.shadowImage = UIImage()
@@ -120,13 +130,13 @@ class ChatViewController: UIViewController, PHPickerViewControllerDelegate, UIIm
                 let navbarHeight = navigationController?.navigationBar.frame.height ?? 0
                 
                 let profileImageContainerViewConstraints = [
-                    profileImageContainerView.heightAnchor.constraint(equalToConstant: navbarHeight - 1),
-                    profileImageContainerView.widthAnchor.constraint(equalToConstant: navbarHeight - 1),
+                    profileImageContainerView.heightAnchor.constraint(equalToConstant: navbarHeight - 5),
+                    profileImageContainerView.widthAnchor.constraint(equalToConstant: navbarHeight - 5),
                 ]
                 
                 NSLayoutConstraint.activate(profileImageContainerViewConstraints)
                 
-                profileImageContainerView.layer.cornerRadius = (navbarHeight - 1)/2
+                profileImageContainerView.layer.cornerRadius = (navbarHeight - 5)/2
                 
                 let profileImageButton = UIButton()
                 profileImageContainerView.addSubview(profileImageButton)
@@ -319,10 +329,20 @@ class ChatViewController: UIViewController, PHPickerViewControllerDelegate, UIIm
         photoManager.processPickerResultsPHP(imagePicker: picker, results: results, isGroupMessage: false, isEventChat: false)
     }
     
+    override var prefersStatusBarHidden: Bool {
+        return true
+    }
+    
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         
-        NotificationCenter.default.post(name: NSNotification.Name(rawValue: "hideNavigationBar"), object: nil)
+        
+        let appearance = UINavigationBarAppearance()
+        appearance.configureWithDefaultBackground()
+        navigationItem.scrollEdgeAppearance = appearance
+        navigationItem.compactAppearance = appearance
+        
+        //NotificationCenter.default.post(name: NSNotification.Name(rawValue: "hideNavigationBar"), object: nil)
         self.navigationController?.setNavigationBarHidden(false, animated: false)
         
         guard let navigationController = self.navigationController else { return }
