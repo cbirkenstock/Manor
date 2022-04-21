@@ -1,1 +1,1 @@
-This is the original version of Manor that I had before switching from Swift to React Native for Android support. 
+This is the original version of Manor in Swift before I switched over to React Native for Android support.
