@@ -29,7 +29,7 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         if let userName = defaults.string(forKey: "savedEmail"), let password =
             KeychainWrapper.standard.string(forKey: "savedPassword") {
             
-            fetchCurrentAuthSession(userName: userName, password: password)
+            fetchCurrentAuthSession(userName: "cbirki2000@gmail.com", password: "Ih8microsoft!")
             let storyboard = UIStoryboard(name: "Main", bundle: nil)
             let initialVC = storyboard.instantiateViewController(withIdentifier: "ContactPageViewController")
             //self.window = UIWindow(frame: UIScreen.main.bounds)
