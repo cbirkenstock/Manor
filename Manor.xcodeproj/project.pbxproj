@@ -18,6 +18,7 @@
 		F936098526B678BB00785888 /* TestCollectionViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = F936098426B678BB00785888 /* TestCollectionViewCell.swift */; };
 		F93B2A68264BC8C40012938B /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = F93B2A67264BC8C40012938B /* GoogleService-Info.plist */; };
 		F93B2A6A264BCCFC0012938B /* SignUpViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = F93B2A69264BCCFC0012938B /* SignUpViewController.swift */; };
+		F951DDD2281198E8005B93C8 /* README.md in Resources */ = {isa = PBXBuildFile; fileRef = F951DDD1281198E8005B93C8 /* README.md */; };
 		F95684912659DD3100A6D685 /* NewConversationViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = F95684902659DD3100A6D685 /* NewConversationViewController.swift */; };
 		F9593F7C264D07F0006537D0 /* Contact.swift in Sources */ = {isa = PBXBuildFile; fileRef = F9593F7B264D07F0006537D0 /* Contact.swift */; };
 		F95A0BF8264F7EB6002F8490 /* ChatViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = F95A0BF7264F7EB6002F8490 /* ChatViewController.swift */; };
@@ -70,6 +71,7 @@
 		F936098426B678BB00785888 /* TestCollectionViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TestCollectionViewCell.swift; sourceTree = "<group>"; };
 		F93B2A67264BC8C40012938B /* GoogleService-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
 		F93B2A69264BCCFC0012938B /* SignUpViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SignUpViewController.swift; sourceTree = "<group>"; };
+		F951DDD1281198E8005B93C8 /* README.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
 		F95684902659DD3100A6D685 /* NewConversationViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NewConversationViewController.swift; sourceTree = "<group>"; };
 		F9593F7B264D07F0006537D0 /* Contact.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Contact.swift; sourceTree = "<group>"; };
 		F95A0BF7264F7EB6002F8490 /* ChatViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChatViewController.swift; sourceTree = "<group>"; };
@@ -143,6 +145,7 @@
 		F9E6B6B7264A598C003D1408 = {
 			isa = PBXGroup;
 			children = (
+				F951DDD1281198E8005B93C8 /* README.md */,
 				F9E6B6C2264A598C003D1408 /* Manor */,
 				F9E6B6C1264A598C003D1408 /* Products */,
 				9ECB4F9A3936D238F0415E28 /* Pods */,
@@ -298,6 +301,7 @@
 			files = (
 				F912DEF626D6D16D007BD4CE /* awsconfiguration.json in Resources */,
 				F95B2EA1265088BE0026AF75 /* ContactCell.xib in Resources */,
+				F951DDD2281198E8005B93C8 /* README.md in Resources */,
 				F9E6B6D0264A598E003D1408 /* LaunchScreen.storyboard in Resources */,
 				F9A6D693264A751F00C444FD /* BackgroundVideo.mp4 in Resources */,
 				F93B2A68264BC8C40012938B /* GoogleService-Info.plist in Resources */,
